@@ -52,13 +52,15 @@
 christina@umn.edu\\
 507-384-2220}
  \smallskip
-%\subsection*{Background}
 \noindent{\textbf{Background}}
 
-Generalized linear mixed models (GLMMs) are popular in many fields from ecology to economics but are limited by conventional methodology. The utility of a GLMM can be demonstrated by a hypothetical medical study following a group of people at risk for type 2 diabetes. Each patient is randomly assigned one of two preventative treatments: regular exercise or an improved diet. Every year, the patients return to their doctors, who record  whether each patient has developed diabetes. With this information, we could test whether one preventative treatment is more effective than the other.  Because the patient's doctor could also have an effect on the patient's motivation to adhere to the preventative treatment, we could have a random effect for each doctor. Incorporating this into the model would allow us to test for whether there is significant variability from doctor to doctor.  If the estimated variance component is large, we may want to investigate further to determine why some doctors are more successful at preventing type 2 diabetes than other doctors.
+Generalized linear mixed models (GLMMs) are popular in many fields from ecology to economics. The utility of a GLMM can be demonstrated by a hypothetical medical study following a group of people at risk for type 2 diabetes. Each patient is randomly assigned to a doctor and to one of two preventative treatments: regular exercise or an improved diet. Every year, the doctors record  whether each patient has developed diabetes. With this information, we could test whether one treatment is more effective than the other at preventing type 2 diabetes.  Because the patient's doctor could also have an effect on the patient's motivation to adhere to the preventative treatment, we could have a random effect for each doctor. Incorporating this into the model would allow us to test for whether there is significant variability from doctor to doctor.  If the estimated variance component is large, we may want to investigate further  to determine why some doctors are more successful at preventing type 2 diabetes than other doctors.
 
+\noindent{\textbf{Existing R packages}}
 
-The challenge is finding an easy-to-implement and reliable method for fitting and testing two-stage hierarchical models. For very simple problems with just a few random effects, the likelihood can be found through numerical integration. Since numerical integration is not feasible in most real-world problems, a more commonly used method is penalized quasi-likelihood (PQL), implemented in packages such as lme4 and nlme. However, PQL relies on many unmet assumptions and ``approximations of undetermined accuracy'' and suffers from problematic inferential properties, such as parameter estimates that tend to be too low (\ncite{mccu:sear:2001}). Also, because PQL maximizes a quasi-likelihood rather than the likelihood, likelihood-based inference (such as testing for whether there is significant variability between doctors in the diabetes example) cannot be performed.  The popularity of PQL despite its inadequacies shows that there is a high demand for tools to fit two-stage hierarchical models.
+The challenge is finding an easy-to-implement and reliable method for fitting and testing two-stage hierarchical models. For very simple problems with just a few random effects, the likelihood can be approximated by numerical integration.  Most models have crossed random effects or too many random effects for numerical integration to handle. Thus, a more commonly used method is penalized quasi-likelihood (PQL), implemented in packages such as lme4 and nlme. However, PQL relies on many unmet assumptions and ``approximations of undetermined accuracy'' and suffers from problematic inferential properties, such as parameter estimates that tend to be too low (\ncite{mccu:sear:2001}). Also, because PQL maximizes a quasi-likelihood rather than the likelihood,  likelihood-based inference (such as testing for whether there is significant variability between doctors in the diabetes example) cannot be performed.  The popularity of PQL despite its inadequacies shows that there is a high demand for tools to fit GLMMs.
+
+\noindent{\textbf{Proposed improvement to methodology}}
 
 As an improvement over PQL, I suggest  Monte Carlo  Likelihood Approximation (MCLA), a computationally intensive method for approximating the likelihood to fit and test GLMMs (\ncite{geyer:thom:1992}).   Because MCLA approximates the entire likelihood, any type of likelihood-based inference can be performed.  Inference such as maximum likelihood or likelihood-ratio testing is standard for many simpler models, but MCLA is the only method that can perform these techniques for GLMMs.  Moreover, MCLA is supported by a rigorous theoretical foundation supplied by \citet{geyer:1994} and  \citet{sung:geyer:2007}. 
 
@@ -72,32 +74,31 @@ Despite MCLA's solid theoretical underpinnings, it is not yet a widely-used tech
 
 \noindent{\textbf{Progress to date}}
 
-%\subsection*{Progress to date and schedule for completion}
-Consider a GLMM with a Poisson or Bernoulli response using the canonical link.  Assume the random effects are independently drawn from a normal distribution with mean 0 and unknown variances. There can be any number of fixed or random effects.  For this setting, I have been working on an R package to approximate and maximize the likelihood via MCLA.   The package is in the testing stage and is nearing completion for the setting described earlier in this paragraph.  
+Consider a GLMM with a Poisson or Bernoulli response using the canonical link.  Assume the random effects are independently drawn from a normal distribution with mean 0 and unknown variances. There can be any number of fixed or random effects.  For this setting, I have been working on an R package to approximate and maximize the likelihood via MCLA.   The package is in the testing stage and is nearing completion for the setting described earlier in this paragraph.  This package is part of my doctoral thesis in statistics, which I am earning at the University of Minnesota with Professors Charles Geyer and Galin Jones as my co-advisors.
 
 
 
-\noindent{\textbf{Goals and objectives}}
-%\subsection*{Goals and objectives}
+\noindent{\textbf{Goals and objectives for Google Summer of Code}}
 
-My goals are  (1) to rewrite sections of my package in C to further improve its speed, (2) write functions to perform likelihood ratio tests to compare nested models, (3) generalize the model so that models with additional variance structures can be fitted.
-
+My goals are  (1) to rewrite sections of my package in C to further improve its speed, (2) write functions to perform likelihood ratio tests to compare nested models, (3) write additional functions to fit models with correlated random effects.  These goals are extensions of my current and past work on the topic of using MCLA to fit GLMMs.
 
 
-\noindent{\textbf{Schedule for completion}}
 
-I consider my  goals separately. 
+\noindent{\textbf{Details and schedule for completion}}
 
+I consider my  goals separately. Completion of one goal does not depend on completion of the other goals, so I could work on the three goals in any order.
 
-(1) I have completed a program to model the odds  of an event based on a single random effect with a normal distribution. Simulation studies I have performed thus far demonstrate the success of MCML and my code: after generating data from fixed parameter values, the MCML parameter estimates  match the  parameters used to generate the data. I intend to expand my code  to include more than one random effect and to offer a variety of distributions for the random effects (instead of solely the normal distribution). In addition to modeling the odds of an event, I plan to model other measurements as well. 
+(1) Two steps stand out in my package as time-consuming: the step that decides the parameters for the importance sampling distribution and the step that maximizes the likelihood approximation. I learned about using .C to call C from R in a statistical computing course, so I will have those notes to refer to. Because I have written functioning R code that performs these, I will be able to compare the R results to the C results to check my work.  I believe I can accomplish this goal in a month.
 
-(2) I have performed simulation studies to understand the behavior of parameter estimates resulting from iterations of MCML. I have studied similar behavior for related methods and read  a stopping criterion based on the parameter estimates' variance that I would like to investigate.  
+(2)  Hypothesis testing for nested models can be split into three cases: the nested models differ in their fixed effects but have the same variance components, the nested models differ by one variance component (and possibly some fixed effects), the nested models differ by two or more variance components (and possibly by some fixed effects). I have worked out the details for calculating the test statistics and p-values for the first two cases and will  be able to write the code for these two in about three weeks.  Coding the last case will take longer because I will need to determine the test statistic and its sampling distribution.  If I do not finish this last piece during the summer, I will finish it in the fall.  
 
-(3) My bachelor's degree and graduate coursework in mathematics provide me with a solid foundation to undertake  theoretical problems. Theoretical papers have developed my understanding of properties that are important in methods similar to MCML.  To understand the  theorems that have already been proven for MCML, I have read papers by \citet{geyer:1994} as well as \citet{sung:geyer:2007}. As a start, I have identified theorems that I wish to extend. 
+(3) The covariance matrix for the random effects in my currently working code is diagonal, meaning the random effects are independently drawn based on one of possibly many variance components.  I would like to generalize the covariance matrix in order to fit models with time-dependence and location-dependence.  This generality would make my R package more usable and practical.  To fit these types of models, I would like to code two additional variance structures:  first-order autoregressive structure with homogenous variances and exponential decay based on the distance between observations.  I have written my current package with these future changes in mind. Coding and testing with these new covariance structures will take about a month.
+
+I expect to complete this work by August 11.
 
 \noindent{\textbf{Potential significance of research}}
 
-In conclusion, researchers from all fields have created a high demand for a tool to fit and test GLMMs. Ideally, fitting a GLMM should be as user-friendly and theoretically-grounded as fitting a simpler model. Coding MCLA for GLMMs will make MCLA user-friendly. 
+In conclusion, researchers from all fields have created a high demand for a tool to fit and test GLMMs. I would like to make the process of fitting a GLMM as user-friendly and theoretically-grounded as fitting a linear model. My package will allow researchers to find maximum likelihood estimates for GLMMs with various covariance structures and perform likelihood ratio tests to compare the fit of nested models.
 
 \noindent{\textbf{References}}
 \vspace{-2.3cm}
