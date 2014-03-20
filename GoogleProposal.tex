@@ -1,0 +1,101 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsthm,amsmath,amssymb,indentfirst,float}
+\usepackage{verbatim}
+\usepackage[sort,longnamesfirst]{natbib}
+\newcommand{\pcite}[1]{\citeauthor{#1}'s \citeyearpar{#1}}
+\newcommand{\ncite}[1]{\citeauthor{#1}, \citeyear{#1}}
+
+\usepackage{setspace}
+\usepackage[margin=1in]{geometry}
+
+%\geometry{hmargin=2.5cm,vmargin={2.5cm,2.5cm},nohead,footskip=0.5in}
+\usepackage{times}
+
+\usepackage{amsbsy,amsmath,amsthm,amssymb,graphicx}
+
+\setlength{\baselineskip}{0.3in} \setlength{\parskip}{.05in}
+
+
+\newcommand{\gbar}{\bar g}
+\newcommand{\cvgindist}{\overset{\text{d}}{\longrightarrow}}
+\DeclareMathOperator{\PR}{Pr} \DeclareMathOperator{\var}{Var}
+\DeclareMathOperator{\cov}{Cov}
+\newcommand{\eps}{\epsilon}
+\newtheorem{claim}{Claim}
+
+\newcommand{\sX}{{\mathsf X}}
+\newcommand{\tQ}{\tilde Q}
+\newcommand{\cU}{{\cal U}}
+\newcommand{\cX}{{\cal X}}
+\newcommand{\tbeta}{\tilde{\beta}}
+\newcommand{\tlambda}{\tilde{\lambda}}
+\newcommand{\txi}{\tilde{\xi}}
+
+
+
+\def\baro{\vskip  .2truecm\hfill \hrule height.5pt \vskip  .2truecm}
+\def\barba{\vskip -.1truecm\hfill \hrule height.5pt \vskip .4truecm}
+
+\title{Monte Carlo Maximum Likelihood for Two-Stage Hierarchical Models}
+
+\author{}
+\date{}
+\doublespacing
+\begin{document}
+%\maketitle{}
+ \centerline{\large \bf Monte Carlo Maximum Likelihood for Two-Stage Hierarchical Models} %% Paper title
+
+ \medskip
+
+ \centerline{Christina Knudson}
+ \smallskip
+%\subsection*{Background}
+\noindent{\textbf{Background}}
+
+Two-stage hierarchical models are popular in many fields from medicine to economics but are held back by limitations in conventional methodology, which I hope to remedy. The utility of a two-stage hierarchical model can be demonstrated by a hypothetical medical study following a group of people at risk for type 2 diabetes. Each patient is randomly assigned one of two preventative treatments. On a monthly basis, researchers record predictors of diabetes--such as weight and age--and whether the patient has developed diabetes. In this two-stage hierarchical model, the patients form one stage and the repeated measurements on a particular patient form the second stage. Such models enable researchers to test hypotheses about parameters (fixed but unknown numbers, such as the quantitative effect of a treatment on the odds of diabetes development) in order to better understand diabetes prevention. Furthermore, these models offer predictive power, which in this case can identify patients likely to develop diabetes on the basis of predictors such as weight or age. Finally, researchers can use these models to estimate the population's variability in random effects, which reflect the unobservable data influencing an individual's susceptibility to diabetes.
+
+The challenge is finding an easy-to-implement and reliable method for fitting and testing two-stage hierarchical models. At present, researchers in many fields commonly turn to the penalized quasi-likelihood (PQL) method for two-stage hierarchical models due to its ease of use. However, PQL relies on many unmet assumptions and ``approximations of undetermined accuracy'' and suffers from problematic inferential properties, such as parameter estimates that tend to be too low (\ncite{mccu:sear:2001}). The popularity of PQL despite its inadequacies shows that there is a high demand for tools to fit two-stage hierarchical models.
+
+As an improvement over PQL, I suggest  Monte Carlo Maximum Likelihood (MCML), a computationally intensive method for model-fitting (\ncite{geyer:thom:1992}). MCML is an attractive method for two-stage hierarchical models because of its rigorous theoretical foundation supplied by \citet{geyer:1994} and  \citet{sung:geyer:2007}.   Moreover, despite the fact that maximum likelihood is standard for many simpler models, MCML is the only method that can perform  it for two-stage hierarchical models. Also, an MCML practitioner can control the accuracy and variability of the estimates  by iterating the  procedure (\ncite{geyer:thom:1992}). 
+
+%.Moreover, MCML is the only method that performs maximum likelihood--a standard technique for less complicated statistical models--for two-stage hierarchical models.   
+
+
+Despite MCML's solid theoretical underpinnings, it is not yet a widely-used technique due to two main obstacles. First, the extent of programs available to perform MCML is severely limited, which means MCML practitioners  must dedicate weeks to write their own code. 
+%The second obstacle is little research has been done to determine the appropriate number of times to iterate MCML. So that practitioners no longer iterate MCML haphazardly, we need  a rule that iterates MCML until some predetermined criterion is satisfied, such as the estimates' variability reaching a certain threshold.
+The second obstacle is the unanswered question of ``How many iterations is enough?''  We need  a rule that iterates MCML until some predetermined criterion is satisfied, such as the estimates' variability reaching a certain threshold. Little research has been done in this area, forcing practitioners to iterate MCML haphazardly.
+
+ 
+
+\noindent{\textbf{Goals and objectives}}
+%\subsection*{Goals and objectives}
+
+My goals are  (1) to write computer code to implement MCML for a wide variety of two-stage hierarchical models, (2) to develop a stopping criterion to terminate MCML, and (3) to prove new theorems about MCML's theoretical properties. I intend to share these results with other researchers by submitting programs to R-CRAN and publishing theoretical results in statistical journals.  Because R is a free  program that is popular among statisticians and other researchers, submitting to R-CRAN is an attractive way to allow researchers to benefit from my work.
+
+
+
+\noindent{\textbf{Progress to date and schedule for completion}}
+
+%\subsection*{Progress to date and schedule for completion}
+I consider my  goals separately. I expect to complete all work by May of 2014.
+
+
+(1) I have completed a program to model the odds  of an event based on a single random effect with a normal distribution. Simulation studies I have performed thus far demonstrate the success of MCML and my code: after generating data from fixed parameter values, the MCML parameter estimates  match the  parameters used to generate the data. I intend to expand my code  to include more than one random effect and to offer a variety of distributions for the random effects (instead of solely the normal distribution). In addition to modeling the odds of an event, I plan to model other measurements as well. 
+
+(2) I have performed simulation studies to understand the behavior of parameter estimates resulting from iterations of MCML. I have studied similar behavior for related methods and read  a stopping criterion based on the parameter estimates' variance that I would like to investigate.  
+
+(3) My bachelor's degree and graduate coursework in mathematics provide me with a solid foundation to undertake  theoretical problems. Theoretical papers have developed my understanding of properties that are important in methods similar to MCML.  To understand the  theorems that have already been proven for MCML, I have read papers by \citet{geyer:1994} as well as \citet{sung:geyer:2007}. As a start, I have identified theorems that I wish to extend. 
+
+\noindent{\textbf{Potential significance of research}}
+
+In conclusion, researchers from all fields have created a high demand for a tool to fit and test two-stage hierarchical models. Ideally, fitting a two-stage hierarchical model should be as user-friendly and theoretically-grounded as fitting a simpler model. Coding MCML for two-stage hierarchical models and determining a stopping criterion will make MCML user-friendly while proving new theorems will solidify MCML's theoretical foundation. Researchers ranging from the earth sciences to psychology will benefit from these efforts.
+
+\noindent{\textbf{References}}
+\vspace{-2.3cm}
+\renewcommand{\refname}{}
+\bibliographystyle{apalike}
+\bibliography{brref}
+
+
+\end{document}
