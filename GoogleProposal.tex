@@ -37,48 +37,56 @@
 \def\baro{\vskip  .2truecm\hfill \hrule height.5pt \vskip  .2truecm}
 \def\barba{\vskip -.1truecm\hfill \hrule height.5pt \vskip .4truecm}
 
-\title{Monte Carlo Maximum Likelihood for Two-Stage Hierarchical Models}
+\title{Generalized Linear Mixed Models via Monte Carlo Likelihood Approximation}
 
 \author{}
 \date{}
 \doublespacing
 \begin{document}
 %\maketitle{}
- \centerline{\large \bf Monte Carlo Maximum Likelihood for Two-Stage Hierarchical Models} %% Paper title
+ \centerline{\large \bf Generalized Linear Mixed Models via Monte Carlo Likelihood Approximation} %% Paper title
 
  \medskip
 
- \centerline{Christina Knudson}
+ \centerline{Christina Knudson\\
+christina@umn.edu\\
+507-384-2220}
  \smallskip
 %\subsection*{Background}
 \noindent{\textbf{Background}}
 
-Two-stage hierarchical models are popular in many fields from medicine to economics but are held back by limitations in conventional methodology, which I hope to remedy. The utility of a two-stage hierarchical model can be demonstrated by a hypothetical medical study following a group of people at risk for type 2 diabetes. Each patient is randomly assigned one of two preventative treatments. On a monthly basis, researchers record predictors of diabetes--such as weight and age--and whether the patient has developed diabetes. In this two-stage hierarchical model, the patients form one stage and the repeated measurements on a particular patient form the second stage. Such models enable researchers to test hypotheses about parameters (fixed but unknown numbers, such as the quantitative effect of a treatment on the odds of diabetes development) in order to better understand diabetes prevention. Furthermore, these models offer predictive power, which in this case can identify patients likely to develop diabetes on the basis of predictors such as weight or age. Finally, researchers can use these models to estimate the population's variability in random effects, which reflect the unobservable data influencing an individual's susceptibility to diabetes.
-
-The challenge is finding an easy-to-implement and reliable method for fitting and testing two-stage hierarchical models. At present, researchers in many fields commonly turn to the penalized quasi-likelihood (PQL) method for two-stage hierarchical models due to its ease of use. However, PQL relies on many unmet assumptions and ``approximations of undetermined accuracy'' and suffers from problematic inferential properties, such as parameter estimates that tend to be too low (\ncite{mccu:sear:2001}). The popularity of PQL despite its inadequacies shows that there is a high demand for tools to fit two-stage hierarchical models.
-
-As an improvement over PQL, I suggest  Monte Carlo Maximum Likelihood (MCML), a computationally intensive method for model-fitting (\ncite{geyer:thom:1992}). MCML is an attractive method for two-stage hierarchical models because of its rigorous theoretical foundation supplied by \citet{geyer:1994} and  \citet{sung:geyer:2007}.   Moreover, despite the fact that maximum likelihood is standard for many simpler models, MCML is the only method that can perform  it for two-stage hierarchical models. Also, an MCML practitioner can control the accuracy and variability of the estimates  by iterating the  procedure (\ncite{geyer:thom:1992}). 
-
-%.Moreover, MCML is the only method that performs maximum likelihood--a standard technique for less complicated statistical models--for two-stage hierarchical models.   
+Generalized linear mixed models (GLMMs) are popular in many fields from ecology to economics but are limited by conventional methodology. The utility of a GLMM can be demonstrated by a hypothetical medical study following a group of people at risk for type 2 diabetes. Each patient is randomly assigned one of two preventative treatments: regular exercise or an improved diet. Every year, the patients return to their doctors, who record  whether each patient has developed diabetes. With this information, we could test whether one preventative treatment is more effective than the other.  Because the patient's doctor could also have an effect on the patient's motivation to adhere to the preventative treatment, we could have a random effect for each doctor. Incorporating this into the model would allow us to test for whether there is significant variability from doctor to doctor.  If the estimated variance component is large, we may want to investigate further to determine why some doctors are more successful at preventing type 2 diabetes than other doctors.
 
 
-Despite MCML's solid theoretical underpinnings, it is not yet a widely-used technique due to two main obstacles. First, the extent of programs available to perform MCML is severely limited, which means MCML practitioners  must dedicate weeks to write their own code. 
-%The second obstacle is little research has been done to determine the appropriate number of times to iterate MCML. So that practitioners no longer iterate MCML haphazardly, we need  a rule that iterates MCML until some predetermined criterion is satisfied, such as the estimates' variability reaching a certain threshold.
-The second obstacle is the unanswered question of ``How many iterations is enough?''  We need  a rule that iterates MCML until some predetermined criterion is satisfied, such as the estimates' variability reaching a certain threshold. Little research has been done in this area, forcing practitioners to iterate MCML haphazardly.
+The challenge is finding an easy-to-implement and reliable method for fitting and testing two-stage hierarchical models. For very simple problems with just a few random effects, the likelihood can be found through numerical integration. Since numerical integration is not feasible in most real-world problems, a more commonly used method is penalized quasi-likelihood (PQL), implemented in packages such as lme4 and nlme. However, PQL relies on many unmet assumptions and ``approximations of undetermined accuracy'' and suffers from problematic inferential properties, such as parameter estimates that tend to be too low (\ncite{mccu:sear:2001}). Also, because PQL maximizes a quasi-likelihood rather than the likelihood, likelihood-based inference (such as testing for whether there is significant variability between doctors in the diabetes example) cannot be performed.  The popularity of PQL despite its inadequacies shows that there is a high demand for tools to fit two-stage hierarchical models.
 
+As an improvement over PQL, I suggest  Monte Carlo  Likelihood Approximation (MCLA), a computationally intensive method for approximating the likelihood to fit and test GLMMs (\ncite{geyer:thom:1992}).   Because MCLA approximates the entire likelihood, any type of likelihood-based inference can be performed.  Inference such as maximum likelihood or likelihood-ratio testing is standard for many simpler models, but MCLA is the only method that can perform these techniques for GLMMs.  Moreover, MCLA is supported by a rigorous theoretical foundation supplied by \citet{geyer:1994} and  \citet{sung:geyer:2007}. 
+
+
+
+
+Despite MCLA's solid theoretical underpinnings, it is not yet a widely-used technique because there are  few packages available that perform MCLA.  The main problem is that MCLA is  computationally expensive. My proposed package would improve MCLA's efficiency by using an importance sampling distribution that is similar to the true distribution of the random effects.  Random effects are usually assumed to be normally distributed, so all that is left to specify are the mean and variance parameters, which my  package chooses  based on the data at hand.
  
+
+
+
+\noindent{\textbf{Progress to date}}
+
+%\subsection*{Progress to date and schedule for completion}
+Consider a GLMM with a Poisson or Bernoulli response using the canonical link.  Assume the random effects are independently drawn from a normal distribution with mean 0 and unknown variances. There can be any number of fixed or random effects.  For this setting, I have been working on an R package to approximate and maximize the likelihood via MCLA.   The package is in the testing stage and is nearing completion for the setting described earlier in this paragraph.  
+
+
 
 \noindent{\textbf{Goals and objectives}}
 %\subsection*{Goals and objectives}
 
-My goals are  (1) to write computer code to implement MCML for a wide variety of two-stage hierarchical models, (2) to develop a stopping criterion to terminate MCML, and (3) to prove new theorems about MCML's theoretical properties. I intend to share these results with other researchers by submitting programs to R-CRAN and publishing theoretical results in statistical journals.  Because R is a free  program that is popular among statisticians and other researchers, submitting to R-CRAN is an attractive way to allow researchers to benefit from my work.
+My goals are  (1) to rewrite sections of my package in C to further improve its speed, (2) write functions to perform likelihood ratio tests to compare nested models, (3) generalize the model so that models with additional variance structures can be fitted.
 
 
 
-\noindent{\textbf{Progress to date and schedule for completion}}
+\noindent{\textbf{Schedule for completion}}
 
-%\subsection*{Progress to date and schedule for completion}
-I consider my  goals separately. I expect to complete all work by May of 2014.
+I consider my  goals separately. 
 
 
 (1) I have completed a program to model the odds  of an event based on a single random effect with a normal distribution. Simulation studies I have performed thus far demonstrate the success of MCML and my code: after generating data from fixed parameter values, the MCML parameter estimates  match the  parameters used to generate the data. I intend to expand my code  to include more than one random effect and to offer a variety of distributions for the random effects (instead of solely the normal distribution). In addition to modeling the odds of an event, I plan to model other measurements as well. 
@@ -89,7 +97,7 @@ I consider my  goals separately. I expect to complete all work by May of 2014.
 
 \noindent{\textbf{Potential significance of research}}
 
-In conclusion, researchers from all fields have created a high demand for a tool to fit and test two-stage hierarchical models. Ideally, fitting a two-stage hierarchical model should be as user-friendly and theoretically-grounded as fitting a simpler model. Coding MCML for two-stage hierarchical models and determining a stopping criterion will make MCML user-friendly while proving new theorems will solidify MCML's theoretical foundation. Researchers ranging from the earth sciences to psychology will benefit from these efforts.
+In conclusion, researchers from all fields have created a high demand for a tool to fit and test GLMMs. Ideally, fitting a GLMM should be as user-friendly and theoretically-grounded as fitting a simpler model. Coding MCLA for GLMMs will make MCLA user-friendly. 
 
 \noindent{\textbf{References}}
 \vspace{-2.3cm}
