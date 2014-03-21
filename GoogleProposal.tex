@@ -37,24 +37,58 @@
 \def\baro{\vskip  .2truecm\hfill \hrule height.5pt \vskip  .2truecm}
 \def\barba{\vskip -.1truecm\hfill \hrule height.5pt \vskip .4truecm}
 
-\title{Generalized Linear Mixed Models via Monte Carlo Likelihood Approximation}
 
 \author{}
 \date{}
 \doublespacing
 \begin{document}
-%\maketitle{}
- \centerline{\large \bf Generalized Linear Mixed Models via Monte Carlo Likelihood Approximation} %% Paper title
+ \centerline{\large \bf Generalized Linear Mixed Models via Monte Carlo Likelihood Approximation}
+ 
+ \centerline{\large  Short Title: Monte Carlo Likelihood Approximation}
+ 
+ \centerline{ http://users.stat.umn.edu/~christina/SummerofCode.pdf}
+ \centerline{Christina Knudson}
+ \medskip
+ 
+\noindent{\textbf{Bio}}
+
+I'm a doctoral candidate at the University of Minnesota's School of Statistics.  I am ABD and about a year away from graduating.  I earned my BA in Math from Carleton College and graduated magna cum laude.  I was born and raised in Decorah, Iowa, which is one of the top 20 small towns in America (according to Smithsonian Magazine).  
+
+I started coding in the spring of 2007, first in Python and then Java. I started using R during the summer of 2007 at the Summer Institute for Training in Biostatistics, then continued programming with R during my summer internship at the National Institutes of Health in 2008.  Most of my graduate coursework has been in R, and I have taught undergraduate classes in R at the University of Minnesota as well.  Part of my work for my doctoral thesis is an R package that fits Generalized Linear Mixed Models (GLMMs) using Monte Carlo Likelihood Approximation (MCLA).  I have written part of my package already and I plan to expand and generalize it this summer.
+ \medskip
+
+\noindent{\textbf{Contact Information}}\\
+Student name: Christina Knudson\\
+Link id: knud0158\\
+Student postal address: 1901 Minnehaha Ave, Apt 317, Minneapolis MN, 55404\\
+Telephone: 1-507-384-2220\\
+Emails: knud0158@umn.edu, christina@umn.edu, cknudson05@gmail.com
 
  \medskip
 
- \centerline{Christina Knudson\\
-christina@umn.edu\\
-507-384-2220}
- \smallskip
+\noindent{\textbf{Student Affiliation}}\\
+Institution: University of Minnesota\\
+Program: Statistics \\
+Stage of completion: Early 2015 \\
+Contact to verify: charlie@stat.umn.edu or galin@stat.umn.edu\\
+Advisors: Charles Geyer and Galin Jones
+ \medskip
+
+\noindent{\textbf{Schedule Conflicts}}\\
+During August 3 through 7, I will  attend the Joint Statistical Meetings to present my research.
+
+ \medskip
+
+\noindent{\textbf{Mentors}}\\
+Mentor names: Charles Geyer and Galin Jones\\
+Mentor emails: charlie@stat.umn.edu and galin@stat.umn.edu\\
+Mentor link ids: cjgeyer\\
+I have been in touch with my mentors.  I meet with each of them at least weekly, and sometimes I talk to Charlie several times per week.  They are both expecting me to complete the research I have proposed.
+
+ \medskip
 \noindent{\textbf{Background}}
 
-Generalized linear mixed models (GLMMs) are popular in many fields from ecology to economics. The 242,000 results from a Google search for ``GLMM'' show the popularity of GLMMs.  The challenge for researchers is finding an easy-to-implement and reliable method for fitting and testing GLMMs. For very simple problems with just a few random effects, the likelihood can be approximated by numerical integration.  Most models have crossed random effects, which numerical integration cannot handle. Thus, a commonly used method is penalized quasi-likelihood (PQL), which is  implemented in packages such as lme4, nlme, and MASS. However, PQL relies on approximations of unknown accuracy to approximate the likelihood and suffers from problematic inferential properties, such as parameter estimates that tend to be too low (\ncite{mccu:sear:2001}). Since the likelihood is approximated to an unknown accuracy by the quasi-likelihood, any inference performed on the approximated likelihood will also produce results with an unknown level of accuracy.  Without bootstrapping, the user cannot know how valid their confidence intervals or likelihood ratio test results are when using PQL.  The popularity of PQL despite its inadequacies shows that there is a high demand for tools to fit GLMMs.
+GLMMs are popular in many fields from ecology to economics. The 242,000 results from a Google search for ``GLMM'' show the popularity of GLMMs.  The challenge for researchers is finding an easy-to-implement and reliable method for fitting and testing GLMMs. For very simple problems with just a few random effects, the likelihood can be approximated by numerical integration.  Most models have crossed random effects, which numerical integration cannot handle. Thus, a commonly used method is penalized quasi-likelihood (PQL), which is  implemented in packages such as lme4, nlme, and MASS. However, PQL relies on approximations of unknown accuracy to approximate the likelihood and suffers from problematic inferential properties, such as parameter estimates that tend to be too low (\ncite{mccu:sear:2001}). Since the likelihood is approximated to an unknown accuracy by the quasi-likelihood, any inference performed on the approximated likelihood will also produce results with an unknown level of accuracy.  Without bootstrapping, the user cannot know how valid their confidence intervals or likelihood ratio test results are when using PQL.  The popularity of PQL despite its inadequacies shows that there is a high demand for tools to fit GLMMs.
 
 
 Monte Carlo  Likelihood Approximation (MCLA) is another tool for fitting GLMMs. This method approximates the likelihood either through Markov Chain Monte Carlo (MCMC) or Ordinary Monte Carlo (OMC), and the resulting likelihood approximation is used to fit and test GLMMs (\ncite{geyer:thom:1992}).   Because MCLA approximates the entire likelihood, any type of likelihood-based inference can be performed.  Inference such as maximum likelihood or likelihood-ratio testing is standard for many simpler models, but MCLA is the only method that can perform these techniques for GLMMs.  Moreover, MCLA is supported by a rigorous theoretical foundation supplied by \citet{geyer:1994} and  \citet{sung:geyer:2007}. Despite MCLA's solid theoretical underpinnings, it is not yet a widely-used technique. MCLA via MCMC is  too difficult for most users because they do not know when the Markov chain has run long enough to produce reliable answers.  \pcite{sung:geyer:2007} version of MCMLA via OMC is more user-friendly but is limited to smaller problems.
