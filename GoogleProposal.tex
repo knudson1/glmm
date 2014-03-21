@@ -103,22 +103,34 @@ My goals are  (1) to rewrite sections of my package in C to  improve its speed, 
 
 
 
-\noindent{\textbf{Details and schedule for completion}}
+\noindent{\textbf{Details}}
 
-I consider my  goals separately. Completion of one goal does not depend on completion of the other goals, so I could work on the three goals in any order.
+I consider my  goals separately, since completion of one goal does not rely on completion of the other goals.
 
-(1) Two steps stand out in my package as time-consuming: the step that decides the parameters for the importance sampling distribution and the step that maximizes the likelihood approximation. Because I have written functioning R code that performs these, I will be able to compare the R results to the C results to check my work.  I believe I can accomplish this goal in a month.
+(1) Two steps stand out in my package as time-consuming: the step that decides the parameters for the importance sampling distribution and the step that maximizes the likelihood approximation. Thus, I will need to rewrite these two functions in C.  The main obstacle here will be coding in C, with which I do not have extensive experience.  Because I have written functioning R code that performs these steps, I will be able to compare the R results to the C results to verify my functions are correct. I have been working with a couple of data sets, including the benchmark \citet{booth:hobert:1999} data set with known maximum likelihood estimates, so I will be able to test my code on these data sets. Because I can rewrite one function in C without affecting the other functions, I should be able to write these functions in either order.  I think it would be better to rewrite the step that maximizes the likelihood approximation first, since  that function is more computationally-intensive and is also more important.  The function that chooses the parameter values of the importance sampling distribution can be rewritten in C second because it is less time-consuming than the other function as it is. The equations for these functions are detailed in my design document, which is on my website (http://users.stat.umn.edu/~knud0158/) 
 
-(2)  Hypothesis testing for nested models can be split into three cases: the nested models differ in their fixed effects but have the same variance components, the nested models differ by one variance component and possibly some fixed effects, the nested models differ by two or more variance components and possibly by some fixed effects. I have worked out the details for calculating the test statistics and p-values for the first two cases and will  be able to write the code for these two in about three weeks.  Coding the last case will take longer because I will need to determine the test statistic and its sampling distribution.  
+(2)  Hypothesis testing for nested models can be split into three cases: the nested models differ in their fixed effects but have the same variance components, the nested models differ by one variance component and possibly some fixed effects, the nested models differ by two or more variance components and possibly by some fixed effects. I have worked out the details for calculating the test statistics and p-values for the first two cases in my design document on my website (http://users.stat.umn.edu/~knud0158/). Coding the last case will take longer because I will need to determine the test statistic and its sampling distribution. Part of the challenge will be writing a function so that, given two models, the code will know which test statistics and pvalues to calculate and report. My advisor Charlie has written a function in his aster package that also does model comparison, so I will look to that for guidance.  I will be able to test my code  the \citet{coull:agresti:2000} flu data set, by modeling the log odds of catching the flu over four years. The model will have a few variance components that I will be able to test: a variance component for a subject-specific random effect, another for a year-to-year random effect, and another for the decreased chance of getting flu if the subject previously contracted that same strain of flew virus.
 
-(3) The covariance matrix for the random effects in my currently working code is diagonal, meaning the random effects are independently drawn based on one of possibly many variance components.  I would like to generalize the covariance matrix in order to fit models with time-dependence and location-dependence.  This generality would make my R package more usable and practical.  To fit these types of models, I would like to code two additional variance structures:  first-order autoregressive structure with homogenous variances and exponential decay based on the distance between observations.  I have written my current package with these future changes in mind. Coding and testing with these new covariance structures will take about a month.
+(3) The covariance matrix for the random effects in my currently working code is diagonal, meaning the random effects are independently drawn based on one of possibly many variance components.  I would like to generalize the covariance matrix in order to fit models with location-dependence.  This generality would make my R package more usable and practical.  To fit these types of models, I would like to code an additional variance structures with  exponential decay based on the distance between observations. I have not written the details of how I will execute these changes into my design document yet, but I have written my current package with these future changes in mind. I will test my code on the \citet{caffojj:2005} automobile theft data set by modeling the number of cars stolen in a Baltimore neighborhood based on the distance to sites of other car thefts.  I will compare my results to the results achieved through Monte Carlo EM. 
 
-I expect to complete this work by August 11.
+\noindent{\textbf{Proposed Timeline}}
+\begin{itemize}
+\item[] May 19 to May 26: look at Charlie's aster package code for model comparison. Design and write code for my own package to determine how the two models differ.
+\item[] May 26 to June 2: write the hypothesis testing code for the first two cases detailed earlier.
+\item[] June 2 to June 15: test and correct the hypothesis testing code.
+\item[] June 16: Complete documentation for hypothesis testing function.
+\item[] June 16 to June 30: write C function that maximizes the likelihood approximation.
+\item[] June 30 to July 7: test the newly-written C function and compare it to my R results. 
+\item[] July 7 to July 14: write C function that selects the importance sampling distribution.
+\item[]July 14 to July 21: test the newly-written C function and compare it to my R results.
+\item[] July 21 to July 28: write function for distance-based variance structure and incorporate into existing R code.
+\item[] July 28 to August 2: test the new variance structure and compare results to those reported by \citet{caffojj:2005}.
+\item[] August 8 to August 11: document the new variance structure.
+\item[] August 11: Submit R package to CRAN.
+\end{itemize}
+I expect to complete all work by August 11.
 
-\noindent{\textbf{Potential significance of research}}
 
-
-In conclusion, researchers from all fields have created a high demand for a tool to fit and test GLMMs. I would like to make the process of fitting a GLMM as user-friendly and theoretically-grounded as fitting a linear model. My package will allow researchers to find maximum likelihood estimates for GLMMs with various covariance structures and perform likelihood ratio tests to compare the fit of nested models.  This proposed work is an extension of my current  research on the topic of using MCLA to fit GLMMs.  I am the best individual for this project because I am familiar with MCLA's current limitations and areas of possible improvement.  
 
 \noindent{\textbf{References}}
 \vspace{-2.3cm}
