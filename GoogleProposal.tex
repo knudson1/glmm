@@ -54,7 +54,7 @@ christina@umn.edu\\
  \smallskip
 \noindent{\textbf{Background}}
 
-Generalized linear mixed models (GLMMs) are popular in many fields from ecology to economics. The utility of a GLMM can be demonstrated by a hypothetical medical study following a group of people at risk for type 2 diabetes. Each patient is randomly assigned to a doctor and to one of two preventative treatments: regular exercise or an improved diet. Every year, the doctors record  whether each patient has developed diabetes. With this information, we could test whether one treatment is more effective than the other at preventing type 2 diabetes.  Because the patient's doctor could also have an effect on the patient's motivation to adhere to the preventative treatment, we could have a random effect for each doctor. Incorporating this into the model would allow us to test for whether there is significant variability from doctor to doctor.  If the estimated variance component is large, we may want to investigate further  to determine why some doctors are more successful at preventing type 2 diabetes than other doctors.
+Generalized linear mixed models (GLMMs) are popular in many fields from ecology to economics. The utility of a GLMM is apparent through a Google search: ``GLMM'' return over 242,000 results.
 
 \noindent{\textbf{Existing R packages}}
 
@@ -80,7 +80,7 @@ Consider a GLMM with a Poisson or Bernoulli response using the canonical link.  
 
 \noindent{\textbf{Goals and objectives for Google Summer of Code}}
 
-My goals are  (1) to rewrite sections of my package in C to further improve its speed, (2) write functions to perform likelihood ratio tests to compare nested models, (3) write additional functions to fit models with correlated random effects.  These goals are extensions of my current and past work on the topic of using MCLA to fit GLMMs.
+My goals are  (1) to rewrite sections of my package in C to further improve its speed, (2) write functions to perform likelihood ratio tests to compare nested models, (3) write additional functions to fit models with correlated random effects.  These goals are extensions of my current and past work on the topic of using MCLA to fit GLMMs.  Because I have been working on this project and am familiar with the limitations and areas of possible improvement, I am the best individual for this project.  Also, I have access to a wealth of knowledge and experience: one of my advisors is the inventor of MCLA and both of my advisors have submitted and maintained R packages.
 
 
 
