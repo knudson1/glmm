@@ -21,7 +21,7 @@ logfyuk<-function(eta,x,y){
 	value<-sum(y*eta)-sum(log(1+exp(eta)))
 	Pi<-exp(eta)/(1+exp(eta))
 	gradient<-sum(y*x)-sum(x*Pi)
-	hessian<-sum(x^2*Pi-x^2*Pi^2)	
+	hessian<-sum(x^2*(Pi-Pi^2)	)
 	list(value=value,gradient=gradient,hessian=hessian)
 }
 
