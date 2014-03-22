@@ -375,6 +375,8 @@ objfun<-function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.mcml){
 	#print(par)
 	beta<-par[1:nbeta]
 	nu<-par[-(1:nbeta)]
+	m<-nrow(umat)
+
 	
 	if(sum(nu<=0)>0){
 		out<-list(value=-Inf,gradient=rep(1,length(par)),hessian=as.matrix(c(rep(1,length(par)^2)),nrow=length(par)))
@@ -382,10 +384,9 @@ objfun<-function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.mcml){
 	}
 	
 	Z=do.call(cbind,mod.mcml$z)
-	
+
 	eta<-b<-rep(0,m)
 	lfu<-lfu.twid<-lfyu<-list(rep(c(0,0,0),m))
-	m<-nrow(umat)
 	
 	#for each simulated random effect vector
 	for(k in 1:m){
