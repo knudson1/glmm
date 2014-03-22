@@ -566,7 +566,7 @@ umat=umat, mod.mcml=mod.mcml, family.mcml=family.mcml, m=m,u.star=u.star,blather
 	names(nu.trust)<-varcomps.names
 	
 	return(structure(list(beta=beta.trust,nu=nu.trust, likelihood.value=trust.out$value, 
-likelihood.gradient=trust.out$gradient, likelihood.hessian=trust.out$hessian,trust.converged=trust.out$converged, beta.pql=beta.pql, nu.pql=nu.pql, mod.mcml=mod.mcml, trust.argpath=trust.argpath, fixedcall=fixed,randcall=randcall, x=x,y=y, z=random, family.mcml=family.mcml, call=call,umat=umat, varcomps.names=varcomps.names, varcomps.equal=varcomps.equal), class="mcla"))
+likelihood.gradient=trust.out$gradient, likelihood.hessian=trust.out$hessian,trust.converged=trust.out$converged, beta.pql=beta.pql, nu.pql=nu.pql, mod.mcml=mod.mcml, trust.argpath=trust.argpath, fixedcall=fixed,randcall=randcall, x=x,y=y, z=random, family.mcml=family.mcml, call=call,umat=umat, varcomps.names=varcomps.names, varcomps.equal=varcomps.equal,u.pql=u.star), class="mcla"))
 }
 
 
