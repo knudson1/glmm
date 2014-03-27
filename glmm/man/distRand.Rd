@@ -1,7 +1,7 @@
 \name{distRand}
 \alias{distRand}
 \title{Distribution of the random effects}
-\description{The random effects are from a normal distribution. This function calculates the log density of the random effects, its gradient vector, and its Hessian matrix.}
+\description{Random effects are assumed normally distributed. This function calculates the log density of the random effects, its gradient vector, and its Hessian matrix.}
 \usage{distRand(nu, U, z.list, mu)}
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -10,14 +10,12 @@
   \item{z.list}{A list of the model matrices for the random effects.}
   \item{mu}{The mean vector for the random effects.}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+\details{The arguments mu and U should be vectors of equal length. The length of z.list should be equal to the length of nu.}
+
 \value{
 \item{value }{The value of the log density of the random effects.}
 \item{gradient }{The gradient vector of the log density of the random effects.}
 \item{hessian }{The hessian matrix of the log density of the random effects.}
-%% ...
 }
 \references{
 %% ~put references to the literature/web site here ~

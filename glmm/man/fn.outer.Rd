@@ -1,66 +1,36 @@
 \name{fn.outer}
 \alias{fn.outer}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{
-%%  ~~function to do ... ~~
-}
-\description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
-\usage{
-fn.outer(par, beta, s, Y, X, Z, eek, family.mcml)
-}
-%- maybe also 'usage' for other objects documented here.
+\title{The penalized quasi-likelihood}
+\description{Penalized quasi-likelihood (PQL) consists of an inner optimization and an outer optimization. This is the outer function, the penalized quasi-likelihood. This is to be optimized using Nelder-Mead.}
+\usage{fn.outer(par, beta, s, Y, X, Z, eek, family.mcml)}
 \arguments{
-  \item{par}{
-%%     ~~Describe \code{par} here~~
-}
-  \item{beta}{
-%%     ~~Describe \code{beta} here~~
-}
-  \item{s}{
-%%     ~~Describe \code{s} here~~
-}
-  \item{Y}{
-%%     ~~Describe \code{Y} here~~
-}
-  \item{X}{
-%%     ~~Describe \code{X} here~~
-}
-  \item{Z}{
-%%     ~~Describe \code{Z} here~~
-}
-  \item{eek}{
-%%     ~~Describe \code{eek} here~~
-}
-  \item{family.mcml}{
-%%     ~~Describe \code{family.mcml} here~~
-}
+  \item{par}{The vector of standard deviations (square root of the variance components nu).}
+  \item{beta}{The vector of fixed effects.}
+  \item{s}{The vector of random effects.}
+  \item{Y}{The response vector.}
+  \item{X}{The model matrix for the fixed effects.}
+  \item{Z}{The model matrix for the random effects.}
+  \item{eek}{A list of vectors containing 0 or 1.}
+  \item{family.mcml}{The name of the family. Must be class mcml.family}
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
-\value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
+\value{The evaluated penalized quasi-likelihood.}
 \references{
 %% ~put references to the literature/web site here ~
 }
-\author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
-}
+\author{Christina Knudson}
+\note{ Not intended for use by naive users.  Use \code{\link{mcml}},
+  which calls them.}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+ \code{\link{fn.outer}}
+ \code{\link{mcml}}
+ \code{\link{pql}}
+
 }
 \examples{
 ##---- Should be DIRECTLY executable !! ----
@@ -94,7 +64,5 @@ function (par, beta, s, Y, X, Z, eek, family.mcml)
     as.vector(minvalue)
   }
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{ generalized linear mixed model }
+

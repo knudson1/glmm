@@ -1,49 +1,25 @@
 \name{el}
 \alias{el}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{
-%%  ~~function to do ... ~~
-}
-\description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
-\usage{
-el(Y, X, eta, family.mcml)
-}
-%- maybe also 'usage' for other objects documented here.
+\title{Log likelihood of the data}
+\description{Calculates the log density of the data, its gradient vector, and its Hessian matrix.}
+\usage{el(Y, X, eta, family.mcml)}
 \arguments{
-  \item{Y}{
-%%     ~~Describe \code{Y} here~~
+  \item{Y}{Response vector}
+  \item{X}{Model matrix for the fixed effects}
+  \item{eta}{Canonical parameter vector}
+  \item{family.mcml}{The name of the family. Must be class mcml.family}
 }
-  \item{X}{
-%%     ~~Describe \code{X} here~~
-}
-  \item{eta}{
-%%     ~~Describe \code{eta} here~~
-}
-  \item{family.mcml}{
-%%     ~~Describe \code{family.mcml} here~~
-}
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+\details{The lengths of Y and eta should be equal.}
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+\item{value }{The value of the log density of the data.}
+\item{gradient }{The gradient vector of the log density of the data.}
+\item{hessian }{The hessian matrix of the log density of the data.}
 }
 \references{
 %% ~put references to the literature/web site here ~
 }
-\author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
-}
+\author{Christina Knudson}
+\note{}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
@@ -70,5 +46,5 @@ function (Y, X, eta, family.mcml)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{ generalized linear mixed model}
+\keyword{ monte carlo likelihood approximation }

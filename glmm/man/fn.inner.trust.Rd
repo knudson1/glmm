@@ -1,63 +1,41 @@
 \name{fn.inner.trust}
 \alias{fn.inner.trust}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{
-%%  ~~function to do ... ~~
-}
-\description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
+\title{The penalized likelihood}
+\description{Penalized quasi-likelihood (PQL) consists of an inner optimization and an outer optimization. This is the inner function, which is a penalized likelihood.  This is to be optimized by trust.}
 \usage{
 fn.inner.trust(mypar, Y, X, Z, A, family.mcml, nbeta)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{mypar}{
-%%     ~~Describe \code{mypar} here~~
+  \item{mypar}{A vector of parameters to be optimized: the fixed effects (beta) and the standardized random effects (s).}
+  \item{Y}{The response vector.}
+  \item{X}{The model matrix for the fixed effects.}
+  \item{Z}{The model matrix for the random effects.}
+  \item{A}{A matrix containing the standard deviations (the square root of the variance components nu).}
+  \item{family.mcml}{The name of the family. Must be class mcml.family}
+  \item{beta}{The length of the beta vector.}
 }
-  \item{Y}{
-%%     ~~Describe \code{Y} here~~
-}
-  \item{X}{
-%%     ~~Describe \code{X} here~~
-}
-  \item{Z}{
-%%     ~~Describe \code{Z} here~~
-}
-  \item{A}{
-%%     ~~Describe \code{A} here~~
-}
-  \item{family.mcml}{
-%%     ~~Describe \code{family.mcml} here~~
-}
-  \item{nbeta}{
-%%     ~~Describe \code{nbeta} here~~
-}
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+\details{Evaluates the penalized log likelihood and two derivatives.}
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+\item{value }{The value of the penalized log likelihood}
+\item{gradient }{The gradient vector of the  penalized log likelihood}
+\item{hessian }{The hessian matrix of the  penalized log likelihood}
 }
 \references{
 %% ~put references to the literature/web site here ~
 }
-\author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
-}
+\author{Christina Knudson}
+
+\note{ Not intended for use by naive users.  Use \code{\link{mcml}},
+  which calls them.}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+ \code{\link{fn.outer}}
+ \code{\link{mcml}}
+ \code{\link{pql}}
+
+
 }
 \examples{
 ##---- Should be DIRECTLY executable !! ----
@@ -88,7 +66,5 @@ function (mypar, Y, X, Z, A, family.mcml, nbeta)
     list(value = value, gradient = gradient, hessian = hessian)
   }
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+
+\keyword{ generalized linear mixed model }

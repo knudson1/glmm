@@ -1,28 +1,18 @@
 \name{addMats}
 \alias{addMats}
-\title{
-Adds a list of matrices with common dimensions.
+\title{Adds a list of matrices with common dimensions.}
+\description{Performs element-wise addition for any number of matrices in a list.}
+\usage{addMats(matList)
 }
-\description{
-Performs element-wise addition for any number of matrices in a list.}
-\usage{
-addMats(matList)
-}
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{matList}{A list of matrices that all have identical dimensions.}
 }
-\details{
-The number of rows/columns must be identical for each matrix in matList.
-}
-\value{
-Returns a matrix whose dimensions are equal to the dimensions of the incoming matrices.
-}
+\details{The number of rows/columns must be identical for each matrix in matList.}
+\value{Returns a matrix whose dimensions are equal to the dimensions of the incoming matrices.}
 \references{
 %% ~put references to the literature/web site here ~
 }
-\author{
-Christina Knudson}
+\author{Christina Knudson}
 \note{
 %%  ~~further notes~~
 }
