@@ -1,42 +1,43 @@
 \name{bernoulli.mcml}
 \alias{bernoulli.mcml}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{
-Functions for the bernoulli family. }
+Functions for the Bernoulli family. }
 \description{
-Given a scalar  eta, this calculates the cumulant and two derivatives for the bernoulli family. Also checks that the data are entered correctly.}
+Given a scalar eta, this calculates the cumulant and two derivatives for the Bernoulli family. Also checks that the data are entered correctly.}
 \usage{
 bernoulli.mcml()
 }
-%- maybe also 'usage' for other objects documented here.
+
 \details{
  }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+\item{family.mcml }{The family name, as a string.}
+  \item{cum }{The cumulant function.}
+  \item{cp }{The first derivative of the cumulant function.}
+  \item{cpp }{The second derivative of the cumulant function.}
+  \item{checkData }{A function to check that all data are either 0 or 1.}
 }
 \references{
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+Christina Knudson
 }
 \note{
-%%  ~~further notes~~
+This function is typically called through the getFamily function.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+\code{\link{getFamily}}
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
+bernoulli.mcml()$family.mcml
+bernoulli.mcml()$cum(2)
+bernoulli.mcml()$cp(2)
+bernoulli.mcml()$cpp(2)
 
 ## The function is currently defined as
 function () 
@@ -58,7 +59,6 @@ function ()
     return(out)
   }
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
+
 \keyword{ generalized linear mixed model }
-\keyword{ Monte Carlo likelihood approximation }% 
+\keyword{ Monte Carlo likelihood approximation }

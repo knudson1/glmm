@@ -1,6 +1,5 @@
 \name{addMats}
 \alias{addMats}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Adds a list of matrices with common dimensions.
 }
@@ -11,12 +10,10 @@ addMats(matList)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{matList}{
-%%     ~~Describe \code{matList} here~~
-}
+  \item{matList}{A list of matrices that all have identical dimensions.}
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+The number of rows/columns must be identical for each matrix in matList.
 }
 \value{
 Returns a matrix whose dimensions are equal to the dimensions of the incoming matrices.

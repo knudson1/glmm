@@ -1,49 +1,30 @@
 \name{distRand}
 \alias{distRand}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{
-%%  ~~function to do ... ~~
-}
-\description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
-\usage{
-distRand(nu, U, z.list, mu)
-}
+\title{Distribution of the random effects}
+\description{The random effects are from a normal distribution. This function calculates the log density of the random effects, its gradient vector, and its Hessian matrix.}
+\usage{distRand(nu, U, z.list, mu)}
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{nu}{
-%%     ~~Describe \code{nu} here~~
-}
-  \item{U}{
-%%     ~~Describe \code{U} here~~
-}
-  \item{z.list}{
-%%     ~~Describe \code{z.list} here~~
-}
-  \item{mu}{
-%%     ~~Describe \code{mu} here~~
-}
+  \item{nu}{A vector of the distinct variance components.}
+  \item{U}{A vector of (generated) random effects.}
+  \item{z.list}{A list of the model matrices for the random effects.}
+  \item{mu}{The mean vector for the random effects.}
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
+\item{value }{The value of the log density of the random effects.}
+\item{gradient }{The gradient vector of the log density of the random effects.}
+\item{hessian }{The hessian matrix of the log density of the random effects.}
 %% ...
 }
 \references{
 %% ~put references to the literature/web site here ~
 }
-\author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
-}
+\author{Christina Knudson}
+\note{  Not intended for use by naive users.  Use \code{\link{mcml}},
+  which calls them.}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
@@ -95,7 +76,6 @@ function (nu, U, z.list, mu)
     list(value = value, gradient = gradient, hessian = hessian)
   }
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+
+\keyword{ generalized linear mixed model}
+\keyword{ monte carlo likelihood approximation }

@@ -1,19 +1,13 @@
 \name{addVecs}
 \alias{addVecs}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Adds vectors of common length.
 }
-\description{
-Given a list of vectors of common length, this function sums component-wise and returns a single vector.}
-\usage{
-addVecs(vecs)
-}
-%- maybe also 'usage' for other objects documented here.
+\description{Given a list of vectors of common length, this function sums component-wise and returns a single vector.}
+\usage{addVecs(vecs)}
+
 \arguments{
-  \item{vecs}{
-%%     ~~Describe \code{vecs} here~~
-}
+  \item{vecs}{A list of vectors that have equal length.}
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~

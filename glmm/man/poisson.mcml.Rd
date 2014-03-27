@@ -1,11 +1,11 @@
 \name{poisson.mcml}
 \alias{poisson.mcml}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{
-%%  ~~function to do ... ~~
+Functions for the Poisson family.
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Given a scalar eta, this calculates the cumulant and two derivatives for the Poisson family. Also checks that the data are entered correctly.
 }
 \usage{
 poisson.mcml()
@@ -15,31 +15,32 @@ poisson.mcml()
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+\item{family.mcml }{The family name, as a string.}
+  \item{cum }{The cumulant function.}
+  \item{cp }{The first derivative of the cumulant function.}
+  \item{cpp }{The second derivative of the cumulant function.}
+  \item{checkData }{A function to check that all data are either 0 or 1.}
 }
 \references{
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+Christina Knudson
 }
 \note{
-%%  ~~further notes~~
+This function is typically called through the getFamily function.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+\code{\link{getFamily}}
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
+poisson.mcml()$family.mcml
+poisson.mcml()$cum(2)
+poisson.mcml()$cp(2)
+poisson.mcml()$cpp(2)
 
 ## The function is currently defined as
 function () 
@@ -60,7 +61,6 @@ function ()
     return(out)
   }
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+
+\keyword{ generalized linear mixed model }
+\keyword{ Monte Carlo likelihood approximation }

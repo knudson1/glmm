@@ -1,37 +1,27 @@
 \name{catVecs}
 \alias{catVecs}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{
-%%  ~~function to do ... ~~
+Vector concatenation
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Concatenates vectors into one vector.
 }
 \usage{
 catVecs(vecs)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{vecs}{
-%%     ~~Describe \code{vecs} here~~
-}
+  \item{vecs}{A list of vectors of any length.}
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+The vectors are concatenated in the order given.
 }
-\value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
+\value{Returns the vector that results from concatenating the list of vectors vecs.}
 \references{
 %% ~put references to the literature/web site here ~
 }
-\author{
-%%  ~~who you are~~
-}
+\author{Christina Knudson}
 \note{
 %%  ~~further notes~~
 }
@@ -42,9 +32,10 @@ catVecs(vecs)
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
+vec1<-c(1:6)
+vec2<-c(10:18)
+vec3<-c(4,7)
+catVecs(list(vec1,vec2,vec3))
 
 ## The function is currently defined as
 function (vecs) 
@@ -65,5 +56,5 @@ function (vecs)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{generalized linear mixed model}
+\keyword{ monte carlo likelihood approximation } 
