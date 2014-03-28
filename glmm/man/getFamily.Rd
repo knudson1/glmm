@@ -1,51 +1,32 @@
 \name{getFamily}
 \alias{getFamily}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{
-%%  ~~function to do ... ~~
-}
-\description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
-\usage{
-getFamily(family.mcml)
-}
-%- maybe also 'usage' for other objects documented here.
+
+\title{Determines the MCML family.}
+\description{Determines the MCML family specified by the user.}
+\usage{getFamily(family.mcml)}
+
 \arguments{
-  \item{family.mcml}{
-%%     ~~Describe \code{family.mcml} here~~
+  \item{family.mcml}{The MCML family. Must be of class mcml.family.}
 }
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
-\value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
+\details{The input family.mcml can either by a string, a function, or the list of functions contained in family.mcl. This function determines the MCML family and calls those functions.}
+\value{Returns the list of functions in the specified MCML family.}
 \references{
 %% ~put references to the literature/web site here ~
 }
-\author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
-}
+\author{Christina Knudson}
+\note{ Not intended for use by naive users.  Use \code{\link{mcml}},
+  which calls them.}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+ \code{\link{mcml}}
+ \code{\link{bernoulli.mcml}}
+ \code{\link{poisson.mcml}}
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
+getFamily(bernoulli.mcml)
+getFamily(poisson.mcml)
 ## The function is currently defined as
 function (family.mcml) 
 {
@@ -58,7 +39,6 @@ function (family.mcml)
     family.mcml
   }
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+
+\keyword{ generalized linear mixed model }
+\keyword{Monte Carlo likelihood approximation }

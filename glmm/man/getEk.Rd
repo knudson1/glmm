@@ -3,13 +3,12 @@
 \title{Function relating random effects and variance components.}
 \description{Determines the relationships between random effects and variance components. }
 \usage{getEk(z)}
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
-  \item{z}{A list of design matrices for the random effects.}
+ \item{z}{A list of design matrices for the random effects.}
 }
-\details{Determines the relationships between random effects and variance components. If the ith random effect has variance component j, then the jth vector will have a 1 in the ith position. Thus the vectors' elements are either 0 or 1.
-}
-\value{A list of vectors containing either 0 or 1 so that the sum of the vectors is a vector containing only 1s.}
+\details{Determines the relationships between random effects and variance components. If the ith random effect has variance component j, then the jth vector will have a 1 in the ith position. Thus the vectors' elements are either 0 or 1. The sum of the vectors is a vector containing only 1s.}
+\value{A list of vectors with components either 0 or 1.}
 \references{
 %% ~put references to the literature/web site here ~
 }
