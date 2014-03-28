@@ -13,9 +13,7 @@
   \item{eek}{A list of vectors containing 0 or 1.}
   \item{family.mcml}{The name of the family. Must be class mcml.family}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+\details{}
 \value{The evaluated penalized quasi-likelihood.}
 \references{
 %% ~put references to the literature/web site here ~

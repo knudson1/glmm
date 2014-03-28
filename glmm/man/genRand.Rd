@@ -1,54 +1,33 @@
 \name{genRand}
 \alias{genRand}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{
-%%  ~~function to do ... ~~
-}
-\description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
-\usage{
-genRand(sigma.star, s.star, z.list, m)
-}
-%- maybe also 'usage' for other objects documented here.
+
+\title{Random effect generator for Monte Carlo likelihood approximation}
+\description{Generates m vectors of random effects from a normal distribution based on PQL estimates for the mean and variance.}
+\usage{genRand(sigma.star, s.star, z.list, m)}
+
 \arguments{
-  \item{sigma.star}{
-%%     ~~Describe \code{sigma.star} here~~
+  \item{sigma.star}{A vector of distinct standard deviations. Length of sigma.star is the same as the length of z.list.}
+  \item{s.star}{A vector containing the means.}
+  \item{z.list}{A list of model matrices for the random effects. Length of z.list is the same as the length of sigma.star.}
+  \item{m}{The Monte Carlo sample size, which is the number of vectors to be drawn from the specified normal distribution.}
 }
-  \item{s.star}{
-%%     ~~Describe \code{s.star} here~~
-}
-  \item{z.list}{
-%%     ~~Describe \code{z.list} here~~
-}
-  \item{m}{
-%%     ~~Describe \code{m} here~~
-}
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
+\details{Generates a vector of random effects from a standard normal distribution,  centers the vector at the PQL mean u.star, and scales the vector using the PQL variance components.
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
+\item{u}{A matrix of random effects. Each row of the matrix is one vector of random effects generated from the normal distribution specified.}
+\item{u.star}{The mean vector of the generated random effects.}
+ }
 \references{
 %% ~put references to the literature/web site here ~
 }
-\author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
-}
+\author{Christina Knudson}
+\note{ Not intended for use by naive users.  Use \code{\link{mcml}},
+  which calls them.}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+ \code{\link{mcml}}, ~~~
 }
 \examples{
 ##---- Should be DIRECTLY executable !! ----
@@ -75,7 +54,5 @@ function (sigma.star, s.star, z.list, m)
     list(u = u, u.star = u.star)
   }
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{ generalized linear mixed model }
+\keyword{Monte Carlo likelihood approximation }

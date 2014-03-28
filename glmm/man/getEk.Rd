@@ -1,45 +1,26 @@
 \name{getEk}
 \alias{getEk}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{
-%%  ~~function to do ... ~~
-}
-\description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
-\usage{
-getEk(z)
-}
+\title{Function relating random effects and variance components.}
+\description{Determines the relationships between random effects and variance components. }
+\usage{getEk(z)}
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{z}{
-%%     ~~Describe \code{z} here~~
+  \item{z}{A list of design matrices for the random effects.}
 }
+\details{Determines the relationships between random effects and variance components. If the ith random effect has variance component j, then the jth vector will have a 1 in the ith position. Thus the vectors' elements are either 0 or 1.
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
-\value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
+\value{A list of vectors containing either 0 or 1 so that the sum of the vectors is a vector containing only 1s.}
 \references{
 %% ~put references to the literature/web site here ~
 }
-\author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
-}
+\author{Christina Knudson}
+\note{ Not intended for use by naive users.  Use \code{\link{mcml}},
+  which calls them.}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+ \code{\link{mcml}}
 }
 \examples{
 ##---- Should be DIRECTLY executable !! ----
@@ -70,7 +51,5 @@ function (z)
     Ek
   }
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{ generalized linear mixed model }
+\keyword{Monte Carlo likelihood approximation }
