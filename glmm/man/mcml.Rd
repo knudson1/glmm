@@ -1,58 +1,55 @@
 \name{mcml}
 \alias{mcml}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{
-%%  ~~function to do ... ~~
-}
-\description{
+\title{Fitting Generalized Linear Mixed Models using MCML}
+\description{Fit GLMMs using MCML
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
-\usage{
-mcml(fixed, random, varcomps.names, data, family.mcml, m, varcomps.equal, doPQL = T)
-}
+\usage{mcml(fixed, random, varcomps.names, data, family.mcml, m, varcomps.equal, doPQL = T)}
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{fixed}{
-%%     ~~Describe \code{fixed} here~~
-}
-  \item{random}{
-%%     ~~Describe \code{random} here~~
-}
-  \item{varcomps.names}{
-%%     ~~Describe \code{varcomps.names} here~~
-}
-  \item{data}{
-%%     ~~Describe \code{data} here~~
-}
-  \item{family.mcml}{
-%%     ~~Describe \code{family.mcml} here~~
-}
-  \item{m}{
-%%     ~~Describe \code{m} here~~
-}
-  \item{varcomps.equal}{
-%%     ~~Describe \code{varcomps.equal} here~~
-}
-  \item{doPQL}{
-%%     ~~Describe \code{doPQL} here~~
-}
+  \item{fixed}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under ‘Details’.}
+  \item{random}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under ‘Details’.}
+  \item{varcomps.names}{The names of the distinct variance components in order of varcomps.equal.}
+  \item{data}{an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which lm is called.}
+  \item{family.mcml}{The name of the family. Must be class mcml.family.}
+  \item{m}{The desired Monte Carlo sample size.}
+  \item{varcomps.equal}{An optional vector with elements 1 through the number of distinct variance components. Denotes variance components are to be set equal by assigning them the same integer. The length of varcomps.equal must be equal to the length of the list of random effects formulas. If omitted, varcomps.equal assumes no variance component should be set equal.}
+  \item{doPQL}{logical. If TRUE, PQL estimates are used for the importance sampling distribution. If FALSE, the importance sampling distribution is standard normal.}
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+Models for mcml are specified symbolically. A typical model has the form response ~ terms where response is the (numeric) response vector and terms is a series of terms which specifies a linear predictor for response. A terms specification of the form first + second indicates all the terms in first together with all the terms in second with duplicates removed. A specification of the form first:second indicates the set of terms obtained by taking the interactions of all terms in first with all terms in second. The specification first*second indicates the cross of first and second. This is the same as first + second + first:second.
+
+To see the summary of the model use summary().
 }
+
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+\item{beta }{A vector of the Monte Carlo maximum likelihood estimates for the fixed effects.}
+ \item{nu }{A vector of the Monte Carlo maximum likelihood estimates for the variance components.}
+ \item{likelihood.value}{The Monte Carlo maximum likelihood evaluated at the MCMLEs beta and nu.}
+ \item{likelihood.gradient}{The Monte Carlo maximum likelihood vector at the MCMLEs beta and nu.}
+ \item{likelihood.hessian}{The Monte Carlo maximum likelihood hessian matrix at the MCMLEs beta and nu.}
+ \item{trust.converged}{if TRUE the final iterate was deemed optimal by the termination criteria specified by trust. The MCMLE was identified.}
+\item{beta.pql }{A vector of the beta values used in the importance sampling distribution.}
+ \item{nu.pql }{A vector of the nu values used in the importance sampling distribution.}
+\item{mod.mcml}{A list containing the fixed effect design matrix, the list of random effect design matrices, and the response.}
+\item{trust.argpath}{The sequence of iterates in the trust optimization, not including the final iterate.}
+\item{fixedcall}{The fixed effects call.}
+\item{fixedcall}{The random effects call.}
+\item{x}{The design matrix for the fixed effects.}
+\item{y}{The response vector.}
+\item{z}{The design matrix for the random effects.}
+\item{family.mcml}{The name of the family. Must be class mcml.family.}
+\item{call}{The call}
+\item{mat}{The matrix of random effects generated according to the importance sampling distribution with u.pql and nu.pql as parameters.}
+\item{varcomps.names}{The vector of names for the distinct variance components.}
+\item{varcomps.equal}{The vector denoting equal variance components.}
+\item{u.pql}{The vector of random effects as optimized by PQL. This vector serves as the mean vector for the importance sampling distribution.}
+
 }
 \references{
 %% ~put references to the literature/web site here ~
 }
-\author{
-%%  ~~who you are~~
-}
+\author{Christina Knudson}
 \note{
 %%  ~~further notes~~
 }
