@@ -1,11 +1,9 @@
 \name{mcml}
 \alias{mcml}
 \title{Fitting Generalized Linear Mixed Models using MCML}
-\description{Fit GLMMs using MCML
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
+\description{This function fits generalized linear mixed models (GLMMs) by approximating the likelihood with ordinary Monte Carlo, then maximizing the approximated likelihood. }
 \usage{mcml(fixed, random, varcomps.names, data, family.mcml, m, varcomps.equal, doPQL = T)}
-%- maybe also 'usage' for other objects documented here.
+\usage{summary(mod.mcml)}
 \arguments{
   \item{fixed}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under ‘Details’.}
   \item{random}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under ‘Details’.}
