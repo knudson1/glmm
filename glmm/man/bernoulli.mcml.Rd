@@ -18,20 +18,14 @@ bernoulli.mcml()
   \item{cpp }{The second derivative of the cumulant function.}
   \item{checkData }{A function to check that all data are either 0 or 1.}
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
-\author{
-Christina Knudson
-}
-\note{
-This function is typically called through the getFamily function.
-}
+\references{}
+\author{Christina Knudson}
+\note{This function is to be used by the mcml command.}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{getFamily}}
+\code{\link{mcml}}
 }
 \examples{
 bernoulli.mcml()$family.mcml

@@ -3,3 +3,5 @@ export(mcml)
 export(poisson.mcml)
 export(print.summary.mcla)
 export(summary.mcla)
+
+import(trust)
