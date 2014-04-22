@@ -2,7 +2,7 @@
 \docType{data}
 \alias{BoothHobert}
 \title{A Logit-Normal GLMM Dataset from Booth and Hobert}
-\description{This data set contains a simulated data from the paper of Booth and Hobert referenced below. }
+\description{This data set contains simulated data from the paper of Booth and Hobert referenced below. }
 }
 \usage{data(BoothHobert)}
 \format{
