@@ -6,8 +6,8 @@
 \usage{summary(mod.mcml)}
 
 \arguments{
-  \item{fixed}{an object of class \dquote formula \dquote (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under \squote Details. \squote}
-  \item{random}{an object of class \dquote formula \dquote (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under DetailsÕ.}
+  \item{fixed}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under \squote Details. \squote}
+  \item{random}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under Details.}
   \item{varcomps.names}{The names of the distinct variance components in order of varcomps.equal.}
   \item{data}{an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which lm is called.}
   \item{family.mcml}{The name of the family. Must be class mcml.family.}
@@ -16,16 +16,24 @@
   \item{doPQL}{logical. If TRUE, PQL estimates are used for the importance sampling distribution. If FALSE, the importance sampling distribution is standard normal.}
 }
 \details{
-Models for glmm are specified symbolically. A typical fixed effects model has the form response ~ terms where response is the (numeric) response vector and terms is a series of terms which specifies a linear predictor for response. A terms specification of the form first + second indicates all the terms in first together with all the terms in second with duplicates removed. A specification of the form first:second indicates the set of terms obtained by taking the interactions of all terms in first with all terms in second. The specification first*second indicates the cross of first and second. This is the same as first + second + first:second.
+Models for glmm are specified symbolically. A typical fixed effects model has the form \code{response ~ terms} where \code{response} is the (numeric) response vector and \code{terms} is a series of terms which specifies a linear predictor for response. A terms specification of the form \code{first + second} indicates all the terms in \code{first} together with all the terms in \code{second} with duplicates removed. 
 
-The random effects for glmm are also specified symbolically. The random effects model specification is typically a list. Each element of the list has the form response ~ 0 + term. The 0 is needed to center the random effects at 0. If you want your random effects to have a nonzero mean, then include that term in the fixed effects.
+A specification of the form \code{first:second} indicates the set of terms obtained by taking the interactions of all terms in \code{first} with all terms in \code{second}. The specification \code{first*second} indicates the cross of \code{first} and \code{second}. This is the same as \code{first + second + first:second}.
 
-If you want to set some of your variance components equal to one another, use the varcomps.equal argument. The argument varcomps.equal should be a vector whose length is equal to the length of the random effects list. If varcomps.equal is omitted, then the variance components are assumed to be distinct. 
+The terms in the formula will be re-ordered so that main effects come first, followed by the interactions, all second-order, all third-order and so on: to avoid this, pass a \code{terms} object as the formula. 
+
+The random effects for glmm are also specified symbolically. The random effects model specification is typically a list. Each element of the \code{random} list has the form \code{response ~ 0 + term}. The 0 is needed to center the random effects at 0. If you want your random effects to have a nonzero mean, then include that term in the fixed effects.  Each variance component must have its own formula in the list.
+
+To set some variance components equal to one another, use the \code{varcomps.equal} argument. The argument \code{varcomps.equal} should be a vector whose length is equal to the length of the random effects list. The vector should contain nonnegative integers, and the first element of the \code{varcomps.equal} should be 1. To set variance components equal to one another, assign the same integer to the corresponding elements of \code{varcomps.equal}. For example, to set the first and second variance components equal to each other, the first two elements of \code{varcomps.equal} should be 1. If \code{varcomps.equal} is omitted, then the variance components are assumed to be distinct. 
+
+Each distinct variance component should have a name. The length of \code{varcomps.names} should be equal to the number of distinct variance components. If \code{varcomps.equal} is omitted, then the length of \code{varcomps.names} should be equal to the length of \code{random}.
 
 To see the summary of the model use summary().
 }
 
 \value{
+
+\code{glmm} returns an object of class "mcla" is a list containing at least the following components: 
 \item{beta }{A vector of the Monte Carlo maximum likelihood estimates for the fixed effects.}
  \item{nu }{A vector of the Monte Carlo maximum likelihood estimates for the variance components.}
  \item{likelihood.value}{The Monte Carlo maximum likelihood evaluated at the MCMLEs beta and nu.}
@@ -47,7 +55,8 @@ To see the summary of the model use summary().
 \item{varcomps.names}{The vector of names for the distinct variance components.}
 \item{varcomps.equal}{The vector denoting equal variance components.}
 \item{u.pql}{The vector of random effects as optimized by PQL. This vector serves as the mean vector for the importance sampling distribution.}
-
+  The function \code{\link{summary}} (i.e., \code{\link{summary.mcla}}) can
+  be used to obtain or print a summary of the results.
 }
 \references{
 Geyer, C. J. (1994). On the convergence of Monte Carlo maximum likelihood calculations. Journal of the Royal Statistical Society, Series B, 61:261–274.
