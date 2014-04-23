@@ -56,7 +56,7 @@ To see the summary of the model use summary().
 \item{varcomps.equal}{The vector denoting equal variance components.}
 \item{u.pql}{The vector of random effects as optimized by PQL. This vector serves as the mean vector for the importance sampling distribution.}
   The function \code{\link{summary}} (i.e., \code{\link{summary.mcla}}) can
-  be used to obtain or print a summary of the results.
+  be used to obtain or print a summary of the results. The generic accessor function \code{\link{coef}} (i.e., \code{\link{coef.mcla}}) can be used to extract the coefficients.
 }
 \references{
 Geyer, C. J. (1994). On the convergence of Monte Carlo maximum likelihood calculations. Journal of the Royal Statistical Society, Series B, 61:261–274.
@@ -77,12 +77,27 @@ Sung, Y. J. and Geyer, C. J. (2007). Monte Carlo likelihood inference for missin
 }
 
 \examples{
+#First, using the basic Booth and Hobert dataset
+#to fit a glmm with a logistic link, one variance component,
+#one fixed effect, and an intercept of 0. The Monte Carlo
+#sample size is 100 to save time.
 library(glmm)
 data(BoothHobert)
-mod.mcml<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=dat,family.mcml=bernoulli.mcml,m=100,doPQL=T)
-summary(mod.mcml)
+mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,family.mcml=bernoulli.mcml,m=100,doPQL=T)
+summary(mod.mcml1)
+coef(mod.mcml1)
 
+#Next, a similar model that has two distinct variance components.
 data(Booth2)
+mod.mcml2<-glmm(y~0+x1,list(y~0+z1,~0+z2),varcomps.names=c("z1","z2"),data=Booth2,family.mcml=bernoulli.mcml,m=100,doPQL=T)
+summary(mod.mcml2)
+
+#Next, a similar model but we set the variance components equal.
+data(Booth2)
+mod.mcml3<-glmm(y~0+x1,list(y~0+z1,~0+z2),varcomps.names=c("z"), 
+varcomps.equal=c(1,1), data=Booth2,family.mcml=bernoulli.mcml,
+m=100,doPQL=T)
+summary(mod.mcml3)
 
 }
 
