@@ -25,6 +25,7 @@ function(mod.mcml){
 	coefmat<-cbind(beta,beta.se,zval,2*pnorm(abs(zval),lower.tail=F))
 	colnames(coefmat)<-c("Estimate","Std. Error", "z value", "Pr(>|z|)")
 	rownames(coefmat)<-colnames(mod.mcml$x)
+	coefficients<-coefmat[,1]
 	
 	nu<-mod.mcml$nu
 	nu.se<-all.ses[-(1:nbeta)]
@@ -33,6 +34,6 @@ function(mod.mcml){
 	colnames(nucoefmat)<-c("Estimate","Std. Error", "z value", "Pr(>|z|)/2")
 	rownames(nucoefmat)<-mod.mcml$varcomps.names
 	
-	return(structure(list(x=x,y=y, z=z, coefmat=coefmat, fixedcall=fixedcall, randcall=randcall,
+	return(structure(list(x=x,y=y, z=z, coefmat=coefmat, fixedcall=fixedcall, randcall=randcall, coefficients=coefficients,
 family.mcml=mod.mcml$family.mcml,call=call,nucoefmat=nucoefmat),class="summary.mcla"))
 }

@@ -6,5 +6,6 @@ export(summary.mcla)
 export(flu)
 export(BoothHobert)
 export(Booth2)
+export(coef.mcla)
 
 import(trust)
