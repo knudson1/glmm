@@ -8,3 +8,6 @@ export(Booth2)
 export(coef.mcla)
 
 import(trust)
+
+S3method(print, summary.mcla)
+S3method(summary, mcla)

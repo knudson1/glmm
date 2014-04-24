@@ -13,8 +13,8 @@
 \value{
 The function ‘summary.mcla’ computes and returns a list of summary statistics of the fitted generalized linear mixed model given in ‘object’, using the components (list elements) ‘"call"’ and ‘"terms"’ from its argument, plus
 
- \item{coefficients }{a matrix for the fixed effects. The matrix has columns for the estimated coefficient, its standard error, t-statistic and corresponding (two-sided) p-value.}
- \item{nucoefmat }{a matrix with columns for the variance components. The matrix has columns for the estimated variance component, its standard error, t-statistic and corresponding (one-sided) p-value.}
+ \item{coefficients}{a matrix for the fixed effects. The matrix has columns for the estimated coefficient, its standard error, t-statistic and corresponding (two-sided) p-value.}
+ \item{nucoefmat}{a matrix with columns for the variance components. The matrix has columns for the estimated variance component, its standard error, t-statistic and corresponding (one-sided) p-value.}
 
 }
 
