@@ -66,11 +66,9 @@ Geyer, C. J. and Thompson, E. (1992). Constrained Monte Carlo maximum likelihood
 Sung, Y. J. and Geyer, C. J. (2007). Monte Carlo likelihood inference for missing data models. Annals of Statistics, 35:990–1011.}
 
 \author{Christina Knudson}
-\note{
-%%  ~~further notes~~
-}
+%\note{}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
+
 
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~

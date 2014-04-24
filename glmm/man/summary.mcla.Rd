@@ -1,54 +1,35 @@
 \name{summary.mcla}
 \alias{summary.mcla}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{
-%%  ~~function to do ... ~~
-}
-\description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
-\usage{
-summary.mcla(mod.mcml)
-}
-%- maybe also 'usage' for other objects documented here.
+\alias{print.summary.mcla}
+\title{Summarizing GLMM Fits}
+\description{ "summary" method for class \code{mcla} objects.}
+\usage{summary.mcla(object)}
 \arguments{
-  \item{mod.mcml}{
-%%     ~~Describe \code{mod.mcml} here~~
+  \item{object}{an object of class \code{"mcla"}, usually, resulting from a
+    call to \code{\link{glmm}}.
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
-\references{
-%% ~put references to the literature/web site here ~
-}
-\author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
-}
+The function ‘summary.mcla’ computes and returns a list of summary statistics of the fitted generalized linear mixed model given in ‘object’, using the components (list elements) ‘"call"’ and ‘"terms"’ from its argument, plus
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
+ \item{coefficients }{a matrix for the fixed effects. The matrix has columns for the estimated coefficient, its standard error, t-statistic and corresponding (two-sided) p-value.}
+ \item{nucoefmat }{a matrix with columns for the variance components. The matrix has columns for the estimated variance component, its standard error, t-statistic and corresponding (one-sided) p-value.}
 
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+
+\author{Christina Knudson}
+
+
+
+
+\seealso{The model fitting function\code{\link{glmm}}, \code{\link{summary}}.
+
+Function \code{\link{coef}} will extract the fixed effect coefficients.
+}
+
+
+\keyword{generalized linear mixed models}
+\keyword{models}
+\keyword{Monte Carlo}
+\keyword{maximum likelihood}

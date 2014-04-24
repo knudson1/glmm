@@ -1,7 +1,6 @@
 export(bernoulli.mcml)
 export(glmm)
 export(poisson.mcml)
-export(print.summary.mcla)
 export(summary.mcla)
 export(flu)
 export(BoothHobert)
