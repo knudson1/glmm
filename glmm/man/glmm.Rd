@@ -95,7 +95,7 @@ summary(mod.mcml2)
 data(Booth2)
 mod.mcml3<-glmm(y~0+x1,list(y~0+z1,~0+z2),varcomps.names=c("z"), 
 varcomps.equal=c(1,1), data=Booth2,family.mcml=bernoulli.mcml,
-m=100,doPQL=T)
+m=100,doPQL=TRUE)
 summary(mod.mcml3)
 
 }
