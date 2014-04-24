@@ -2,11 +2,12 @@
 \alias{mcml}
 \title{Fitting Generalized Linear Mixed Models using MCML}
 \description{This function fits generalized linear mixed models (GLMMs) by approximating the likelihood with ordinary Monte Carlo, then maximizing the approximated likelihood. }
-\usage{glmm(fixed, random, varcomps.names, data, family.mcml, m, varcomps.equal, doPQL = T)}
-\usage{summary(mod.mcml)}
+\usage{glmm(fixed, random, varcomps.names, data, family.mcml, m, varcomps.equal, doPQL = T)
+summary(mod.mcml)}
+
 
 \arguments{
-  \item{fixed}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under \squote Details. \squote}
+  \item{fixed}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under  "Details."}
   \item{random}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under Details.}
   \item{varcomps.names}{The names of the distinct variance components in order of varcomps.equal.}
   \item{data}{an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which lm is called.}

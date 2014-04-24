@@ -1,54 +1,37 @@
-\name{summary.mcla}
-\alias{summary.mcla}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{
-%%  ~~function to do ... ~~
-}
-\description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+\name{coef.mcla}
+\alias{coefficients.mcla}
+\title{Extract Model Coefficients}
+\description{A function that extracts the fixed effect coefficients returned from \code{\link{glmm}}.
+
 }
 \usage{
-summary.mcla(mod.mcml)
-}
-%- maybe also 'usage' for other objects documented here.
-\arguments{
-  \item{mod.mcml}{
-%%     ~~Describe \code{mod.mcml} here~~
-}
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
-\value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
-\references{
-%% ~put references to the literature/web site here ~
-}
-\author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
+coef(mod.mcml)
+coefficients(mod.mcml)
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
+\arguments{
+  \item{mod.mcml}{An object of class "mcla" usually created using \code{\link{glmm}}.
+}
+}
+
+\value{
+ \item{coefficients }{A vector of coefficients (fixed effects only)}
+}
+
+\author{Christina Knudson}
+
+
+
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+\code{\link{glmm}} for model fitting.
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
+library(glmm)
+data(BoothHobert)
+mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,family.mcml=bernoulli.mcml,m=100,doPQL=T)
+coef(mod.mcml1)
 
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+
+\keyword{generalized linear mixed model}
