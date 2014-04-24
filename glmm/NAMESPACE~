@@ -7,7 +7,8 @@ export(BoothHobert)
 export(Booth2)
 export(coef.mcla)
 
-depends(trust)
+import(trust)
 
 S3method(print, summary.mcla)
 S3method(summary, mcla)
+S3method(coef,mcla)

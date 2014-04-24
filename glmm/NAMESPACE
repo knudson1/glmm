@@ -2,12 +2,10 @@ export(bernoulli.mcml)
 export(glmm)
 export(poisson.mcml)
 export(summary.mcla)
-export(flu)
-export(BoothHobert)
-export(Booth2)
 export(coef.mcla)
 
 import(trust)
 
 S3method(print, summary.mcla)
 S3method(summary, mcla)
+S3method(coef,mcla)
