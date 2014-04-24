@@ -29,7 +29,7 @@ coefficients(mod.mcml)
 \examples{
 library(glmm)
 data(BoothHobert)
-mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,family.mcml=bernoulli.mcml,m=100,doPQL=T)
+mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert,family.mcml=bernoulli.mcml,m=100,doPQL=TRUE)
 coef(mod.mcml1)
 
 }
