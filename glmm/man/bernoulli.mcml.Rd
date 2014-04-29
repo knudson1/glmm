@@ -1,10 +1,8 @@
 \name{bernoulli.mcml}
 \alias{bernoulli.mcml}
 
-\title{
-Functions for the Bernoulli family. }
-\description{
-Given a scalar eta, this calculates the cumulant and two derivatives for the Bernoulli family. Also checks that the data are entered correctly.}
+\title{Functions for the Bernoulli family. }
+\description{Given a scalar \code{eta}, this calculates the cumulant and two derivatives for the Bernoulli family. Also checks that the data are entered correctly.}
 \usage{
 bernoulli.mcml()
 }
@@ -18,14 +16,14 @@ bernoulli.mcml()
   \item{cpp }{The second derivative of the cumulant function.}
   \item{checkData }{A function to check that all data are either 0 or 1.}
 }
-\references{}
-\author{Christina Knudson}
-\note{This function is to be used by the mcml command.}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
+\author{Christina Knudson}
+\note{This function is to be used by the \code{\link{glmm}} command.}
+
+
 
 \seealso{
-\code{\link{mcml}}
+\code{\link{glmm}}
 }
 \examples{
 bernoulli.mcml()$family.mcml

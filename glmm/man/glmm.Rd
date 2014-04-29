@@ -1,10 +1,10 @@
 \name{glmm}
+\alias{glmm}
 \alias{mcml}
 \title{Fitting Generalized Linear Mixed Models using MCML}
 \description{This function fits generalized linear mixed models (GLMMs) by approximating the likelihood with ordinary Monte Carlo, then maximizing the approximated likelihood. }
 \usage{glmm(fixed, random, varcomps.names, data, family.mcml, m, 
-varcomps.equal, doPQL = TRUE)
-summary(mod.mcml)}
+varcomps.equal, doPQL = TRUE)}
 
 
 \arguments{
@@ -61,11 +61,11 @@ To see the summary of the model use summary().
   be used to obtain or print a summary of the results. The generic accessor function \code{\link{coef}} (i.e., \code{\link{coef.mcla}}) can be used to extract the coefficients.
 }
 \references{
-Geyer, C. J. (1994). On the convergence of Monte Carlo maximum likelihood calculations. Journal of the Royal Statistical Society, Series B, 61:261–274.
+Geyer, C. J. (1994). On the convergence of Monte Carlo maximum likelihood calculations. Journal of the Royal Statistical Society, Series B, 61:261--274.
 
-Geyer, C. J. and Thompson, E. (1992). Constrained Monte Carlo maximum likelihood for dependent data. Journal of the Royal Statistical Society, Series B, 54:657–699.
+Geyer, C. J. and Thompson, E. (1992). Constrained Monte Carlo maximum likelihood for dependent data. Journal of the Royal Statistical Society, Series B, 54:657--699.
 
-Sung, Y. J. and Geyer, C. J. (2007). Monte Carlo likelihood inference for missing data models. Annals of Statistics, 35:990–1011.}
+Sung, Y. J. and Geyer, C. J. (2007). Monte Carlo likelihood inference for missing data models. Annals of Statistics, 35:990--1011.}
 
 \author{Christina Knudson}
 %\note{}
