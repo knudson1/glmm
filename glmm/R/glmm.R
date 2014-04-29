@@ -1,5 +1,5 @@
 glmm <-
-function(fixed,random,varcomps.names,data,family.mcml,m,varcomps.equal,doPQL=T){
+function(fixed,random,varcomps.names,data,family.mcml,m,varcomps.equal,doPQL=TRUE){
 	if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
 	if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
 

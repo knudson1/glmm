@@ -72,9 +72,7 @@ Sung, Y. J. and Geyer, C. J. (2007). Monte Carlo likelihood inference for missin
 
 
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
+
 
 \examples{
 #First, using the basic Booth and Hobert dataset

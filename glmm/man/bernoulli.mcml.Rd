@@ -7,8 +7,7 @@
 bernoulli.mcml()
 }
 
-\details{
- }
+
 \value{
 \item{family.mcml }{The family name, as a string.}
   \item{cum }{The cumulant function.}

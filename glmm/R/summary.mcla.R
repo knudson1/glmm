@@ -1,5 +1,6 @@
 summary.mcla <-
-function(mod.mcml){
+function(object){
+    mod.mcml<-object
     stopifnot(inherits(mod.mcml, "mcla"))
 
 	fixedcall<-mod.mcml$fixedcall
