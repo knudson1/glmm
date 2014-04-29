@@ -5,4 +5,4 @@ function(mod){
 	names(coefficients)<-colnames(mod$x)
 	coefficients
 }
-coefficients.mcla<-coef.mcla
+
