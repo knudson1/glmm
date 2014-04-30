@@ -5,10 +5,13 @@
 \description{A function that extracts the fixed effect coefficients returned from \code{\link{glmm}}.
 
 }
-\usage{coef(object)}
+\usage{
+\method{coef}{mcla}(object,\dots)
+}
 
 \arguments{
-  \item{object}{An object of class "mcla" usually created using \code{\link{glmm}}.
+  \item{object}{An object of class \code{mcla} usually created using \code{\link{glmm}}.
+  \item{\dots}{further arguments passed to or from other methods.}
 }
 }
 

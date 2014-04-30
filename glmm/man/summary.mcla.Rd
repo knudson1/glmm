@@ -3,10 +3,16 @@
 \alias{print.summary.mcla}
 \title{Summarizing GLMM Fits}
 \description{ "summary" method for class \code{mcla} objects.}
-\usage{summary.mcla(object)}
+
+\usage{
+\method{summary}{mcla}(object, \dots)
+
+\method{print}{summary.mcla}(x, \dots)
+}
 \arguments{
   \item{object}{an object of class \code{"mcla"}, usually, resulting from a
     call to \code{\link{glmm}}.
+  \item{\dots}{further arguments passed to or from other methods.}
 }
 }
 
