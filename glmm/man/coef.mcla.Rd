@@ -5,13 +5,10 @@
 \description{A function that extracts the fixed effect coefficients returned from \code{\link{glmm}}.
 
 }
-\usage{
-coef(mod.mcml)
-coefficients(mod.mcml)
-}
+\usage{coef(object)}
 
 \arguments{
-  \item{mod.mcml}{An object of class "mcla" usually created using \code{\link{glmm}}.
+  \item{object}{An object of class "mcla" usually created using \code{\link{glmm}}.
 }
 }
 

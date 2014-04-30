@@ -1,5 +1,5 @@
 summary.mcla <-
-function(object){
+function(object,...){
     mod.mcml<-object
     stopifnot(inherits(mod.mcml, "mcla"))
 
