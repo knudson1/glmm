@@ -10,9 +10,8 @@
 }
 
 \arguments{
-  \item{object}{An object of class \code{mcla} usually created using \code{\link{glmm}}.
+  \item{object}{An object of class \code{mcla} usually created using \code{\link{glmm}}.}
   \item{\dots}{further arguments passed to or from other methods.}
-}
 }
 
 \value{
@@ -20,9 +19,6 @@
 }
 
 \author{Christina Knudson}
-
-
-
 
 \seealso{
 \code{\link{glmm}} for model fitting.

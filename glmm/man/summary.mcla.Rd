@@ -11,9 +11,11 @@
 }
 \arguments{
   \item{object}{an object of class \code{"mcla"}, usually, resulting from a
-    call to \code{\link{glmm}}.
+    call to \code{\link{glmm}}.}
+  \item{x}{an object of class \code{"summary.mcla"}, usually, a result of a
+    call to \code{summary.mcla}.}
   \item{\dots}{further arguments passed to or from other methods.}
-}
+
 }
 
 \value{
@@ -21,7 +23,14 @@ The function \code{summary.mcla} computes and returns a list of summary statisti
 
  \item{coefficients}{a matrix for the fixed effects. The matrix has columns for the estimated coefficient, its standard error, t-statistic and corresponding (two-sided) p-value.}
  \item{nucoefmat}{a matrix with columns for the variance components. The matrix has columns for the estimated variance component, its standard error, t-statistic and corresponding (one-sided) p-value.}
-
+\item{x}{the design matrix for the fixed effects.}
+\item{z}{the design matrix for the random effects.}
+\item{y}{the response vector.}
+\item{fixedcall}{the call for the fixed effects.}
+\item{randcall}{the call for the random effects.}
+\item{family.mcml}{the family used to fit the model.}
+\item{call}{the call to \code{\link{glmm}}.}
+\item{nucoefmat}{the estimated variance components.}
 }
 
 \author{Christina Knudson}
