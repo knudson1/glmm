@@ -1,5 +1,7 @@
 pql <-
-function(mod.mcml,family.mcml){
+function(mod.mcml,family.mcml,cache){
+   	if (! missing(cache))
+       	    stopifnot(is.environment(cache))
 	eek<-getEk(mod.mcml$z)
 	
 	#need inits for parameters
@@ -17,9 +19,9 @@ function(mod.mcml,family.mcml){
 	X=mod.mcml$x
 	Z=do.call(cbind,mod.mcml$z)
 	
-	#outer.optim<-optim(par=sigma, fn=fn.outer,  beta=beta, s=s, Y=Y ,X=X ,Z=Z ,eek=eek ,family.mcml=family.mcml)
+	#outer.optim<-optim(par=sigma, fn=fn.outer,  beta=beta, s=s, Y=Y ,X=X ,Z=Z ,eek=eek ,family.mcml=family.mcml,cache=cache)
 	outer.optim<-suppressWarnings(optim(par=sigma, fn=fn.outer,  beta=beta, s=s, Y=Y ,X=X ,Z=Z ,eek=eek ,family.mcml=family.mcml))
 
-	list(sigma=outer.optim$par,beta=beta.twid,s=s.twid)
+	list(sigma=outer.optim$par)
 
 }

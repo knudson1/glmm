@@ -1,5 +1,5 @@
 fn.inner.trust <-
-function(mypar,Y,X,Z,A,family.mcml,nbeta )
+function(mypar,Y,X,Z,A,family.mcml,nbeta,cache )
 {
 	beta<-mypar[1:nbeta]
 	s<-mypar[-(1:nbeta)]
@@ -24,6 +24,9 @@ function(mypar,Y,X,Z,A,family.mcml,nbeta )
 	piece3<- (-A%*%t(Z)%*%cdub%*%X)
 	piece4<- (-A%*%t(Z)%*%cdub%*%Z%*%A -diag(kyoo))
 	hessian<- rbind(cbind(piece1,piece2),cbind(piece3,piece4))
+
+	cache$s.twid<-s
+	cache$beta.twid<-beta
 	
 	list(value=value,gradient=gradient,hessian=hessian)
 }

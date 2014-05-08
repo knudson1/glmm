@@ -1,5 +1,5 @@
 fn.outer <-
-function(par,beta,s,Y,X,Z,eek,family.mcml){
+function(par,beta,s,Y,X,Z,eek,family.mcml,cache){
 	sigma<-par
 	Aks<-Map("*",eek,sigma)
 	A<-addVecs(Aks) #at this point still a vector
@@ -7,12 +7,15 @@ function(par,beta,s,Y,X,Z,eek,family.mcml){
 
 	nbeta<-length(beta)
 	#run trust
-	inner.optim<-trust(fn.inner.trust,parinit=c(beta,s),rinit=5,rmax=10000,minimize=F,Y=Y,X=X,Z=Z,A=A,nbeta=nbeta,family.mcml=family.mcml)
+	inner.optim<-trust(fn.inner.trust,parinit=c(beta,s),rinit=5,rmax=10000,minimize=F,Y=Y,X=X,Z=Z,A=A,nbeta=nbeta,
+family.mcml=family.mcml,cache=cache)
 	
 	#get beta and s
-	parms<-inner.optim$argument
-	beta.twid<<-parms[1:nbeta]
-	s.twid<<-parms[-(1:nbeta)]
+	#parms<-inner.optim$argument
+	#beta.twid<-cache$beta.twid<-parms[1:nbeta]
+	#s.twid<-cache$s.twid<-parms[-(1:nbeta)]
+	beta.twid<-cache$beta.twid
+	s.twid<-cache$s.twid
 	
 	#calculate eta.twid
 	eta.twid<-(X%*%beta.twid+Z%*%A%*%s.twid)

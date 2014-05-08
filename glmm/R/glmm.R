@@ -69,17 +69,17 @@ function(fixed,random,varcomps.names,data,family.mcml,m,varcomps.equal,doPQL=TRU
 	#so now the 3 items are x (matrix), z (list), y (vector)
 	#end figuring out how to interpret the formula
 	
-	if(doPQL==T){
+	if(doPQL==TRUE){
 	      #do PQL
-	      pql.out<-pql(mod.mcml,family.mcml)
-	      s.pql<-pql.out$s	
+	      cache <- new.env(parent = emptyenv())
+	      pql.out<-pql(mod.mcml,family.mcml,cache)
+	      s.pql<-cache$s.twid	
 	      sigma.pql<-pql.out$sigma
 	      nu.pql<-sigma.pql^2
-	      beta.pql<-pql.out$beta
-
+	      beta.pql<-cache$beta.twid
 	}
 	
-	if(doPQL==F){
+	if(doPQL==FALSE){
 	      nrand<-lapply(mod.mcml$z,ncol)
 	      nrandom<-unlist(nrand)
 	      totnrandom<-sum(nrandom)
