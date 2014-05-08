@@ -1,5 +1,6 @@
 glmm <-
 function(fixed,random,varcomps.names,data,family.mcml,m,varcomps.equal,doPQL=TRUE){
+
 	if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
 	if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
 
@@ -76,7 +77,7 @@ function(fixed,random,varcomps.names,data,family.mcml,m,varcomps.equal,doPQL=TRU
 	      s.pql<-cache$s.twid	
 	      sigma.pql<-pql.out$sigma
 	      nu.pql<-sigma.pql^2
-	      beta.pql<-cache$beta.twid
+	      beta.pql<-cache$beta.twid #works through here, cache is ok
 	}
 	
 	if(doPQL==FALSE){
@@ -88,7 +89,7 @@ function(fixed,random,varcomps.names,data,family.mcml,m,varcomps.equal,doPQL=TRU
 	      beta.pql<-rep(1,ncol(mod.mcml$x))
 	}
 	
-	par.init<-c(pql.out$beta,nu.pql) 
+	par.init<-c(beta.pql,nu.pql) 
 	
 	# generate random effects
 	genData<-genRand(sigma.pql,s.pql,mod.mcml$z,m)
