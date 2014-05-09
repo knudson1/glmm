@@ -38,3 +38,35 @@ function(object,...){
 	return(structure(list(x=x,y=y, z=z, coefmat=coefmat, fixedcall=fixedcall, randcall=randcall, coefficients=coefficients,
 family.mcml=mod.mcml$family.mcml,call=call,nucoefmat=nucoefmat),class="summary.mcla"))
 }
+
+print.summary.mcla <-
+function(x,...){
+    summ<-x	
+    stopifnot(inherits(summ, "summary.mcla"))
+
+    cat("\nCall:\n", paste(deparse(summ$call), sep = "\n", collapse = "\n"), "\n\n", sep = "")
+   
+cat("Fixed Effects:")
+   cat("\n")
+
+	printCoefmat(summ$coefmat,...)
+   cat("\n")
+
+   cat("\n")
+cat("Variance Components for Random Effects (P-values are one-tailed):")
+   cat("\n")
+
+	printCoefmat(summ$nucoefmat,...)
+   cat("\n")
+
+}
+
+coef.mcla <-
+function(object,...){
+	mod<-object
+   	stopifnot(inherits(mod, "mcla"))
+	coefficients<-mod$beta
+	names(coefficients)<-colnames(mod$x)
+	coefficients
+}
+

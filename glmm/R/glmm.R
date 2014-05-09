@@ -99,7 +99,7 @@ function(fixed,random,varcomps.names,data,family.mcml,m,varcomps.equal,doPQL=TRU
 	#use trust to max the objfun (monte carlo likelihood)
 	trust.out<-trust(objfun,parinit=par.init,rinit=10, rmax=10000, 
 iterlim=100, minimize=F, nbeta=length(beta.pql), nu.pql=nu.pql, 
-umat=umat, mod.mcml=mod.mcml, family.mcml=family.mcml, m=m,u.star=u.star,blather=T)
+umat=umat, mod.mcml=mod.mcml, family.mcml=family.mcml, u.star=u.star,blather=T)
 	
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]

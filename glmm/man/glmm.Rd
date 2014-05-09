@@ -81,6 +81,7 @@ Sung, Y. J. and Geyer, C. J. (2007). Monte Carlo likelihood inference for missin
 #sample size is 100 to save time.
 library(glmm)
 data(BoothHobert)
+set.seed(1234)
 mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
 family.mcml=bernoulli.mcml,m=100,doPQL=TRUE)
 summary(mod.mcml1)
@@ -88,15 +89,17 @@ coef(mod.mcml1)
 
 #Next, a similar model that has two distinct variance components.
 data(Booth2)
+set.seed(1234)
 mod.mcml2<-glmm(y~0+x1,list(y~0+z1,~0+z2),varcomps.names=c("z1","z2"),
 data=Booth2,family.mcml=bernoulli.mcml,m=100,doPQL=TRUE)
 summary(mod.mcml2)
 
 #Next, a similar model but we set the variance components equal.
 data(Booth2)
+set.seed(1234)
 mod.mcml3<-glmm(y~0+x1,list(y~0+z1,~0+z2),varcomps.names=c("z"), 
 varcomps.equal=c(1,1), data=Booth2,family.mcml=bernoulli.mcml,
-m=100,doPQL=TRUE)
+m=100,doPQL=FALSE)
 summary(mod.mcml3)
 
 }
