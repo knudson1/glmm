@@ -1,21 +1,21 @@
 getFamily <-
-function(family.mcml)
+function(family.glmm)
 {
-	if(is.character(family.mcml))
-		family.mcml<-get(family.mcml,mode="function",envir=parent.frame())
-	if(is.function(family.mcml))
-		family.mcml<-family.mcml()
+	if(is.character(family.glmm))
+		family.glmm<-get(family.glmm,mode="function",envir=parent.frame())
+	if(is.function(family.glmm))
+		family.glmm<-family.glmm()
 	#right way to check the class if there might be more than one class (maybe bc of hierarchies)
-	if(!inherits(family.mcml,"mcml.family")) 
+	if(!inherits(family.glmm,"glmm.family")) 
 		stop(" 'family' not recognized") 
 	
-	family.mcml	
+	family.glmm	
 }
 
-poisson.mcml <-
+poisson.glmm <-
 function()
 {
-	family.mcml<- "poisson.mcml"
+	family.glmm<- "poisson.glmm"
 	cum <- function(eta) exp(eta)
 	cp <- function(eta) exp(eta)
 	cpp<-function(eta) exp(eta)
@@ -24,15 +24,15 @@ function()
 		if(bads>0) stop("data must be nonnegative.")
 		return(NULL)	
 		}
-	out<-list(family.mcml=family.mcml, cum=cum,cp=cp,cpp=cpp, checkData=checkData)
-	class(out)<-"mcml.family"
+	out<-list(family.glmm=family.glmm, cum=cum,cp=cp,cpp=cpp, checkData=checkData)
+	class(out)<-"glmm.family"
 	return(out)
 }
 
-bernoulli.mcml <-
+bernoulli.glmm <-
 function()
 {
-	family.mcml<- "bernoulli.mcml"
+	family.glmm<- "bernoulli.glmm"
 	cum <- function(eta) log(1+exp(eta))
 	cp <- function(eta) exp(eta)/(1+exp(eta))
 	cpp<-function(eta) exp(eta)/(1+exp(eta))-exp(2*eta)*(1+exp(eta))^(-2)
@@ -42,7 +42,7 @@ function()
 		if(bads>0) stop("data must be between 0 and 1.")
 		return(NULL)	
 		}
-	out<-list(family.mcml=family.mcml, cum=cum, cp=cp, cpp=cpp, checkData=checkData)
-	class(out)<-"mcml.family"
+	out<-list(family.glmm=family.glmm, cum=cum, cp=cp, cpp=cpp, checkData=checkData)
+	class(out)<-"glmm.family"
 	return(out)
 }

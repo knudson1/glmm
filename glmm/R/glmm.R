@@ -1,5 +1,5 @@
 glmm <-
-function(fixed,random,varcomps.names,data,family.mcml,m,varcomps.equal,doPQL=TRUE){
+function(fixed,random,varcomps.names,data,family.glmm,m,varcomps.equal,doPQL=TRUE){
 
 	if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
 	if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
@@ -73,7 +73,7 @@ function(fixed,random,varcomps.names,data,family.mcml,m,varcomps.equal,doPQL=TRU
 	if(doPQL==TRUE){
 	      #do PQL
 	      cache <- new.env(parent = emptyenv())
-	      pql.out<-pql(mod.mcml,family.mcml,cache)
+	      pql.out<-pql(mod.mcml,family.glmm,cache)
 	      s.pql<-cache$s.twid	
 	      sigma.pql<-pql.out$sigma
 	      nu.pql<-sigma.pql^2
@@ -99,7 +99,7 @@ function(fixed,random,varcomps.names,data,family.mcml,m,varcomps.equal,doPQL=TRU
 	#use trust to max the objfun (monte carlo likelihood)
 	trust.out<-trust(objfun,parinit=par.init,rinit=10, rmax=10000, 
 iterlim=100, minimize=F, nbeta=length(beta.pql), nu.pql=nu.pql, 
-umat=umat, mod.mcml=mod.mcml, family.mcml=family.mcml, u.star=u.star,blather=T)
+umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star,blather=T)
 	
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]
@@ -113,6 +113,6 @@ umat=umat, mod.mcml=mod.mcml, family.mcml=family.mcml, u.star=u.star,blather=T)
 likelihood.gradient=trust.out$gradient, likelihood.hessian=trust.out$hessian,
 	trust.converged=trust.out$converged, beta.pql=beta.pql, nu.pql=nu.pql, mod.mcml=mod.mcml,
 	trust.argpath=trust.argpath, fixedcall=fixed,randcall=randcall, x=x,y=y, z=random,
-	family.mcml=family.mcml, call=call,umat=umat, varcomps.names=varcomps.names, 
-	varcomps.equal=varcomps.equal,u.pql=u.star), class="mcla"))
+	family.glmm=family.glmm, call=call,umat=umat, varcomps.names=varcomps.names, 
+	varcomps.equal=varcomps.equal,u.pql=u.star), class="glmm"))
 }

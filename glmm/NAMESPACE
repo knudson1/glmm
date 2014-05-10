@@ -1,11 +1,11 @@
-export(bernoulli.mcml)
+export(bernoulli.glmm)
 export(glmm)
-export(poisson.mcml)
-export(summary.mcla)
-export(coef.mcla)
+export(poisson.glmm)
+export(summary.glmm)
+export(coef.glmm)
 
 import(trust)
 
-S3method(print, summary.mcla)
-S3method(summary, mcla)
-S3method(coef,mcla)
+S3method(print, summary.glmm)
+S3method(summary, glmm)
+S3method(coef,glmm)

@@ -3,7 +3,7 @@
 \alias{mcml}
 \title{Fitting Generalized Linear Mixed Models using MCML}
 \description{This function fits generalized linear mixed models (GLMMs) by approximating the likelihood with ordinary Monte Carlo, then maximizing the approximated likelihood. }
-\usage{glmm(fixed, random, varcomps.names, data, family.mcml, m, 
+\usage{glmm(fixed, random, varcomps.names, data, family.glmm, m, 
 varcomps.equal, doPQL = TRUE)}
 
 
@@ -12,7 +12,7 @@ varcomps.equal, doPQL = TRUE)}
   \item{random}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under Details.}
   \item{varcomps.names}{The names of the distinct variance components in order of varcomps.equal.}
   \item{data}{an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which lm is called.}
-  \item{family.mcml}{The name of the family. Must be class mcml.family.}
+  \item{family.glmm}{The name of the family. Must be class glmm.family.}
   \item{m}{The desired Monte Carlo sample size.}
   \item{varcomps.equal}{An optional vector with elements 1 through the number of distinct variance components. Denotes variance components are to be set equal by assigning them the same integer. The length of varcomps.equal must be equal to the length of the list of random effects formulas. If omitted, varcomps.equal assumes no variance component should be set equal.}
   \item{doPQL}{logical. If TRUE, PQL estimates are used for the importance sampling distribution. If FALSE, the importance sampling distribution is standard normal.}
@@ -35,7 +35,7 @@ To see the summary of the model use summary().
 
 \value{
 
-\code{glmm} returns an object of class "mcla" is a list containing at least the following components: 
+\code{glmm} returns an object of class "glmm" is a list containing at least the following components: 
 \item{beta }{A vector of the Monte Carlo maximum likelihood estimates for the fixed effects.}
  \item{nu }{A vector of the Monte Carlo maximum likelihood estimates for the variance components.}
  \item{likelihood.value}{The Monte Carlo maximum likelihood evaluated at the MCMLEs beta and nu.}
@@ -51,14 +51,14 @@ To see the summary of the model use summary().
 \item{x}{The design matrix for the fixed effects.}
 \item{y}{The response vector.}
 \item{z}{The design matrix for the random effects.}
-\item{family.mcml}{The name of the family. Must be class mcml.family.}
+\item{family.glmm}{The name of the family. Must be class glmm.family.}
 \item{call}{The call}
 \item{mat}{The matrix of random effects generated according to the importance sampling distribution with u.pql and nu.pql as parameters.}
 \item{varcomps.names}{The vector of names for the distinct variance components.}
 \item{varcomps.equal}{The vector denoting equal variance components.}
 \item{u.pql}{The vector of random effects as optimized by PQL. This vector serves as the mean vector for the importance sampling distribution.}
-  The function \code{\link{summary}} (i.e., \code{\link{summary.mcla}}) can
-  be used to obtain or print a summary of the results. The generic accessor function \code{\link{coef}} (i.e., \code{\link{coef.mcla}}) can be used to extract the coefficients.
+  The function \code{\link{summary}} (i.e., \code{\link{summary.glmm}}) can
+  be used to obtain or print a summary of the results. The generic accessor function \code{\link{coef}} (i.e., \code{\link{coef.glmm}}) can be used to extract the coefficients.
 }
 \references{
 Geyer, C. J. (1994). On the convergence of Monte Carlo maximum likelihood calculations. Journal of the Royal Statistical Society, Series B, 61:261--274.
@@ -83,7 +83,7 @@ library(glmm)
 data(BoothHobert)
 set.seed(1234)
 mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
-family.mcml=bernoulli.mcml,m=100,doPQL=TRUE)
+family.glmm=bernoulli.glmm,m=100,doPQL=TRUE)
 summary(mod.mcml1)
 coef(mod.mcml1)
 
@@ -91,14 +91,14 @@ coef(mod.mcml1)
 data(Booth2)
 set.seed(1234)
 mod.mcml2<-glmm(y~0+x1,list(y~0+z1,~0+z2),varcomps.names=c("z1","z2"),
-data=Booth2,family.mcml=bernoulli.mcml,m=10000,doPQL=TRUE)
+data=Booth2,family.glmm=bernoulli.glmm,m=10000,doPQL=TRUE)
 summary(mod.mcml2)
 
 #Next, a similar model but we set the variance components equal.
 data(Booth2)
 set.seed(1234)
 mod.mcml3<-glmm(y~0+x1,list(y~0+z1,~0+z2),varcomps.names=c("z"), 
-varcomps.equal=c(1,1), data=Booth2,family.mcml=bernoulli.mcml,
+varcomps.equal=c(1,1), data=Booth2,family.glmm=bernoulli.glmm,
 m=1000,doPQL=FALSE)
 summary(mod.mcml3)
 

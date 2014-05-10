@@ -1,7 +1,7 @@
-summary.mcla <-
+summary.glmm <-
 function(object,...){
     mod.mcml<-object
-    stopifnot(inherits(mod.mcml, "mcla"))
+    stopifnot(inherits(mod.mcml, "glmm"))
 
 	fixedcall<-mod.mcml$fixedcall
 	randcall<-mod.mcml$randcall
@@ -36,13 +36,13 @@ function(object,...){
 	rownames(nucoefmat)<-mod.mcml$varcomps.names
 	
 	return(structure(list(x=x,y=y, z=z, coefmat=coefmat, fixedcall=fixedcall, randcall=randcall, coefficients=coefficients,
-family.mcml=mod.mcml$family.mcml,call=call,nucoefmat=nucoefmat),class="summary.mcla"))
+family.mcml=mod.mcml$family.mcml,call=call,nucoefmat=nucoefmat),class="summary.glmm"))
 }
 
-print.summary.mcla <-
+print.summary.glmm <-
 function(x,...){
     summ<-x	
-    stopifnot(inherits(summ, "summary.mcla"))
+    stopifnot(inherits(summ, "summary.glmm"))
 
     cat("\nCall:\n", paste(deparse(summ$call), sep = "\n", collapse = "\n"), "\n\n", sep = "")
    
@@ -61,10 +61,10 @@ cat("Variance Components for Random Effects (P-values are one-tailed):")
 
 }
 
-coef.mcla <-
+coef.glmm <-
 function(object,...){
 	mod<-object
-   	stopifnot(inherits(mod, "mcla"))
+   	stopifnot(inherits(mod, "glmm"))
 	coefficients<-mod$beta
 	names(coefficients)<-colnames(mod$x)
 	coefficients
