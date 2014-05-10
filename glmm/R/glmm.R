@@ -85,7 +85,7 @@ function(fixed,random,varcomps.names,data,family.mcml,m,varcomps.equal,doPQL=TRU
 	      nrandom<-unlist(nrand)
 	      totnrandom<-sum(nrandom)
 	      s.pql<-rep(0,totnrandom)
-	      nu.pql<-rep(1,length(mod.mcml$z))
+	      sigma.pql<-nu.pql<-rep(1,length(mod.mcml$z))
 	      beta.pql<-rep(1,ncol(mod.mcml$x))
 	}
 	

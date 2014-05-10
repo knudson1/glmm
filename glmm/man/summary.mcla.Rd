@@ -38,9 +38,7 @@ The function \code{summary.mcla} computes and returns a list of summary statisti
 
 
 
-\seealso{The model fitting function\code{\link{glmm}}, \code{\link{summary}}.
-
-Function \code{\link{coef}} will extract the fixed effect coefficients.
+\seealso{The model fitting function \code{\link{glmm}}, the generic \code{\link{summary}}, and the function \code{\link{coef}}that extracts the fixed effect coefficients.
 }
 
 
