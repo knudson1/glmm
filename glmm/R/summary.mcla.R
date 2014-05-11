@@ -40,7 +40,9 @@ family.mcml=mod.mcml$family.mcml,call=call,nucoefmat=nucoefmat),class="summary.g
 }
 
 print.summary.glmm <-
-function(x,...){
+    function (x, digits = max(3, getOption("digits") - 3),
+        signif.stars = getOption("show.signif.stars"), ...)
+{
     summ<-x	
     stopifnot(inherits(summ, "summary.glmm"))
 
@@ -49,14 +51,16 @@ function(x,...){
 cat("Fixed Effects:")
    cat("\n")
 
-	printCoefmat(summ$coefmat,...)
+	printCoefmat(summ$coefmat, digits = digits,
+        signif.stars = signif.stars, na.print = "NA", ...)
    cat("\n")
 
    cat("\n")
 cat("Variance Components for Random Effects (P-values are one-tailed):")
    cat("\n")
 
-	printCoefmat(summ$nucoefmat,...)
+	printCoefmat(summ$nucoefmat, digits = digits,
+        signif.stars = signif.stars, na.print = "NA", ...)
    cat("\n")
 
 }
