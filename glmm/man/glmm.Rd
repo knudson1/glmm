@@ -92,7 +92,7 @@ data(Booth2)
 set.seed(1234)
 mod.mcml2<-glmm(y~0+x1,list(y~0+z1,~0+z2),varcomps.names=c("z1","z2"),
 data=Booth2,family.glmm=bernoulli.glmm,m=10000,doPQL=TRUE)
-summary(mod.mcml2)
+summary(mod.mcml2,digits=3)
 
 #Next, a similar model but we set the variance components equal.
 data(Booth2)
