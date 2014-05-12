@@ -4,7 +4,7 @@
 \title{A Logit-Normal GLMM Dataset}
 \description{This data set contains simulated data from the paper of Booth and Hobert (referenced below) as well as another vector. }
 
-\usage{data(BoothHobert)}
+\usage{data(Booth2)}
 \format{
   A data frame with 3 columns:
 
