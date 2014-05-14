@@ -1,8 +1,0 @@
-library(glmm)
-theta<-3
-delta<-.01
-this<-bernoulli.glmm$cp(theta)*delta
-that<-bernoulli.glmm$cum(theta+delta)-bernoulli.glmm$cum(theta)
-all.equal(this,that)
-
-
