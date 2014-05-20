@@ -51,6 +51,8 @@ function(fixed,random,varcomps.names,data,family.glmm,m,varcomps.equal,doPQL=TRU
 		stop("You must name each unique variance component. Check varcomps.names and varcomps.equal.")} 
 	if(min(varcomps.equal)!=1)stop("The vector varcomps.equal must contain numbers starting at 1 to denote which variance components are equal.")	
 	levs<-ordered(unique(varcomps.equal))
+	family.glmm<-getFamily(family.glmm)
+	family.glmm$checkData(y)
 	
 	#this loop is a 2-4-1. We want to check that they're filling in varcomps.equal correctly. 
 	#We also want to group all the design matrices that share a variance components.
@@ -78,6 +80,7 @@ function(fixed,random,varcomps.names,data,family.glmm,m,varcomps.equal,doPQL=TRU
 	      sigma.pql<-pql.out$sigma
 	      nu.pql<-sigma.pql^2
 	      beta.pql<-cache$beta.twid #works through here, cache is ok
+		print("PQL estimates have been identified.")
 	}
 	
 	if(doPQL==FALSE){
