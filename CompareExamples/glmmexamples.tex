@@ -197,7 +197,7 @@ goal of the survey was to study the within-herd spread of CBPP in newly infected
 samples were quarterly collected from all animals of these herds to determine their CBPP status.
 These data were used to compute the serological incidence of CBPP (new cases occurring during a given time period). Some data are missing (lost to follow-up).''
 
-First, I fit the data using glmer in lme4. Then I fit the data using glmm with $m=10^4$. This took 16.75 minutes on my netbook. The point estimates and the standard errors were very similar between the two  methods of model-fitting. (The data did need to be reformatted, which took only a couple minutes)
+First, I fit the data using glmer in lme4. Then I fit the data using glmm with $m=10^4$. This took 16.75 minutes on my netbook. The point estimates and the standard errors were very similar between the two  methods of model-fitting. The documentation says that the default method of model-fitting uses the Laplace approximation, but Charlie wonders if they actually use numerical integration for simple problems like this. 
 
 First, the results from glmer:
 \begin{verbatim}
@@ -265,7 +265,7 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 
 
 \section{Salamander}
-
+I fit the salamander data set using  my glmm package and compared those results to the results of Yun Ju Sung and Charlie Geyer. 
 
 
 \begin{verbatim}
@@ -297,7 +297,7 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 
 \end{verbatim}
 
-Here are the results with $m=10^4$ but I forgot to set the seed.
+Here are the results with $m=10^4$ but I forgot to set the seed. At least it helps us see a bit of the variability.
 \begin{verbatim}
 > summary(sal.glmm2)
 
@@ -325,17 +325,149 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 \end{verbatim}
 
 \section{Murder}
+Subjects were asked how many victims of homicide they personally knew. The data set is from Agresti's \textit{Categorical Data Analysis} book. I found similar answers from my glmm package as from glmmPQL.
 
+The results from my package:
 
 \begin{verbatim}
 set.seed(1234)
 murder.glmm<- glmm(y~race ,random=list(~0+black,~0+white), varcomps.names=c("black","white"), data=murder ,family.glmm=poisson.glmm,m=10^4)
+
+> summary(murder.glmm)
+
+Call:
+glmm(fixed = y ~ race, random = list(~0 + black, ~0 + white), 
+    varcomps.names = c("black", "white"), data = murder, family.glmm = poisson.glmm, 
+    m = 10^4)
+
+Fixed Effects:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  0.42003    0.06428   6.534 6.40e-11 ***
+raceWhite   -0.33179    0.07021  -4.726 2.29e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+Variance Components for Random Effects (P-values are one-tailed):
+       Estimate Std. Error z value Pr(>|z|)/2
+black 6.468e-10  3.452e-09   0.187      0.426
+white 2.667e-10  1.596e-09   0.167      0.434
 \end{verbatim}
 
+When I make the sample size drastically smaller so that the analysis takes only about a minute, the results are very similar still.
+\begin{verbatim}
+> summary(murder.glmm)
+
+Call:
+glmm(fixed = y ~ race, random = list(~0 + black, ~0 + white), 
+    varcomps.names = c("black", "white"), data = murder, family.glmm = poisson.glmm, 
+    m = 10^2)
+
+Fixed Effects:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  0.42003    0.06428   6.534 6.39e-11 ***
+raceWhite   -0.33179    0.07021  -4.726 2.29e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 
+Variance Components for Random Effects (P-values are one-tailed):
+       Estimate Std. Error z value Pr(>|z|)/2
+black 1.190e-09  1.718e-09   0.693      0.244
+white 1.070e-08  1.440e-08   0.743      0.229
 
+\end{verbatim}
 
+The murder model resulting from glmmPQL:
+\begin{verbatim}
+> murder.pql<-glmmPQL(y~race,random=~1|race,data=murder,family=poisson)iteration 1
+> summary(murder.pql)
+Linear mixed-effects model fit by maximum likelihood
+ Data: murder 
+  AIC BIC logLik
+   NA  NA     NA
+
+Random effects:
+ Formula: ~1 | race
+         (Intercept)  Residual
+StdDev: 9.157794e-06 0.4647694
+
+Variance function:
+ Structure: fixed weights
+ Formula: ~invwt 
+Fixed effects: y ~ race 
+                 Value  Std.Error   DF   t-value p-value
+(Intercept)  0.4200335 0.02989812 1306  14.04883       0
+raceWhite   -0.3317900 0.03265396    0 -10.16079     NaN
+ Correlation: 
+          (Intr)
+raceWhite -0.916
+
+Standardized Within-Group Residuals:
+       Min         Q1        Med         Q3        Max 
+-0.9104427 -0.1899269 -0.1899269 -0.1899269 12.1624898 
+
+Number of Observations: 1308
+Number of Groups: 2 
+Warning message:
+In pt(-abs(tTable[, "t-value"]), tTable[, "DF"]) : NaNs produced
+
+\end{verbatim}
+
+%\section{Booth and Hobert}
+%Here are the results from my glmm package fitting a model to the Booth and Hobert data (with $m=10^4$).
+%\begin{verbatim}
+%> set.seed(1234)
+%> mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,family.glmm=bernoulli.glmm,m=10^4,doPQL=TRUE)
+%[1] "PQL estimates have been identified."
+%> summary(mod.mcml1)
+%
+%Call:
+%glmm(fixed = y ~ 0 + x1, random = list(y ~ 0 + z1), varcomps.names = c("z1"), 
+%    data = BoothHobert, family.glmm = bernoulli.glmm, m = 10^4, 
+%    doPQL = TRUE)
+%
+%Fixed Effects:
+%   Estimate Std. Error z value Pr(>|z|)    
+%x1    6.225      1.422   4.377  1.2e-05 ***
+%---
+%Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+%
+%
+%Variance Components for Random Effects (P-values are one-tailed):
+%   Estimate Std. Error z value Pr(>|z|)/2
+%z1    1.907      1.814   1.051      0.147
+%
+%
+%\end{verbatim}
+%
+%Here are the results from glmmPQL:
+%\begin{verbatim}
+%> summary(bh)
+%Linear mixed-effects model fit by maximum likelihood
+% Data: BoothHobert 
+%  AIC BIC logLik
+%   NA  NA     NA
+%
+%Random effects:
+% Formula: ~1 | z1
+%        (Intercept)  Residual
+%StdDev:    1.284666 0.8712694
+%
+%Variance function:
+% Structure: fixed weights
+% Formula: ~invwt 
+%Fixed effects: y ~ 0 + x1 
+%      Value Std.Error  DF  t-value p-value
+%x1 5.857223  1.008231 140 5.809405       0
+%
+%Standardized Within-Group Residuals:
+%        Min          Q1         Med          Q3         Max 
+%-8.55346135  0.07317618  0.17063844  0.35776723  2.15976654 
+%
+%Number of Observations: 150
+%Number of Groups: 10 
+%\end{verbatim}
 
 
 \section{Reformatting the Datsets}
