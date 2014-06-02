@@ -197,9 +197,16 @@ goal of the survey was to study the within-herd spread of CBPP in newly infected
 samples were quarterly collected from all animals of these herds to determine their CBPP status.
 These data were used to compute the serological incidence of CBPP (new cases occurring during a given time period). Some data are missing (lost to follow-up).''
 
-First, I fit the data using glmer in lme4. Then I fit the data using glmm with $m=10^4$. This took 16.75 minutes on my netbook. The point estimates and the standard errors were very similar between the two  methods of model-fitting. The documentation says that the default method of model-fitting uses the Laplace approximation, but Charlie wonders if they actually use numerical integration for simple problems like this. 
+First, I fit the data using glmer in lme4. The model summary says it was fit with Adaptive Hermite Quadrature with 9 quadrature nodes. Then I fit the data using glmm with $m=10^4$. This took 16.75 minutes on my netbook. The point estimates and some of the standard errors are very similar between the two  methods of model-fitting. 
 
-First, the results from glmer:
+\begin{tabular}{lccccc}
+& Intercept & period2 & period3 & period4 & $\nu$ \\ \hline
+glmer (numerical integration) & -1.40 & -.99 & -1.13 & -1.58 & .41\\
+glmm $m=10^4$ & -1.42 & -.99 & -1.13 & -1.58 & .44 \\
+\end{tabular}
+
+
+Here are the full results from glmer:
 \begin{verbatim}
 > summary(gm1)
 Generalized linear mixed model fit by maximum likelihood (Laplace
@@ -265,12 +272,23 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 
 
 \section{Salamander}
-I fit the salamander data set using  my glmm package and compared those results to the results of Yun Ju Sung and Charlie Geyer. 
+The salamander dataset represents success or failure in matings between two types of salamanders denoted by R and W. Four types of crosses are possible: RR, RW, WR, WW. These are the fixed effects. There is a random effect for each female salamander and for each male salamander. Thus, there are two variance components: one for the females and one for the males. The response is binary: whether or not the mating was successful.
+
+I fit the salamander data set using  my glmm package (with $m=10^4$ twice and with $m=10^6$ once)  and compared those results to the MCEM results of Booth and Hobert. They do not look so great, and the $m=10^6$ results took 41 hours to get.
+
+\begin{tabular}{lcccccc}
+& Intercept & RW & WR & WW & $\nu_F$ & $\nu_M$ \\ \hline
+MCEM (B+H) & 1.03 & .32 & -1.95 & .99 & 1.4 & 1.25 \\
+glmm $m=10^4$ & 1.11 & -.55 & -3.17& -.21 & 1.21 & .95 \\
+glmm $m=10^4$ & .94 & -.76 & -2.72 & .0023 & 1.60 & .99 \\
+glmm $m=10^6$ &  0.84&  -0.81&  -2.81&  -0.21&1.21& 1.02 \\
+\end{tabular}
 
 
 \begin{verbatim}
 > set.seed(1234)
-> sal.glmm3<-glmm(Mate~Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),data=salamander,family.glmm=bernoulli.glmm,m=10^4)
+> sal.glmm3<-glmm(Mate~Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),
+data=salamander,family.glmm=bernoulli.glmm,m=10^4)
 > summary(sal.glmm3)
 
 Call:
@@ -322,6 +340,48 @@ F   1.5991     0.2965   5.394   3.45e-08 ***
 M   0.9908     0.1885   5.255   7.41e-08 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+\end{verbatim}
+
+
+
+
+Here are the results with $m=10^6$. 
+\begin{verbatim}
+> ptm <- proc.time()
+> sal.glmm3<-glmm(Mate~Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F"
+,"M"),data=salamander,family.glmm=bernoulli.glmm,m=10^6)
+>  proc.time()-ptm
+      user     system    elapsed 
+148604.323    595.454 174153.241 
+> summary(sal.glmm3)
+
+Call:
+glmm(fixed = Mate ~ Cross, random = list(~0 + Female, ~0 + Male), 
+    varcomps.names = c("F", "M"), data = salamander, family.glmm = bernoulli.glm
+m, 
+    m = 10^6)
+
+Fixed Effects:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   0.8413     0.2756   3.052  0.00227 ** 
+CrossRW      -0.8074     0.3737  -2.161  0.03072 *  
+CrossWR      -2.8062     0.4097  -6.849 7.43e-12 ***
+CrossWW      -0.2135     0.3887  -0.549  0.58289    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Variance Components for Random Effects (P-values are one-tailed):
+  Estimate Std. Error z value Pr(>|z|)/2    
+F   1.2090     0.2443   4.948   3.74e-07 ***
+M   1.0196     0.2013   5.065   2.04e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> sal.glmm3$beta.pql
+[1]  0.83806013 -0.57917030 -2.44205490 -0.01778234
+> sal.glmm3$nu.pql
+[1] 1.122464 1.036371
+
 \end{verbatim}
 
 \section{Murder}
