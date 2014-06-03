@@ -1,11 +1,10 @@
 # test on Booth and Hobert data
 
-source("MCLA.R")
-dat<-read.csv("BoothHobertData.csv")
- dat$z1<-as.factor(dat$z1)
+library(glmm,lib.loc="glmm.Rcheck")
+data(BoothHobert)
 
 #mostly just want to get the PQL estimate 
-mod.mcml<-mcml(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=dat,family.mcml=bernoulli.mcml,m=100) 
+mod.mcml<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,family.glmm=bernoulli.glmm,m=100) 
 beta.pql<-mod.mcml$beta.pql
 nu.pql<-mod.mcml$nu.pql
 u.pql<-mod.mcml$u.pql
