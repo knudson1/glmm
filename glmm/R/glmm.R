@@ -72,9 +72,11 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	#so now the 3 items are x (matrix), z (list), y (vector)
 	#end figuring out how to interpret the formula
 	
+	#cache will hold some pql estimates and the importance sampling weights that wouldn't otherwise be returned
+	cache <- new.env(parent = emptyenv())
+
 	if(doPQL==TRUE){
 	      #do PQL
-	      cache <- new.env(parent = emptyenv())
 	      pql.out<-pql(mod.mcml,family.glmm,cache)
 	      s.pql<-cache$s.twid	
 	      sigma.pql<-pql.out$sigma
@@ -102,7 +104,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	#use trust to max the objfun (monte carlo likelihood)
 	trust.out<-trust(objfun,parinit=par.init,rinit=10, rmax=10000, 
 iterlim=100, minimize=F, nbeta=length(beta.pql), nu.pql=nu.pql, 
-umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star,blather=T)
+umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T, cache=cache)
 	
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]
@@ -113,7 +115,7 @@ umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star,blather=T)
 	names(nu.trust)<-varcomps.names
 
 	if(debug==TRUE){
-	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql,trust.argpath=trust.argpath, u.star=u.star, umat=umat)
+	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql,trust.argpath=trust.argpath, u.star=u.star, umat=umat,weights=cache$weights)
 	}
 	
 	return(structure(list(beta=beta.trust,nu=nu.trust, likelihood.value=trust.out$value, likelihood.gradient=trust.out$gradient, likelihood.hessian=trust.out$hessian,

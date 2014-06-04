@@ -1,11 +1,13 @@
 objfun <-
-function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm){
+function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache){
 	#print(par)
 	beta<-par[1:nbeta]
 	nu<-par[-(1:nbeta)]
 	m<-nrow(umat)
 
-	
+	if (!missing(cache)) stopifnot(is.environment(cache))
+	if(missing(cache)) cache<-new.env(parent = emptyenv())
+
 	if(sum(nu<=0)>0){
 		out<-list(value=-Inf,gradient=rep(1,length(par)),hessian=as.matrix(c(rep(1,length(par)^2)),nrow=length(par)))
 	return(out)
@@ -33,6 +35,7 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm){
 	value<-a-log(m)+log(sum(thing))
 	
 	#weights
+	cache$weights<-thing
 	v<-thing/sum(thing)
 	
 	Gpiece<-matrix(data=NA,nrow=nrow(umat),ncol=length(par))
