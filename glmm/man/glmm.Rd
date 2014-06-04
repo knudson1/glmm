@@ -3,7 +3,7 @@
 \title{Fitting Generalized Linear Mixed Models using MCML}
 \description{This function fits generalized linear mixed models (GLMMs) by approximating the likelihood with ordinary Monte Carlo, then maximizing the approximated likelihood. }
 \usage{glmm(fixed, random, varcomps.names, data, family.glmm, m, 
-varcomps.equal, doPQL = TRUE)}
+varcomps.equal, doPQL = TRUE,debug=FALSE)}
 
 
 \arguments{
@@ -14,7 +14,8 @@ varcomps.equal, doPQL = TRUE)}
   \item{family.glmm}{The name of the family. Must be class glmm.family.}
   \item{m}{The desired Monte Carlo sample size.}
   \item{varcomps.equal}{An optional vector with elements 1 through the number of distinct variance components. Denotes variance components are to be set equal by assigning them the same integer. The length of varcomps.equal must be equal to the length of the list of random effects formulas. If omitted, varcomps.equal assumes no variance component should be set equal.}
-  \item{doPQL}{logical. If TRUE, PQL estimates are used for the importance sampling distribution. If FALSE, the importance sampling distribution is standard normal.}
+  \item{doPQL}{logical. If \code{TRUE}, PQL estimates are used for the importance sampling distribution. If FALSE, the importance sampling distribution is standard normal.}
+  \item{debug}{logical. If \code{TRUE}, extra output useful for testing will be provided.}
 }
 \details{
 Let \eqn{\beta}{beta} be a vector of fixed effects and let \eqn{u}{u} be a vector of random effects. Let \eqn{X}{X} and \eqn{Z}{Z} be design matrices for the fixed and random effects, respectively. The random effects are assumed to be normally distributed with mean 0 and variance matrix \eqn{D}{D}, where \eqn{D}{D} is diagonal with entries from the unknown vector \eqn{\nu}{nu}. Letting \eqn{g}{g} be the link function, \eqn{g(\mu)=X \beta+ZU}{g(mu)=X beta+ ZU}. For example, if the response is Bernoulli, then the logit function is the link.
@@ -42,11 +43,7 @@ To see the summary of the model, use summary().
  \item{likelihood.value}{The Monte Carlo maximum likelihood evaluated at the MCMLEs beta and nu.}
  \item{likelihood.gradient}{The Monte Carlo maximum likelihood vector at the MCMLEs beta and nu.}
  \item{likelihood.hessian}{The Monte Carlo maximum likelihood hessian matrix at the MCMLEs beta and nu.}
- \item{trust.converged}{if TRUE the final iterate was deemed optimal by the termination criteria specified by trust. The MCMLE was identified.}
-\item{beta.pql }{A vector of the beta values used in the importance sampling distribution.}
- \item{nu.pql }{A vector of the nu values used in the importance sampling distribution.}
 \item{mod.mcml}{A list containing the fixed effect design matrix, the list of random effect design matrices, and the response.}
-\item{trust.argpath}{The sequence of iterates in the trust optimization, not including the final iterate.}
 \item{fixedcall}{The fixed effects call.}
 \item{fixedcall}{The random effects call.}
 \item{x}{The design matrix for the fixed effects.}
@@ -54,10 +51,9 @@ To see the summary of the model, use summary().
 \item{z}{The design matrix for the random effects.}
 \item{family.glmm}{The name of the family. Must be class glmm.family.}
 \item{call}{The call}
-\item{mat}{The matrix of random effects generated according to the importance sampling distribution with u.pql and nu.pql as parameters.}
 \item{varcomps.names}{The vector of names for the distinct variance components.}
 \item{varcomps.equal}{The vector denoting equal variance components.}
-\item{u.pql}{The vector of random effects as optimized by PQL. This vector serves as the mean vector for the importance sampling distribution.}
+  \item{debug}{If \code{TRUE} extra output useful for testing.}
   The function \code{\link{summary}} (i.e., \code{\link{summary.glmm}}) can
   be used to obtain or print a summary of the results. The generic accessor function \code{\link{coef}} (i.e., \code{\link{coef.glmm}}) can be used to extract the coefficients.
 }

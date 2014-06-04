@@ -1,5 +1,5 @@
 glmm <-
-function(fixed,random,varcomps.names,data,family.glmm,m,varcomps.equal,doPQL=TRUE){
+function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE){
 
 	if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
 	if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
@@ -111,11 +111,14 @@ umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star,blather=T)
 
 	names(beta.trust)<-colnames(mod.mcml$x)
 	names(nu.trust)<-varcomps.names
+
+	if(debug==TRUE){
+	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql,trust.argpath=trust.argpath, u.star=u.star, umat=umat)
+	}
 	
-	return(structure(list(beta=beta.trust,nu=nu.trust, likelihood.value=trust.out$value, 
-likelihood.gradient=trust.out$gradient, likelihood.hessian=trust.out$hessian,
-	trust.converged=trust.out$converged, beta.pql=beta.pql, nu.pql=nu.pql, mod.mcml=mod.mcml,
-	trust.argpath=trust.argpath, fixedcall=fixed,randcall=randcall, x=x,y=y, z=random,
-	family.glmm=family.glmm, call=call,umat=umat, varcomps.names=varcomps.names, 
-	varcomps.equal=varcomps.equal,u.pql=u.star), class="glmm"))
+	return(structure(list(beta=beta.trust,nu=nu.trust, likelihood.value=trust.out$value, likelihood.gradient=trust.out$gradient, likelihood.hessian=trust.out$hessian,
+	trust.converged=trust.out$converged,  mod.mcml=mod.mcml,
+	 fixedcall=fixed,randcall=randcall, x=x,y=y, z=random,
+	family.glmm=family.glmm, call=call, varcomps.names=varcomps.names, 
+	varcomps.equal=varcomps.equal, debug=debug), class="glmm"))
 }
