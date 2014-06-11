@@ -1,5 +1,5 @@
 distRand <-
-function(nu,U,z.list,mu){
+function(nu,U,z.list,mu,distrib="normal"){
 	# T=number variance components
 	T<-length(z.list)
 	
@@ -32,12 +32,15 @@ function(nu,U,z.list,mu){
 		you<-as.vector(U.list[[t]])
 		mew<-as.vector(mu.list[[t]])
 		Umu<-(you-mew)%*%(you-mew)
-		val[t]<- as.numeric(-.5*nrandom[t]*log(nu[t])-Umu/(2*nu[t]))
 		
-		gradient[t]<- -nrandom[t]/(2*nu[t])+Umu/(2*(nu[t])^2)
+		if(distrib=="normal"){
+			val[t]<- as.numeric(-.5*nrandom[t]*log(nu[t])-Umu/(2*nu[t]))
 		
-		Hessian[t]<- nrandom[t]/(2*(nu[t])^2)- Umu/((nu[t])^3)
+			gradient[t]<- -nrandom[t]/(2*nu[t])+Umu/(2*(nu[t])^2)
 		
+			Hessian[t]<- nrandom[t]/(2*(nu[t])^2)- Umu/((nu[t])^3)
+		}
+
 	}
 		
 	value<-sum(val)
