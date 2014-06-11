@@ -1,5 +1,5 @@
 distRand <-
-function(nu,U,z.list,mu,distrib="normal"){
+function(nu,U,z.list,mu,distrib){
 	# T=number variance components
 	T<-length(z.list)
 	
@@ -7,6 +7,7 @@ function(nu,U,z.list,mu,distrib="normal"){
 	nrand<-lapply(z.list,ncol)
 	nrandom<-unlist(nrand)
 	totnrandom<-sum(nrandom)
+	gamma<-totnrandom-1
 	
 	mu.list<-U.list<-NULL
 	if(T==1) {
@@ -25,7 +26,7 @@ function(nu,U,z.list,mu,distrib="normal"){
 		}
 	}
 	
-	val<-gradient<-Hessian<-rep(0,T)
+	piece1<-piece2<-piece3<-val<-gradient<-Hessian<-rep(0,T)
 	
 	#for each variance component
 	for(t in 1:T){
@@ -41,9 +42,23 @@ function(nu,U,z.list,mu,distrib="normal"){
 			Hessian[t]<- nrandom[t]/(2*(nu[t])^2)- Umu/((nu[t])^3)
 		}
 
+		if(distrib=="tee"){
+
+			piece1[t]<- as.numeric(-.5*nrandom[t]*log(nu[t]))
+			piece2[t]<-as.numeric(Umu/(gamma*nu[t]))
+			piece3[t]<- -nrandom[t]/(2*nu[t])
+		}
+
 	}
 		
-	value<-sum(val)
+	if(distrib=="normal") value<-sum(val)
+	if(distrib=="tee") {
+		denomstuff<-1+sum(piece2)
+		const<-((gamma+totnrandom)/2)
+		value<-sum(piece1)+const*log(denomstuff)
+		gradient<-piece3+const*piece2/(nu*denomstuff)	
+		Hessian<-piece3*nu - const*(piece2*nu/denomstuff)^2-const*(2*piece2/nu^2)/denomstuff
+	}
 	if(T>1) hessian<-diag(Hessian)
 	if(T==1) hessian<-matrix(Hessian,nrow=1,ncol=1)
 	
