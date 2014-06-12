@@ -1,5 +1,5 @@
 glmm <-
-function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE){
+function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,gamm=15){
 
 	if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
 	if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
@@ -97,14 +97,15 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	par.init<-c(beta.pql,nu.pql) 
 	
 	# generate random effects
-	genData<-genRand(sigma.pql,s.pql,mod.mcml$z,m)
+	genData<-genRand(sigma.pql,s.pql,mod.mcml$z,m,distrib="tee",gamm)
 	umat<-genData$u
 	u.star<-genData$u.star
+	distrib<-genData$distrib
 	
 	#use trust to max the objfun (monte carlo likelihood)
 	trust.out<-trust(objfun,parinit=par.init,rinit=10, rmax=10000, 
 iterlim=100, minimize=F, nbeta=length(beta.pql), nu.pql=nu.pql, 
-umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T, cache=cache)
+umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T, cache=cache, distrib=distrib,gamm=gamm)
 	
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]

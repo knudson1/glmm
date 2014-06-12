@@ -1,5 +1,5 @@
 objfun <-
-function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache){
+function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,gamm){
 	#print(par)
 	beta<-par[1:nbeta]
 	nu<-par[-(1:nbeta)]
@@ -24,7 +24,9 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache){
 		eta<-mod.mcml$x%*%beta+Z%*%Uk # calculate eta using it
 		zeros<-rep(0,length(Uk))
 		lfu[[k]]<-distRand(nu,Uk,mod.mcml$z,zeros)            #log f_theta(u_k)
-		lfu.twid[[k]]<-distRand(nu.pql,Uk,mod.mcml$z,u.star)   #log f~_theta(u_k)
+		#log f~_theta(u_k)
+		if(distrib=="normal") lfu.twid[[k]]<-distRand(nu.pql,Uk,mod.mcml$z,u.star)   
+		if(distrib=="tee") lfu.twid[[k]]<-tdist(nu.pql,Uk,mod.mcml$z,u.star,gamm)
 		lfyu[[k]]<-el(mod.mcml$y,mod.mcml$x,eta,family.glmm) #log f_theta(y|u_k)
 		
 		b[k]<-lfu[[k]]$value+lfyu[[k]]$value-lfu.twid[[k]]$value

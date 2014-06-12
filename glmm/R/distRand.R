@@ -46,3 +46,16 @@ function(nu,U,z.list,mu){
 	
 	list(value=value,gradient=gradient,hessian=hessian)		
 }
+
+
+tdist <-function(nu,U,z.list,mu,gamm){
+	#use nu and z.list to get D which is scale matrix
+	eek<-getEk(z.list)
+	Dvecs<-Map("*",eek,nu)
+	Dvec<-addVecs(Dvecs) #at this point still a vector
+	Dmat<-diag(Dvec)
+
+	value<-dmvt(U,delta=mu,sigma=Dmat,log=TRUE,df=gamm,type="shifted")
+	list(value=value)
+
+}

@@ -19,8 +19,8 @@ del<-rep(.00000001,2)
 
 objfun<-glmm:::objfun
 
-lth<-objfun(par=par, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm)
-lthdel<-objfun(par=par+del, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm)
+lth<-objfun(par=par, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="tee",gamm=15)
+lthdel<-objfun(par=par+del, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="tee",gamm=15)
 
 all.equal(as.vector(lth$gradient%*%del),lthdel$value-lth$value)
 all.equal(as.vector(lth$hessian%*%del),lthdel$gradient-lth$gradient)
