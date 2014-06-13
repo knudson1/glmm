@@ -5,6 +5,7 @@ export(summary.glmm)
 export(coef.glmm)
 
 import(trust)
+import(mvtnorm)
 
 S3method(print, summary.glmm)
 S3method(summary, glmm)

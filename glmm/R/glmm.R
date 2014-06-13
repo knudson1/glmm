@@ -1,5 +1,5 @@
 glmm <-
-function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,gamm=15){
+function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,distrib="tee",gamm=15){
 
 	if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
 	if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
@@ -97,7 +97,8 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	par.init<-c(beta.pql,nu.pql) 
 	
 	# generate random effects
-	genData<-genRand(sigma.pql,s.pql,mod.mcml$z,m,distrib="tee",gamm)
+	if(distrib=="tee")genData<-genRand(sigma.pql,s.pql,mod.mcml$z,m,distrib="tee",gamm)
+	if(distrib=="normal")genData<-genRand(sigma.pql,s.pql,mod.mcml$z,m,distrib="normal",gamm)
 	umat<-genData$u
 	u.star<-genData$u.star
 	distrib<-genData$distrib

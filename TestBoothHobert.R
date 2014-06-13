@@ -4,7 +4,7 @@ library(glmm,lib.loc="glmm.Rcheck")
 data(BoothHobert)
 
 #mostly just want to get the PQL estimate 
-mod.mcml<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,family.glmm=bernoulli.glmm,m=100) 
+mod.mcml<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,family.glmm=bernoulli.glmm,m=10) 
 beta.pql<-mod.mcml$beta.pql
 nu.pql<-mod.mcml$nu.pql
 u.pql<-mod.mcml$u.pql

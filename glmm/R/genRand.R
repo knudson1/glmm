@@ -20,7 +20,6 @@ function(sigma.star,s.star,z.list,m,distrib,gamm){
 	}
 
 	if(distrib=="tee"){
-		print(gamm)
 		for(k in 1:m){ 
 		u[k,]<-	rmvt(1,diag(A.star),delta=u.star,df=gamm,type="shifted")
 		}

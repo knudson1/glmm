@@ -3,7 +3,7 @@
 \title{Fitting Generalized Linear Mixed Models using MCML}
 \description{This function fits generalized linear mixed models (GLMMs) by approximating the likelihood with ordinary Monte Carlo, then maximizing the approximated likelihood. }
 \usage{glmm(fixed, random, varcomps.names, data, family.glmm, m, 
-varcomps.equal, doPQL = TRUE,debug=FALSE,gamm=15)}
+varcomps.equal, doPQL = TRUE,debug=FALSE,distrib="tee",gamm=15)}
 
 
 \arguments{
@@ -16,6 +16,7 @@ varcomps.equal, doPQL = TRUE,debug=FALSE,gamm=15)}
   \item{varcomps.equal}{An optional vector with elements 1 through the number of distinct variance components. Denotes variance components are to be set equal by assigning them the same integer. The length of varcomps.equal must be equal to the length of the list of random effects formulas. If omitted, varcomps.equal assumes no variance component should be set equal.}
   \item{doPQL}{logical. If \code{TRUE}, PQL estimates are used for the importance sampling distribution. If FALSE, the importance sampling distribution is standard normal.}
   \item{debug}{logical. If \code{TRUE}, extra output useful for testing will be provided.}
+\item{distrib}{Distribution used to generate random effects. Either "normal" or "tee".}
 \item{gamm}{Degrees of freedom for the t distribution used to generate the random effects.}
 }
 \details{
