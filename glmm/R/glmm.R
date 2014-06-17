@@ -1,6 +1,6 @@
 glmm <-
-function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,distrib="tee",gamm=15){
-
+function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,distrib="normal",gamm=15,nu.multiplier=2){
+	if(is.numeric(nu.multiplier)!=TRUE) stop("nu.multiplier must be numeric.")
 	if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
 	if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
 
@@ -82,7 +82,6 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	      sigma.pql<-pql.out$sigma
 	      nu.pql<-sigma.pql^2
 	      beta.pql<-cache$beta.twid #works through here, cache is ok
-		print("PQL estimates have been identified.")
 	}
 	
 	if(doPQL==FALSE){
@@ -93,11 +92,12 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	      sigma.pql<-nu.pql<-rep(1,length(mod.mcml$z))
 	      beta.pql<-rep(1,ncol(mod.mcml$x))
 	}
-	
-	par.init<-c(beta.pql,nu.pql) 
+	nu.gen<-nu.pql*nu.multiplier
+	sigma.gen<-sqrt(nu.gen)
+	par.init<-c(beta.pql,nu.gen) 
 	
 	# generate random effects
-	if(distrib=="tee")genData<-genRand(sigma.pql,s.pql,mod.mcml$z,m,distrib="tee",gamm)
+	if(distrib=="tee")genData<-genRand(sigma.gen,s.pql,mod.mcml$z,m,distrib="tee",gamm)
 	if(distrib=="normal")genData<-genRand(sigma.pql,s.pql,mod.mcml$z,m,distrib="normal",gamm)
 	umat<-genData$u
 	u.star<-genData$u.star
@@ -105,7 +105,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	
 	#use trust to max the objfun (monte carlo likelihood)
 	trust.out<-trust(objfun,parinit=par.init,rinit=10, rmax=10000, 
-iterlim=100, minimize=F, nbeta=length(beta.pql), nu.pql=nu.pql, 
+iterlim=100, minimize=F, nbeta=length(beta.pql), nu.pql=nu.gen, 
 umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T, cache=cache, distrib=distrib,gamm=gamm)
 	
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
@@ -117,7 +117,7 @@ umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T,
 	names(nu.trust)<-varcomps.names
 
 	if(debug==TRUE){
-	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql,trust.argpath=trust.argpath, u.star=u.star, umat=umat,weights=cache$weights)
+	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql, nu.gen=nu.gen, trust.argpath=trust.argpath, u.star=u.star, umat=umat,weights=cache$weights)
 	}
 	
 	return(structure(list(beta=beta.trust,nu=nu.trust, likelihood.value=trust.out$value, likelihood.gradient=trust.out$gradient, likelihood.hessian=trust.out$hessian,

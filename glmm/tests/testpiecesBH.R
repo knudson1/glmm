@@ -81,15 +81,8 @@ objfun<-glmm:::objfun
 that<-objfun(c(beta,nu),nbeta=1,nu.pql=nu.pql,u.star=u.star,mod.mcml=mod.mcml, family.glmm=bernoulli.glmm,cache=cache,distrib="normal",gamm=15,umat=umat)
 all.equal(value,that$value)	
 #Given generated random effects, the value of the objective function is correct.
-############################################
-#now I'm going to calculate objfun's gradient vec
-wts<-top/sum(top)
+#This plus the test of finite diffs for objfun should be enough.
 
-
-
-	#calculate derivs of log f(y|u)
-#	db[k]<-logfyuk(eta,x,y)$gradient
-	#dbb[k]<-logfyuk(eta,x,y)$hessian
 
 
 

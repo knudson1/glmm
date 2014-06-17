@@ -3,7 +3,7 @@
 \title{Fitting Generalized Linear Mixed Models using MCML}
 \description{This function fits generalized linear mixed models (GLMMs) by approximating the likelihood with ordinary Monte Carlo, then maximizing the approximated likelihood. }
 \usage{glmm(fixed, random, varcomps.names, data, family.glmm, m, 
-varcomps.equal, doPQL = TRUE,debug=FALSE,distrib="tee",gamm=15)}
+varcomps.equal, doPQL = TRUE,debug=FALSE,distrib="normal",gamm=15,nu.multiplier=2)}
 
 
 \arguments{
@@ -18,6 +18,7 @@ varcomps.equal, doPQL = TRUE,debug=FALSE,distrib="tee",gamm=15)}
   \item{debug}{logical. If \code{TRUE}, extra output useful for testing will be provided.}
 \item{distrib}{Distribution used to generate random effects. Either "normal" or "tee".}
 \item{gamm}{Degrees of freedom for the t distribution used to generate the random effects.}
+\item{nu.multiplier}{If some of the importance sampling weights are relatively large and you are using \code{"distrib"="normal"}, increase \code{nu.multiplier}.}
 }
 \details{
 Let \eqn{\beta}{beta} be a vector of fixed effects and let \eqn{u}{u} be a vector of random effects. Let \eqn{X}{X} and \eqn{Z}{Z} be design matrices for the fixed and random effects, respectively. The random effects are assumed to be normally distributed with mean 0 and variance matrix \eqn{D}{D}, where \eqn{D}{D} is diagonal with entries from the unknown vector \eqn{\nu}{nu}. Letting \eqn{g}{g} be the link function, \eqn{g(\mu)=X \beta+ZU}{g(mu)=X beta+ ZU}. For example, if the response is Bernoulli, then the logit function is the link.
