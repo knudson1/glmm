@@ -1,5 +1,5 @@
 glmm <-
-function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,distrib="normal",gamm=15,nu.multiplier=2){
+function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,distrib="normal",gamm=15,nu.multiplier=2,mix=.5){
 	if(is.numeric(nu.multiplier)!=TRUE) stop("nu.multiplier must be numeric.")
 	if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
 	if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
@@ -53,6 +53,9 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	levs<-ordered(unique(varcomps.equal))
 	family.glmm<-getFamily(family.glmm)
 	family.glmm$checkData(y)
+	if(!is.numeric(mix))stop("mix must be a number between 0 and 1")
+	if(mix>1) stop("mix must be a number between 0 and 1")
+	if(mix<0) stop("mix must be a number between 0 and 1")
 	
 	#this loop is a 2-4-1. We want to check that they're filling in varcomps.equal correctly. 
 	#We also want to group all the design matrices that share a variance components.
@@ -96,17 +99,26 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	sigma.gen<-sqrt(nu.gen)
 	par.init<-c(beta.pql,nu.gen) 
 	
-	# generate random effects
-	if(distrib=="tee")genData<-genRand(sigma.gen,s.pql,mod.mcml$z,m,distrib="tee",gamm)
-	if(distrib=="normal")genData<-genRand(sigma.pql,s.pql,mod.mcml$z,m,distrib="normal",gamm)
-	umat<-genData$u
+	#### generate random effects
+	m1<-m*mix #this many using parameters based on data
+	m2<-m-m1 #this many using standard normal
+	#cat("m1 and m2 are",m1,"and", m2, "\n")
+	#these are from distribution based on data
+	if(distrib=="tee")genData<-genRand(sigma.gen,s.pql,mod.mcml$z,m1,distrib="tee",gamm)
+	if(distrib=="normal")genData<-genRand(sigma.pql,s.pql,mod.mcml$z,m1,distrib="normal",gamm)
+	#these are from standard normal
+	ones<-rep(1,length(sigma.pql))
+	zeros<-rep(0,length(s.pql))
+	genData2<-genRand(ones,zeros,mod.mcml$z,m2,distrib="normal",gamm)
+
+	umat<-rbind(genData$u,genData2$u)
 	u.star<-genData$u.star
 	distrib<-genData$distrib
 	
 	#use trust to max the objfun (monte carlo likelihood)
 	trust.out<-trust(objfun,parinit=par.init,rinit=10, rmax=10000, 
 iterlim=100, minimize=F, nbeta=length(beta.pql), nu.pql=nu.gen, 
-umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T, cache=cache, distrib=distrib,gamm=gamm)
+umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T, cache=cache, distrib=distrib,gamm=gamm,mix=mix)
 	
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]

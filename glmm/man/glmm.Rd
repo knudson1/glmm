@@ -3,7 +3,7 @@
 \title{Fitting Generalized Linear Mixed Models using MCML}
 \description{This function fits generalized linear mixed models (GLMMs) by approximating the likelihood with ordinary Monte Carlo, then maximizing the approximated likelihood. }
 \usage{glmm(fixed, random, varcomps.names, data, family.glmm, m, 
-varcomps.equal, doPQL = TRUE,debug=FALSE,distrib="normal",gamm=15,nu.multiplier=2)}
+varcomps.equal, doPQL = TRUE,debug=FALSE,distrib="normal",gamm=15, nu.multiplier=2,mix=.5)}
 
 
 \arguments{
@@ -19,6 +19,7 @@ varcomps.equal, doPQL = TRUE,debug=FALSE,distrib="normal",gamm=15,nu.multiplier=
 \item{distrib}{Distribution used to generate random effects. Either "normal" or "tee".}
 \item{gamm}{Degrees of freedom for the t distribution used to generate the random effects.}
 \item{nu.multiplier}{If some of the importance sampling weights are relatively large and you are using \code{"distrib"="normal"}, increase \code{nu.multiplier}.}
+\item{mix}{A probability for mixing the random effects generated from a  distribution with parameters dependent on the data and those generated from a standard normal. If \code{mix} is .6, then 60 percent of the random effects are generated using parameters dependent on the data.}
 }
 \details{
 Let \eqn{\beta}{beta} be a vector of fixed effects and let \eqn{u}{u} be a vector of random effects. Let \eqn{X}{X} and \eqn{Z}{Z} be design matrices for the fixed and random effects, respectively. The random effects are assumed to be normally distributed with mean 0 and variance matrix \eqn{D}{D}, where \eqn{D}{D} is diagonal with entries from the unknown vector \eqn{\nu}{nu}. Letting \eqn{g}{g} be the link function, \eqn{g(\mu)=X \beta+ZU}{g(mu)=X beta+ ZU}. For example, if the response is Bernoulli, then the logit function is the link.
@@ -84,15 +85,20 @@ data(BoothHobert)
 set.seed(1234)
 mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
 family.glmm=bernoulli.glmm,m=100,doPQL=TRUE)
+mod.mcml1$beta
+mod.mcml1$nu
 summary(mod.mcml1)
 coef(mod.mcml1)
 
 #Next, a similar model that has two distinct variance components.
-data(Booth2)
-set.seed(1234)
-mod.mcml2<-glmm(y~0+x1,list(y~0+z1,~0+z2),varcomps.names=c("z1","z2"),
-data=Booth2,family.glmm=bernoulli.glmm,m=100,doPQL=TRUE)
-summary(mod.mcml2,digits=3)
+#data(Booth2)
+#set.seed(1234)
+#mod.mcml2<-glmm(y~0+x1,list(y~0+z1,~0+z2),varcomps.names=c("z1","z2"),
+#data=Booth2,family.glmm=bernoulli.glmm,m=100,doPQL=TRUE)
+#mod.mcml2$beta
+#mod.mcml2$nu
+#mod.mcml2$likelihood.hessian
+#summary(mod.mcml2,digits=3)
 
 #Next, a similar model but we set the variance components equal.
 data(Booth2)
@@ -100,6 +106,8 @@ set.seed(1234)
 mod.mcml3<-glmm(y~0+x1,list(y~0+z1,~0+z2),varcomps.names=c("z"), 
 varcomps.equal=c(1,1), data=Booth2,family.glmm=bernoulli.glmm,
 m=100,doPQL=FALSE)
+mod.mcml3$beta
+mod.mcml3$nu
 summary(mod.mcml3)
 
 }

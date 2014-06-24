@@ -69,7 +69,8 @@ for(k in 1:m){
 		
 	piece1<- logfyuk(eta,x,y)$value	
 	piece2<- distRandCheck(nu,uvec,rep(0,10))$value
-	piece3<- distRandCheck(nu.pql,uvec,u.star)$value	
+	piece3<- distRandCheck(nu.pql,uvec,u.star)$value
+	piece4<- distRandCheck(1,uvec,0)$value	
 	b[k]<-piece1+piece2-piece3
 	}	
 a<-max(b)
@@ -78,7 +79,7 @@ value<-a+log(mean(top))
 #going to compare this against objfun's value
 cache<-new.env(parent = emptyenv())
 objfun<-glmm:::objfun
-that<-objfun(c(beta,nu),nbeta=1,nu.pql=nu.pql,u.star=u.star,mod.mcml=mod.mcml, family.glmm=bernoulli.glmm,cache=cache,distrib="normal",gamm=15,umat=umat)
+that<-objfun(c(beta,nu),nbeta=1,nu.pql=nu.pql,u.star=u.star,mod.mcml=mod.mcml, family.glmm=bernoulli.glmm,cache=cache,distrib="normal",gamm=15,umat=umat,mix=.5)
 all.equal(value,that$value)	
 #Given generated random effects, the value of the objective function is correct.
 #This plus the test of finite diffs for objfun should be enough.

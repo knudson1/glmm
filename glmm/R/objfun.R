@@ -1,5 +1,5 @@
 objfun <-
-function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,gamm){
+function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,gamm,mix){
 	#print(par)
 	beta<-par[1:nbeta]
 	nu<-par[-(1:nbeta)]
@@ -16,20 +16,26 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 	Z=do.call(cbind,mod.mcml$z)
 
 	eta<-b<-rep(0,m)
-	lfu<-lfu.twid<-lfyu<-list(rep(c(0,0,0),m))
+	lfu.twid2<-lfu<-lfu.twid<-lfyu<-list(rep(c(0,0,0),m))
 	
 	#for each simulated random effect vector
 	for(k in 1:m){
 		Uk<-umat[k,]  #use the simulated vector as our random effect vec
+		#cat("dimensionf of Z are", dim(Z),"\n")
+		#cat("length of Uk is",length(Uk),"\n")		
 		eta<-mod.mcml$x%*%beta+Z%*%Uk # calculate eta using it
 		zeros<-rep(0,length(Uk))
 		lfu[[k]]<-distRand(nu,Uk,mod.mcml$z,zeros)            #log f_theta(u_k)
 		#log f~_theta(u_k)
-		if(distrib=="normal") lfu.twid[[k]]<-distRand(nu.pql,Uk,mod.mcml$z,u.star)   
-		if(distrib=="tee") lfu.twid[[k]]<-tdist(nu.pql,Uk,mod.mcml$z,u.star,gamm)
+		if(distrib=="normal"){
+			lfu.twid[[k]]<-distRand(nu.pql,Uk,mod.mcml$z,u.star)}
+
+		if(distrib=="tee") {
+			lfu.twid[[k]]<-tdist(nu.pql,Uk,mod.mcml$z,u.star,gamm)}
+		lfu.twid2[[k]]<-distRand(rep(1,length(nu)),Uk,mod.mcml$z,zeros)   
 		lfyu[[k]]<-el(mod.mcml$y,mod.mcml$x,eta,family.glmm) #log f_theta(y|u_k)
 		
-		b[k]<-lfu[[k]]$value+lfyu[[k]]$value-lfu.twid[[k]]$value
+		b[k]<-lfu[[k]]$value+lfyu[[k]]$value-mix*lfu.twid[[k]]$value-(1-mix)*lfu.twid2[[k]]$value
 	}
 
 	a<-max(b)
