@@ -65,6 +65,8 @@ cat("Variance Components for Random Effects (P-values are one-tailed):")
 
 }
 
+
+
 coef.glmm <-
 function(object,...){
 	mod<-object

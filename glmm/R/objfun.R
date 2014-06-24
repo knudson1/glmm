@@ -32,10 +32,15 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 
 		if(distrib=="tee") {
 			lfu.twid[[k]]<-tdist(nu.pql,Uk,mod.mcml$z,u.star,gamm)}
-		lfu.twid2[[k]]<-distRand(rep(1,length(nu)),Uk,mod.mcml$z,zeros)   
-		lfyu[[k]]<-el(mod.mcml$y,mod.mcml$x,eta,family.glmm) #log f_theta(y|u_k)
 		
-		b[k]<-lfu[[k]]$value+lfyu[[k]]$value-mix*lfu.twid[[k]]$value-(1-mix)*lfu.twid2[[k]]$value
+		lfu.twid2[[k]]<-distRand(rep(1,length(nu)),Uk,mod.mcml$z,rep(0,length(u.star)))   
+		lfyu[[k]]<-el(mod.mcml$y,mod.mcml$x,eta,family.glmm) #log f_theta(y|u_k)
+		m1<-m*mix
+		if(k<=m1) {
+			b[k]<-lfu[[k]]$value+lfyu[[k]]$value-lfu.twid[[k]]$value}
+		if(k>m1){
+			b[k]<-lfu[[k]]$value+lfyu[[k]]$value-lfu.twid2[[k]]$value}
+#b[k]<-lfu[[k]]$value+lfyu[[k]]$value-mix*lfu.twid[[k]]$value-(1-mix)*lfu.twid2[[k]]$value
 	}
 
 	a<-max(b)
