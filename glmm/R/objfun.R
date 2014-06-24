@@ -35,10 +35,9 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 	a<-max(b)
 	thing<-exp(b-a)
 	value<-a-log(m)+log(sum(thing))
-	
-	#weights
-	cache$weights<-thing
 	v<-thing/sum(thing)
+	#bk are log weights
+	cache$weights<-exp(b)
 	
 	Gpiece<-matrix(data=NA,nrow=nrow(umat),ncol=length(par))
 	

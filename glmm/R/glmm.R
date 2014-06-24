@@ -117,7 +117,7 @@ umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T,
 	names(nu.trust)<-varcomps.names
 
 	if(debug==TRUE){
-	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql, nu.gen=nu.gen, trust.argpath=trust.argpath, u.star=u.star, umat=umat,weights=cache$weights)
+	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql, nu.gen=nu.gen, trust.argpath=trust.argpath, u.star=u.star, umat=umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom)
 	}
 	
 	return(structure(list(beta=beta.trust,nu=nu.trust, likelihood.value=trust.out$value, likelihood.gradient=trust.out$gradient, likelihood.hessian=trust.out$hessian,
