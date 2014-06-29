@@ -29,17 +29,16 @@ function()
 	return(out)
 }
 
+
 bernoulli.glmm <-
 function()
 {
 	family.glmm<- "bernoulli.glmm"
-	cum <- function(eta) {
-		if(eta<=0) stuff<-log1p(exp(eta))
-		if(eta>0) stuff<-eta+log1p(exp(-eta))
-		stuff}
+	cum <- function(eta){ 
+		if(eta>0) eta+log1p(exp(-eta))
+		else log1p(exp(eta))}
 	cp <- function(eta) {1/(1+exp(-eta))}
 	cpp<-function(eta) {(1/(1+exp(-eta)))*(1/(1+exp(eta)))}
-	
 	checkData<-function(x) {
 		bads<-sum(x!=1&x!=0)
 		if(bads>0) stop("response must be 0 and 1.")
