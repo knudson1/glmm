@@ -33,9 +33,12 @@ bernoulli.glmm <-
 function()
 {
 	family.glmm<- "bernoulli.glmm"
-	cum <- function(eta) log(1+exp(eta))
-	cp <- function(eta) exp(eta)/(1+exp(eta))
-	cpp<-function(eta) exp(eta)/(1+exp(eta))-exp(2*eta)*(1+exp(eta))^(-2)
+	cum <- function(eta) {
+		if(eta<=0) stuff<-log1p(exp(eta))
+		if(eta>0) stuff<-eta+log1p(exp(-eta))
+		stuff}
+	cp <- function(eta) {1/(1+exp(-eta))}
+	cpp<-function(eta) {(1/(1+exp(-eta)))*(1/(1+exp(eta)))}
 	
 	checkData<-function(x) {
 		bads<-sum(x!=1&x!=0)
