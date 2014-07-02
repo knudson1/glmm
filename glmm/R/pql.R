@@ -33,22 +33,22 @@ function(par,beta,s,Y,X,Z,eek,family.mcml,cache){
 	A<-addVecs(Aks) #at this point still a vector
 	A<-diag(A) #takes the vector and makes it a diag matrix
 
-# 	if (! missing(cache)) {
-#             stopifnot(is.environment(cache))
-#             if (exists("s.twid", envir = cache, inherits = FALSE)) {
-#                 stopifnot(is.numeric(cache$s.twid))
-#                 stopifnot(is.finite(cache$s.twid))
-#                 stopifnot(length(cache$s.twid) == length(s))
-#                 s <- cache$s.twid
-#             }
+ 	if (! missing(cache)) {
+             stopifnot(is.environment(cache))
+             if (exists("s.twid", envir = cache, inherits = FALSE)) {
+                 stopifnot(is.numeric(cache$s.twid))
+                 stopifnot(is.finite(cache$s.twid))
+                 stopifnot(length(cache$s.twid) == length(s))
+                 s <- cache$s.twid
+             }
 #
-#	     if (exists("beta.twid", envir = cache, inherits = FALSE)) {
-#                 stopifnot(is.numeric(cache$beta.twid))
-#                 stopifnot(is.finite(cache$beta.twid))
-#                 stopifnot(length(cache$beta.twid) == length(beta))
-#                 beta <- cache$beta.twid
-#             }
-#         }
+	     if (exists("beta.twid", envir = cache, inherits = FALSE)) {
+                 stopifnot(is.numeric(cache$beta.twid))
+                 stopifnot(is.finite(cache$beta.twid))
+                 stopifnot(length(cache$beta.twid) == length(beta))
+                 beta <- cache$beta.twid
+             }
+         }
 
 	nbeta<-length(beta)
 	#run trust
