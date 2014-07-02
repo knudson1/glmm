@@ -25,9 +25,10 @@ bernoulli.glmm()
 \code{\link{glmm}}
 }
 \examples{
+eta<--3:3
 bernoulli.glmm()$family.glmm
-bernoulli.glmm()$cum(2)
-bernoulli.glmm()$cp(2)
+bernoulli.glmm()$cum(eta)
+bernoulli.glmm()$cp(1)
 bernoulli.glmm()$cpp(2)
 
 }

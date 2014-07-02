@@ -1,5 +1,5 @@
 objfun <-
-function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,gamm,mix){
+function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,gamm,m1,m2,m3,D.star,Sigmuh){
 	#print(par)
 	beta<-par[1:nbeta]
 	nu<-par[-(1:nbeta)]
@@ -16,7 +16,8 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 	Z=do.call(cbind,mod.mcml$z)
 
 	eta<-b<-rep(0,m)
-	lfu.twid2<-lfu<-lfu.twid<-lfyu<-list(rep(c(0,0,0),m))
+	lfu<-lfyu<-list(rep(c(0,0,0),m))
+	lfu.twid<-matrix(data=NA,nrow=m,ncol=4)
 	
 	#for each simulated random effect vector
 	for(k in 1:m){
@@ -25,22 +26,25 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 		#cat("length of Uk is",length(Uk),"\n")		
 		eta<-mod.mcml$x%*%beta+Z%*%Uk # calculate eta using it
 		zeros<-rep(0,length(Uk))
-		lfu[[k]]<-distRand(nu,Uk,mod.mcml$z,zeros)            #log f_theta(u_k)
+
+		#log f_theta(u_k)
+		lfu[[k]]<-distRand(nu,Uk,mod.mcml$z,zeros) 
+
+		#log f_theta(y|u_k)
+		lfyu[[k]]<-el(mod.mcml$y,mod.mcml$x,eta,family.glmm) 
+
 		#log f~_theta(u_k)
 		if(distrib=="normal"){
-			lfu.twid[[k]]<-distRand(nu.pql,Uk,mod.mcml$z,u.star)}
-
+			lfu.twid[k,1]<-distRandGeneral(Uk,zeros,D.star)}
 		if(distrib=="tee") {
-			lfu.twid[[k]]<-tdist(nu.pql,Uk,mod.mcml$z,u.star,gamm)}
+			lfu.twid[k,1]<-tdist(nu.pql,Uk,mod.mcml$z,u.star,gamm)}
+		lfu.twid[k,2]<-distRandGeneral(Uk,u.star,D.star)
+		lfu.twid[k,3]<-distRandGeneral(Uk,u.star,Sigmuh)
 		
-		lfu.twid2[[k]]<-distRand(rep(1,length(nu)),Uk,mod.mcml$z,rep(0,length(u.star)))   
-		lfyu[[k]]<-el(mod.mcml$y,mod.mcml$x,eta,family.glmm) #log f_theta(y|u_k)
-		m1<-m*mix
-		if(k<=m1) {
-			b[k]<-lfu[[k]]$value+lfyu[[k]]$value-lfu.twid[[k]]$value}
-		if(k>m1){
-			b[k]<-lfu[[k]]$value+lfyu[[k]]$value-lfu.twid2[[k]]$value}
-#b[k]<-lfu[[k]]$value+lfyu[[k]]$value-mix*lfu.twid[[k]]$value-(1-mix)*lfu.twid2[[k]]$value
+		pee<-c(m1,m2,m3)/(m1+m2+m3)
+		lfu.twid[k,4]<-pee%*%lfu.twid[k,1:3]
+		
+		b[k]<-as.numeric(lfu[[k]]$value)+as.numeric(lfyu[[k]]$value)-lfu.twid[k,4]
 	}
 
 	a<-max(b)

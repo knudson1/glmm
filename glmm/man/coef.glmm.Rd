@@ -27,7 +27,7 @@
 library(glmm)
 data(cbpp2)
 set.seed(1234)
-herd.glmm1<-glmm(Y~period,list(~0+herd), family=bernoulli.glmm, data=cbpp2, m=10^2, varcomps.names=c("herd"))
+herd.glmm1<-glmm(Y~period,list(~0+herd), varcomps.names=c("herd"),data=cbpp2, family.glmm=bernoulli.glmm,  m=10^2 )
 coef(herd.glmm1)
 
 

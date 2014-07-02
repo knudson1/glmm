@@ -1,4 +1,4 @@
-genRand <-
+genRandOld <-
 function(sigma.star,s.star,z.list,m,distrib,gamm){
 	nrand<-lapply(z.list,ncol)
 	nrandom<-unlist(nrand)
@@ -25,4 +25,22 @@ function(sigma.star,s.star,z.list,m,distrib,gamm){
 		}
 	}
 	list(u=u,u.star=u.star,distrib=distrib)
+}
+
+
+genRand <-function(mew,Sigma,m){
+	q<-length(mew)
+	if(length(mew)!=nrow(Sigma)) stop("problem in genRand: mew and Sigma dims disagree")
+	u<-matrix(data=NA,nrow=m,ncol=q)
+
+	#calculate Sigma^.5
+	eigenstuff<-eigen(Sigma,symmetric=TRUE)
+	lambda.half<-sqrt(eigenstuff$values)
+	Sigma.half<-eigenstuff$vectors%*%diag(lambda.half)%*%t(eigenstuff$vectors)
+
+	for(k in 1:m){
+		u.swoop<-rnorm(q)
+		u[k,]<-u.swoop%*%Sigma.half+mew
+		}
+	list(u=u)
 }

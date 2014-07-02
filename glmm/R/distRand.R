@@ -59,3 +59,13 @@ tdist <-function(nu,U,z.list,mu,gamm){
 	list(value=value)
 
 }
+
+distRandGeneral<-function(uvec,mu,Sigma){
+	Sigma.inv<-solve(Sigma)
+	logDetSigmaInv<-sum(log(eigen(Sigma.inv,symmetric=TRUE)$values))
+
+	umu<-uvec-mu
+	piece2<-t(umu)%*%Sigma.inv%*%umu
+
+	as.vector(.5*(logDetSigmaInv-piece2))
+}

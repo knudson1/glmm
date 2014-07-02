@@ -19,7 +19,6 @@ function(mod.mcml,family.mcml,cache){
 	X=mod.mcml$x
 	Z=do.call(cbind,mod.mcml$z)
 	
-	#outer.optim<-optim(par=sigma, fn=fn.outer,  beta=beta, s=s, Y=Y ,X=X ,Z=Z ,eek=eek ,family.mcml=family.mcml,cache=cache)
 	outer.optim<-suppressWarnings(optim(par=sigma, fn=fn.outer,  beta=beta, s=s, Y=Y ,X=X ,Z=Z ,eek=eek ,family.mcml=family.mcml,cache=cache))
 
 	list(sigma=outer.optim$par)
@@ -34,15 +33,29 @@ function(par,beta,s,Y,X,Z,eek,family.mcml,cache){
 	A<-addVecs(Aks) #at this point still a vector
 	A<-diag(A) #takes the vector and makes it a diag matrix
 
+# 	if (! missing(cache)) {
+#             stopifnot(is.environment(cache))
+#             if (exists("s.twid", envir = cache, inherits = FALSE)) {
+#                 stopifnot(is.numeric(cache$s.twid))
+#                 stopifnot(is.finite(cache$s.twid))
+#                 stopifnot(length(cache$s.twid) == length(s))
+#                 s <- cache$s.twid
+#             }
+#
+#	     if (exists("beta.twid", envir = cache, inherits = FALSE)) {
+#                 stopifnot(is.numeric(cache$beta.twid))
+#                 stopifnot(is.finite(cache$beta.twid))
+#                 stopifnot(length(cache$beta.twid) == length(beta))
+#                 beta <- cache$beta.twid
+#             }
+#         }
+
 	nbeta<-length(beta)
 	#run trust
 	inner.optim<-trust(fn.inner.trust,parinit=c(beta,s),rinit=5,rmax=10000,minimize=F,Y=Y,X=X,Z=Z,A=A,nbeta=nbeta,
 family.mcml=family.mcml,cache=cache)
 	
 	#get beta and s
-	#parms<-inner.optim$argument
-	#beta.twid<-cache$beta.twid<-parms[1:nbeta]
-	#s.twid<-cache$s.twid<-parms[-(1:nbeta)]
 	beta.twid<-cache$beta.twid
 	s.twid<-cache$s.twid
 	
@@ -78,6 +91,7 @@ fn.inner.trust <-
 function(mypar,Y,X,Z,A,family.mcml,nbeta,cache )
 {
 	beta<-mypar[1:nbeta]
+	#print(beta)
 	s<-mypar[-(1:nbeta)]
 	eta<-X%*%beta+Z%*%A%*%s
 	family.mcml<-getFamily(family.mcml)

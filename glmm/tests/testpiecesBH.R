@@ -1,7 +1,7 @@
 library(glmm)
 data(BoothHobert)
 set.seed(1234)
-mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=100, doPQL=TRUE, debug=TRUE, distrib="normal")
+mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, distrib="normal")
 
 mod.mcml<-mod.mcml1$mod.mcml
 z<-mod.mcml$z[[1]]
@@ -15,6 +15,10 @@ u.pql<-u.star<-stuff$u.star
 umat<-stuff$umat
 
 family.glmm<-bernoulli.glmm
+
+objfun<-glmm:::objfun
+getEk<-glmm:::getEk
+addVecs<-glmm:::addVecs
 
 ############################################
 #this should be the same as el
@@ -54,35 +58,48 @@ that<-distRand(2,you,mod.mcml$z,u.pql)
 
 all.equal(this,that)
 
-############################################
-#want to check that the value of objfun is the same for a value of nu and beta
-m<-nrow(umat)
-dbb<-db<-b<-rep(0,m)
-sigsq<-nu<-2
-beta<-6
 
-#now go through row by row of umat 
-#ie go through each vector of gen rand eff
-for(k in 1:m){
-	uvec<-umat[k,]
-	eta<-x*beta+as.vector(z%*%uvec)
-		
-	piece1<- logfyuk(eta,x,y)$value	
-	piece2<- distRandCheck(nu,uvec,rep(0,10))$value
-	piece3<- distRandCheck(nu.pql,uvec,u.star)$value
-	piece4<- distRandCheck(1,uvec,0)$value	
-	b[k]<-piece1+piece2-piece3
-	}	
-a<-max(b)
-top<-exp(b-a)
-value<-a+log(mean(top))
-#going to compare this against objfun's value
-cache<-new.env(parent = emptyenv())
-objfun<-glmm:::objfun
-that<-objfun(c(beta,nu),nbeta=1,nu.pql=nu.pql,u.star=u.star,mod.mcml=mod.mcml, family.glmm=bernoulli.glmm,cache=cache,distrib="normal",gamm=15,umat=umat,mix=.5)
-all.equal(value,that$value)	
-#Given generated random effects, the value of the objective function is correct.
-#This plus the test of finite diffs for objfun should be enough.
+
+###############################################
+#will want to check distRandGeneral
+#need to get D*
+distRandGeneral<-glmm:::distRandGeneral
+eek<-getEk(mod.mcml$z)
+Aks<-Map("*",eek,2)
+D.star<-addVecs(Aks) 
+D.star<-diag(D.star)
+this<-distRandGeneral(you,u.pql,D.star)
+all.equal(this,that$value)
+
+#############################################
+##want to check that the value of objfun is the same for a value of nu and beta
+#m<-nrow(umat)
+#dbb<-db<-b<-rep(0,m)
+#sigsq<-nu<-2
+#beta<-6
+
+##now go through row by row of umat 
+##ie go through each vector of gen rand eff
+#for(k in 1:m){
+#	uvec<-umat[k,]
+#	eta<-x*beta+as.vector(z%*%uvec)
+#		
+#	piece1<- logfyuk(eta,x,y)$value	
+#	piece2<- distRandCheck(nu,uvec,rep(0,10))$value
+#	piece3<- distRandCheck(nu.pql,uvec,u.star)$value
+#	piece4<- distRandCheck(1,uvec,0)$value	
+#	b[k]<-piece1+piece2-piece3
+#	}	
+#a<-max(b)
+#top<-exp(b-a)
+#value<-a+log(mean(top))
+##going to compare this against objfun's value
+#cache<-new.env(parent = emptyenv())
+#objfun<-glmm:::objfun
+#that<-objfun(c(beta,nu),nbeta=1,nu.pql=nu.pql,u.star=u.star,mod.mcml=mod.mcml, family.glmm=bernoulli.glmm,cache=cache,distrib="normal",gamm=15,umat=umat,mix=.5)
+#all.equal(value,that$value)	
+##Given generated random effects, the value of the objective function is correct.
+##This plus the test of finite diffs for objfun should be enough.
 
 
 

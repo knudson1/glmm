@@ -1,5 +1,4 @@
-getFamily <-
-function(family.glmm)
+getFamily <-function(family.glmm)
 {
 	if(is.character(family.glmm))
 		family.glmm<-get(family.glmm,mode="function",envir=parent.frame())
@@ -12,8 +11,7 @@ function(family.glmm)
 	family.glmm	
 }
 
-poisson.glmm <-
-function()
+poisson.glmm <-function()
 {
 	family.glmm<- "poisson.glmm"
 	cum <- function(eta) exp(eta)
@@ -30,13 +28,13 @@ function()
 }
 
 
-bernoulli.glmm <-
-function()
+bernoulli.glmm <-function()
 {
 	family.glmm<- "bernoulli.glmm"
 	cum <- function(eta){ 
 		if(eta>0) eta+log1p(exp(-eta))
 		else log1p(exp(eta))}
+	cum<-Vectorize(cum)
 	cp <- function(eta) {1/(1+exp(-eta))}
 	cpp<-function(eta) {(1/(1+exp(-eta)))*(1/(1+exp(eta)))}
 	checkData<-function(x) {
