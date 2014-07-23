@@ -279,110 +279,16 @@ I fit the salamander data set using  my glmm package (with $m=10^4$ twice and wi
 \begin{tabular}{lcccccc}
 & Intercept & RW & WR & WW & $\nu_F$ & $\nu_M$ \\ \hline
 MCEM (B+H) & 1.03 & .32 & -1.95 & .99 & 1.4 & 1.25 \\
-glmm $m=10^4$ & 1.11 & -.55 & -3.17& -.21 & 1.21 & .95 \\
-glmm $m=10^4$ & .94 & -.76 & -2.72 & .0023 & 1.60 & .99 \\
-glmm $m=10^6$ &  0.84&  -0.81&  -2.81&  -0.21&1.21& 1.02 \\
+glmm $m=10^5$ &   0.964      -0.645      -2.767      -0.008
 \end{tabular}
 
 
-\begin{verbatim}
-> set.seed(1234)
-> sal.glmm3<-glmm(Mate~Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),
-data=salamander,family.glmm=bernoulli.glmm,m=10^4)
-> summary(sal.glmm3)
-
-Call:
-glmm(fixed = Mate ~ Cross, random = list(~0 + Female, ~0 + Male), 
-    varcomps.names = c("F", "M"), data = salamander, family.glmm = bernoulli.glmm, 
-    m = 10^4)
-
-Fixed Effects:
-            Estimate Std. Error z value Pr(>|z|)    
-(Intercept)   1.1123     0.2593   4.290 1.79e-05 ***
-CrossRW      -0.5545     0.3558  -1.558    0.119    
-CrossWR      -3.1701     0.4029  -7.867 3.62e-15 ***
-CrossWW      -0.2122     0.3681  -0.577    0.564    
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-
-Variance Components for Random Effects (P-values are one-tailed):
-  Estimate Std. Error z value Pr(>|z|)/2    
-F   1.2087     0.2534   4.769   9.24e-07 ***
-M   0.9485     0.1809   5.244   7.86e-08 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-\end{verbatim}
-
-Here are the results with $m=10^4$ but I forgot to set the seed. At least it helps us see a bit of the variability.
-\begin{verbatim}
-> summary(sal.glmm2)
-
-Call:
-glmm(fixed = Mate ~ Cross, random = list(~0 + Female, ~0 + Male), 
-    varcomps.names = c("F", "M"), data = salamander, family.glmm = bernoulli.glmm, 
-    m = 10^4)
-
-Fixed Effects:
-            Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  0.93879    0.26963   3.482 0.000498 ***
-CrossRW     -0.76157    0.37376  -2.038 0.041593 *  
-CrossWR     -2.72491    0.40736  -6.689 2.24e-11 ***
-CrossWW      0.02256    0.37902   0.060 0.952541    
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-
-Variance Components for Random Effects (P-values are one-tailed):
-  Estimate Std. Error z value Pr(>|z|)/2    
-F   1.5991     0.2965   5.394   3.45e-08 ***
-M   0.9908     0.1885   5.255   7.41e-08 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-\end{verbatim}
 
 
 
 
-Here are the results with $m=10^6$. 
-\begin{verbatim}
-> ptm <- proc.time()
-> sal.glmm3<-glmm(Mate~Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F"
-,"M"),data=salamander,family.glmm=bernoulli.glmm,m=10^6)
->  proc.time()-ptm
-      user     system    elapsed 
-148604.323    595.454 174153.241 
-> summary(sal.glmm3)
 
-Call:
-glmm(fixed = Mate ~ Cross, random = list(~0 + Female, ~0 + Male), 
-    varcomps.names = c("F", "M"), data = salamander, family.glmm = bernoulli.glm
-m, 
-    m = 10^6)
 
-Fixed Effects:
-            Estimate Std. Error z value Pr(>|z|)    
-(Intercept)   0.8413     0.2756   3.052  0.00227 ** 
-CrossRW      -0.8074     0.3737  -2.161  0.03072 *  
-CrossWR      -2.8062     0.4097  -6.849 7.43e-12 ***
-CrossWW      -0.2135     0.3887  -0.549  0.58289    
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-Variance Components for Random Effects (P-values are one-tailed):
-  Estimate Std. Error z value Pr(>|z|)/2    
-F   1.2090     0.2443   4.948   3.74e-07 ***
-M   1.0196     0.2013   5.065   2.04e-07 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-> sal.glmm3$beta.pql
-[1]  0.83806013 -0.57917030 -2.44205490 -0.01778234
-> sal.glmm3$nu.pql
-[1] 1.122464 1.036371
-
-\end{verbatim}
 
 \section{Murder}
 Subjects were asked how many victims of homicide they personally knew. The data set is from Agresti's \textit{Categorical Data Analysis} book. I found similar answers from my glmm package as from glmmPQL.

@@ -10,6 +10,7 @@ bernoulli.glmm()
 
 \value{
 \item{family.glmm }{The family name, as a string.}
+\item{link}{The link function (canonical link is required).}
   \item{cum }{The cumulant function.}
   \item{cp }{The first derivative of the cumulant function.}
   \item{cpp }{The second derivative of the cumulant function.}

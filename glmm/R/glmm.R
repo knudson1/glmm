@@ -132,7 +132,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	genData<-genRand(zeros,D.star,m1)
 	
 	#generate m2 from N(u*,D*)
-	genData2<-genRand(u.star,D.star,m1)
+	genData2<-genRand(u.star,D.star,m2)
 
 	#generate m3 from N(u*,(Z'c''(Xbeta*+zu*)Z+D*^{-1})^-1)
 	Z=do.call(cbind,mod.mcml$z)
@@ -141,7 +141,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	cdouble<-diag(cdouble)
 	Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
 	Sigmuh<-solve(Sigmuh.inv)
-	genData3<-genRand(u.star,Sigmuh,m1)
+	genData3<-genRand(u.star,Sigmuh,m3)
 
 #	#these are from distribution based on data
 #	if(distrib=="tee")genData<-genRand(sigma.gen,s.pql,mod.mcml$z,m1,distrib="tee",gamm)
@@ -167,7 +167,7 @@ umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T,
 	names(nu.trust)<-varcomps.names
 
 	if(debug==TRUE){
-	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql, nu.gen=nu.gen, trust.argpath=trust.argpath, u.star=u.star, umat=umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom)
+	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql, nu.gen=nu.gen, trust.argpath=trust.argpath, u.star=u.star, umat=umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=m1,m2=m2,m3=m3)
 	}
 	
 	return(structure(list(beta=beta.trust,nu=nu.trust, likelihood.value=trust.out$value, likelihood.gradient=trust.out$gradient, likelihood.hessian=trust.out$hessian,
