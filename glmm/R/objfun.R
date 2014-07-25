@@ -1,5 +1,5 @@
 objfun <-
-function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,gamm,m1,m2,m3,D.star,Sigmuh){
+function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,gamm,p1,p2,p3,D.star,Sigmuh){
 	#print(par)
 	beta<-par[1:nbeta]
 	nu<-par[-(1:nbeta)]
@@ -41,8 +41,11 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 		lfu.twid[k,2]<-distRandGeneral(Uk,u.star,D.star)
 		lfu.twid[k,3]<-distRandGeneral(Uk,u.star,Sigmuh)
 		
-		pee<-c(m1,m2,m3)/(m1+m2+m3)
-		lfu.twid[k,4]<-pee%*%lfu.twid[k,1:3]
+		tempmax<-max(lfu.twid[k,1:3])
+		blah<-exp(lfu.twid[k,1:3]-tempmax)
+		pee<-c(p1,p2,p3)
+		qux<-pee%*%blah
+		lfu.twid[k,4]<-tempmax+log(qux)
 		
 		b[k]<-as.numeric(lfu[[k]]$value)+as.numeric(lfyu[[k]]$value)-lfu.twid[k,4]
 	}

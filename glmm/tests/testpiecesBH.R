@@ -83,6 +83,8 @@ cdouble<-diag(cdouble)
 Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
 Sigmuh<-solve(Sigmuh.inv)
 
+piece3<-rep(0,3)
+
 #now go through row by row of umat 
 #ie go through each vector of gen rand eff
 for(k in 1:m){
@@ -92,10 +94,14 @@ for(k in 1:m){
 	piece1<- logfyuk(eta,x,y)$value	
 	piece2<- distRandCheck(nu,uvec,rep(0,10))$value
 	
-	piece3<- distRandGeneral(uvec, rep(0,10),D.star)
-	piece4<- distRandGeneral(uvec, u.star, D.star)
-	piece5<-distRandGeneral(uvec,u.star,Sigmuh)
-	b[k]<-piece1+piece2-1/3*(piece3+piece4+piece5)
+	piece3[1]<- distRandGeneral(uvec, rep(0,10),D.star)
+	piece3[2]<- distRandGeneral(uvec, u.star, D.star)
+	piece3[3]<-distRandGeneral(uvec,u.star,Sigmuh)
+
+	damax<-max(piece3)
+	blah<-sum(exp(piece3-damax)/3)
+	lefoo<-damax+log(blah)
+	b[k]<-piece1+piece2-lefoo
 	}	
 a<-max(b)
 top<-exp(b-a)
@@ -103,7 +109,7 @@ value<-a+log(mean(top))
 #going to compare this against objfun's value
 cache<-new.env(parent = emptyenv())
 objfun<-glmm:::objfun
-that<-objfun(c(beta,nu),nbeta=1,nu.pql=nu.pql,u.star=u.star,mod.mcml=mod.mcml, family.glmm=bernoulli.glmm,cache=cache,distrib="normal",gamm=15,umat=umat,m1=7, m2=7,m3=7,D.star=D.star,Sigmuh=Sigmuh)
+that<-objfun(c(beta,nu),nbeta=1,nu.pql=nu.pql,u.star=u.star,mod.mcml=mod.mcml, family.glmm=bernoulli.glmm,cache=cache,distrib="normal",gamm=15,umat=umat, p1=1/3,p2=1/3,p3=1/3,D.star=D.star,Sigmuh=Sigmuh)
 all.equal(value,that$value)	
 #Given generated random effects, the value of the objective function is correct.
 #This plus the test of finite diffs for objfun should be enough.

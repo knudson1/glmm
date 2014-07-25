@@ -37,13 +37,11 @@ cdouble<-diag(cdouble)
 Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
 Sigmuh<-solve(Sigmuh.inv)
 
-m1<-round(50/3)
-m2<-m1
-m3<-50-2*m1
+p1=p2=p3=1/3
 
 # define a few things that will be used for finite differences
-lth<-objfun(par=par, nbeta=1, nu.pql=nu.gen, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="normal",m1=m1,m2=m2,m3=m3, Sigmuh=Sigmuh,D.star=D.star)
-lthdel<-objfun(par=par+del, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="normal",m1=m1,m2=m2,m3=m3, Sigmuh=Sigmuh,D.star=D.star)
+lth<-objfun(par=par, nbeta=1, nu.pql=nu.gen, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="normal",p1=p1,p2=p2,p3=p3, Sigmuh=Sigmuh,D.star=D.star)
+lthdel<-objfun(par=par+del, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="normal",p1=p1,p2=p2,p3=p3, Sigmuh=Sigmuh,D.star=D.star)
 
 all.equal(as.vector(lth$gradient%*%del),lthdel$value-lth$value)
 all.equal(as.vector(lth$hessian%*%del),lthdel$gradient-lth$gradient)
