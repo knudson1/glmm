@@ -1,3 +1,5 @@
+useDynLib(glmm)
+
 export(bernoulli.glmm)
 export(glmm)
 export(poisson.glmm)
