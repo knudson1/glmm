@@ -46,6 +46,137 @@ lthdel<-objfun(par=par+del, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod
 all.equal(as.vector(lth$gradient%*%del),lthdel$value-lth$value)
 all.equal(as.vector(lth$hessian%*%del),lthdel$gradient-lth$gradient)
 
+##### to make sure that the objfun function is correct, compare it against the version without any C code. here is objfun without c:
+objfunNOC <-
+function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,gamm,p1,p2,p3,D.star,Sigmuh){
+	#print(par)
+	beta<-par[1:nbeta]
+	nu<-par[-(1:nbeta)]
+	m<-nrow(umat)
 
+	if (!missing(cache)) stopifnot(is.environment(cache))
+	if(missing(cache)) cache<-new.env(parent = emptyenv())
 
+	if(sum(nu<=0)>0){
+		out<-list(value=-Inf,gradient=rep(1,length(par)),hessian=as.matrix(c(rep(1,length(par)^2)),nrow=length(par)))
+	return(out)
+	}
+	
+	Z=do.call(cbind,mod.mcml$z)
 
+	eta<-b<-rep(0,m)
+	lfu<-lfyu<-list(rep(c(0,0,0),m))
+	lfu.twid<-matrix(data=NA,nrow=m,ncol=4)
+	
+	#for each simulated random effect vector
+	for(k in 1:m){
+		Uk<-umat[k,]  #use the simulated vector as our random effect vec
+		#cat("dimensionf of Z are", dim(Z),"\n")
+		#cat("length of Uk is",length(Uk),"\n")		
+		eta<-mod.mcml$x%*%beta+Z%*%Uk # calculate eta using it
+		zeros<-rep(0,length(Uk))
+
+		#log f_theta(u_k)
+		lfu[[k]]<-distRand(nu,Uk,mod.mcml$z,zeros) 
+
+		#log f_theta(y|u_k)
+		lfyu[[k]]<-elR(mod.mcml$y,mod.mcml$x,eta,family.glmm) 
+
+		#log f~_theta(u_k)
+		if(distrib=="normal"){
+			lfu.twid[k,1]<-distRandGeneral(Uk,zeros,D.star)}
+		if(distrib=="tee") {
+			lfu.twid[k,1]<-tdist(nu.pql,Uk,mod.mcml$z,u.star,gamm)}
+		lfu.twid[k,2]<-distRandGeneral(Uk,u.star,D.star)
+		lfu.twid[k,3]<-distRandGeneral(Uk,u.star,Sigmuh)
+		
+		tempmax<-max(lfu.twid[k,1:3])
+		blah<-exp(lfu.twid[k,1:3]-tempmax)
+		pee<-c(p1,p2,p3)
+		qux<-pee%*%blah
+		lfu.twid[k,4]<-tempmax+log(qux)
+		
+		b[k]<-as.numeric(lfu[[k]]$value)+as.numeric(lfyu[[k]]$value)-lfu.twid[k,4]
+	}
+
+	a<-max(b)
+	thing<-exp(b-a)
+	value<-a-log(m)+log(sum(thing))
+	v<-thing/sum(thing)
+	#bk are log weights
+	cache$weights<-exp(b)
+	
+	Gpiece<-matrix(data=NA,nrow=nrow(umat),ncol=length(par))
+	
+	#lfuky<-NA
+	for(k in 1:nrow(umat)){
+		Gpiece[k,]<-c(lfyu[[k]]$gradient,lfu[[k]]$gradient)*v[k]	
+		
+				#lfuky[k]<-c(lfyu[[k]]$gradient,lfu[[k]]$gradient)
+		#Gpiece[k,]<-lfuky[k]*v[k]	
+	}
+	G<-apply(Gpiece,2,sum)
+	
+	#Hessian has three pieces: panda, lobster, GGT
+	panda.list<-list()
+	for(k in 1:nrow(umat)){
+		panda.list[[k]]<-c(lfyu[[k]]$gradient,lfu[[k]]$gradient)%*%t(c(lfyu[[k]]$gradient,lfu[[k]]$gradient))*v[[k]]
+
+	}
+	panda<-addMats(panda.list)
+	
+	lobster.list<-list()
+	for(k in 1:nrow(umat)){
+
+		mat1<-lfyu[[k]]$hessian
+		mat2<-lfu[[k]]$hessian
+
+		d1<-nrow(mat1)
+		d2<-nrow(mat2)
+		newmat<-matrix(data=0,nrow=d1+d2,ncol=d1+d2)
+
+		newmat[1:d1,1:d1]<-mat1
+		here<-d1+1
+		there<-d1+d2
+		newmat[here:there,here:there]<-mat2	
+		lobster.list[[k]]<-newmat*v[k]
+	}
+	lobster<-addMats(lobster.list)
+	
+	hessian<-lobster+panda-G%*%t(G)
+	list(value=value,gradient=G,hessian=hessian)
+}
+
+#here is el without C
+elR <-
+function(Y,X,eta,family.mcml){
+	family.mcml<-getFamily(family.mcml)
+	neta<-length(eta)
+
+	if(family.mcml$family.glmm=="bernoulli.glmm"){
+		foo<-.C("cum3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),cumout=double(1))$cumout
+		mu<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),cpout=double(neta))$cpout
+		cdub<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),cppout=double(neta))$cppout
+	}
+	if(family.mcml$family.glmm=="poisson.glmm"){
+		foo<-.C("cum3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),cumout=double(1))$cumout
+		mu<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),cpout=double(neta))$cpout
+		cdub<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),cppout=double(neta))$cppout
+	}
+
+	value<-as.numeric(Y%*%eta-foo)
+	gradient<-t(X)%*%(Y-mu)	
+	cdubmat<-diag(cdub)
+	hessian<-t(X)%*%(-cdubmat)%*%X
+	
+	list(value=value,gradient=gradient,hessian=hessian)
+}
+#here are some other functions we'll need to compare objfun and objfunNOC
+getFamily<-glmm:::getFamily
+distRand<-glmm:::distRand
+distRandGeneral<-glmm:::distRandGeneral
+addMats<-glmm:::addMats
+
+#finally, compare objfun and objfunNOC for B+H example
+that<-objfunNOC(par=par, nbeta=1, nu.pql=nu.gen, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="normal",p1=p1,p2=p2,p3=p3, Sigmuh=Sigmuh,D.star=D.star)
+all.equal(that,lth)

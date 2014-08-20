@@ -1,0 +1,6 @@
+\rm -f glmm/src/*.{o,so}
+R CMD check glmm
+R CMD check glmm --use-valgrind
+R CMD check glmm --use-valgrind -00
+
+R -d valgrind --vanilla

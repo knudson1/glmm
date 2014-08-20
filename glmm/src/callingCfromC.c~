@@ -1,0 +1,7 @@
+#include "myheader.h"
+
+void dumbthing(double *eta, int *lenY, int *family, double *out)
+{
+	cum3(eta,lenY,family,out);
+}
+

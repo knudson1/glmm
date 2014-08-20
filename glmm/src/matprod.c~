@@ -1,0 +1,36 @@
+/* performs matrix multiplication
+* from https://svn.r-project.org/R/trunk/src/main/array.c
+*/
+
+static void matprod(double *x, int nrx, int ncx,
+		    double *y, int nry, int ncy, double *z)
+{
+    char *transa = "N", *transb = "N";
+    double one = 1.0, zero = 0.0;
+    LDOUBLE sum;
+    Rboolean have_na = FALSE;
+    R_xlen_t NRX = nrx, NRY = nry;
+
+    if (nrx > 0 && ncx > 0 && nry > 0 && ncy > 0) {
+	/* Don't trust the BLAS to handle NA/NaNs correctly: PR#4582
+	 * The test is only O(n) here.
+	 */
+	for (R_xlen_t i = 0; i < NRX*ncx; i++)
+	    if (ISNAN(x[i])) {have_na = TRUE; break;}
+	if (!have_na)
+	    for (R_xlen_t i = 0; i < NRY*ncy; i++)
+		if (ISNAN(y[i])) {have_na = TRUE; break;}
+	if (have_na) {
+	    for (int i = 0; i < nrx; i++)
+		for (int k = 0; k < ncy; k++) {
+		    sum = 0.0;
+		    for (int j = 0; j < ncx; j++)
+			sum += x[i + j * NRX] * y[j + k * NRY];
+		    z[i + k * NRX] = (double) sum;
+		}
+	} else
+	    F77_CALL(dgemm)(transa, transb, &nrx, &ncy, &ncx, &one,
+			    x, &nrx, y, &nry, &zero, z, &nrx);
+    } else /* zero-extent operations should return zeroes */
+	for(R_xlen_t i = 0; i < NRX*ncy; i++) z[i] = 0;
+}

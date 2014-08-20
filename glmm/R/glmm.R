@@ -158,7 +158,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	trust.out<-trust(objfun,parinit=par.init,rinit=10, rmax=10000, 
 iterlim=100, minimize=F, nbeta=length(beta.pql), nu.pql=nu.gen, 
 umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T, cache=cache, distrib=distrib,gamm=gamm,p1=p1,p2=p2,p3=p3,D.star=D.star,Sigmuh=Sigmuh)
-	
+
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]
 

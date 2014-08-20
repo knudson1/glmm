@@ -1,0 +1,17 @@
+
+#include <R.h>
+#include "myheader.h"
+
+
+double cp(double eta, int type)
+{
+    switch (type) {
+    case BERNOULLI:
+	return 1/(1+exp(-eta))
+    case POISSON:
+        return exp(eta);
+    default:
+        error("unrecognized type");
+    }
+}
+

@@ -1,0 +1,23 @@
+
+#include <R.h>
+#include "myheader.h"
+
+
+void cp2(double *etain, int *typein, double *cpout)
+{
+    double eta = etain[0];
+    int type = typein[0];
+
+    switch (type) {
+    case 1:
+	cpout[0]= 1/(1+exp(-eta));
+	break;
+    case 2:
+        cpout[0]= exp(eta);
+	break;
+    default:
+        error("unrecognized type");
+	break;
+    }
+}
+

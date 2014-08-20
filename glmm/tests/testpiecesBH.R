@@ -32,8 +32,7 @@ logfyuk<-function(eta,x,y){
 
 #compare el and logfyuk for a value of eta
 eta<-rep(2,150)
-el<-glmm:::el
-this<-el(mod.mcml$y,mod.mcml$x,eta,family.mcml=bernoulli.glmm)	
+this<-.C("elc",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1),gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))
 that<-logfyuk(eta,mod.mcml$x,mod.mcml$y)
 all.equal(as.numeric(this$value),as.numeric(that$value))
 all.equal(as.numeric(this$gradient),as.numeric(that$gradient))

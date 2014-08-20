@@ -1,0 +1,33 @@
+
+#include <string.h>
+#include <R.h>
+#include "myheader.h"
+
+/*muin is a pointer, resultout
+* typein is a pointer to a pointer
+* calls function cpp with mu and the family type
+*type void because all C funcs call by R must be type void
+*all pointers are returned to R
+*/
+
+
+void foo(double *etain, char **typein,  double *cumout, double *cpout, double *cppout)
+{
+    double eta = etain[0];
+    char *type = typein[0];
+    if (strcmp(type, "bernoulli") == 0)
+	{
+        cppout[0] = cpp(eta, BERNOULLI);
+	cumout[0]=cum(eta,BERNOULLI);
+	cpout[0]=cp(eta,BERNOULLI);
+	}
+    else if (strcmp(type, "poisson") == 0)
+	{
+        cppout[0] = cpp(eta, POISSON);
+	cumout[0]=cum(eta,POISSON);
+	cpout[0]=cp(eta,POISSON);
+	}
+    else
+        error("unrecognized type");
+}
+

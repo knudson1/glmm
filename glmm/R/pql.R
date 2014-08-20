@@ -62,9 +62,13 @@ family.mcml=family.mcml,cache=cache)
 	#calculate eta.twid
 	eta.twid<-(X%*%beta.twid+Z%*%A%*%s.twid)
 	
-	#calculate el(eta.twid) = piece1
+	#calculate el using eta.twid. this is piece1
 	family.mcml<-getFamily(family.mcml)
-	piece1<-el(Y,X,eta.twid,family.mcml)$value
+
+	if(family.mcml$family.glmm=="bernoulli.glmm"){
+		piece1<-.C("elc",as.double(Y),as.double(X),as.integer(nrow(X)),as.integer(ncol(X)),as.double(eta.twid),as.integer(1),value=double(1),gradient=double(ncol(X)),hessian=double((ncol(X)^2)))$value}
+	if(family.mcml$family.glmm=="poisson.glmm"){
+		piece1<-.C("elc",as.double(Y),as.double(X),as.integer(nrow(X)),as.integer(ncol(X)),as.double(eta.twid),as.integer(2),value=double(1),gradient=double(ncol(X)),hessian=double((ncol(X)^2)))$value}
 	
 	#calculate W = c''(eta.twid)
 	dubya<-family.mcml$cpp(eta.twid)
@@ -97,7 +101,11 @@ function(mypar,Y,X,Z,A,family.mcml,nbeta,cache )
 	family.mcml<-getFamily(family.mcml)
 	mu<-family.mcml$cp(eta)
 
-	value<- el(Y,X,eta,family.mcml)$value-.5*s%*%s
+	#value<- ellikelihood(Y,X,eta,family.mcml)$value-.5*s%*%s
+	if(family.mcml$family.glmm=="bernoulli.glmm"){
+		value<-.C("elc",as.double(Y),as.double(X),as.integer(nrow(X)),as.integer(ncol(X)),as.double(eta),as.integer(1),value=double(1),gradient=double(ncol(X)),hessian=double((ncol(X)^2)))$value-.5*s%*%s}
+	if(family.mcml$family.glmm=="poisson.glmm"){
+		value<-.C("elc",as.double(Y),as.double(X),as.integer(nrow(X)),as.integer(ncol(X)),as.double(eta),as.integer(2),value=double(1),gradient=double(ncol(X)),hessian=double((ncol(X)^2)))$value-.5*s%*%s}
 	
 	#gradient calculation
 	db<-t(X)%*%(Y-mu)
