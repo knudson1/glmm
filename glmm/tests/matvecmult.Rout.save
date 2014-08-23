@@ -35,34 +35,44 @@ Loading required package: mvtnorm
 >  all.equal(foo1, mout3$result)
 [1] TRUE
 > 
-> mout3
-$a
- [1] -1.20706575  0.27742924  1.08444118 -2.34569770  0.42912469  0.50605589
- [7] -0.57473996 -0.54663186 -0.56445200 -0.89003783 -0.47719270 -0.99838644
-[13] -0.77625389  0.06445882  0.95949406
-
-$b
-[1] -0.1102855 -0.5110095 -0.9111954
-
-$nrow
-[1] 5
-
-$ncol
-[1] 3
-
-$result
-[1]  0.3093383  1.1728263  0.8670549  0.4884022 -0.4667950
-
+> a<-matrix(1:8,nrow=2)
+> b<-matrix(1:4,nrow=2)
+> right<-t(a)%*%b
 > 
+> stuff<-.C("matTmatmult",as.double(a),as.double(b),as.integer(2),as.integer(4),as.integer(2),double(8))[[6]]
+> stuff2<-matrix(stuff,byrow=F,nrow=4) #at least
+> all.equal(right,stuff2)
+[1] TRUE
 > 
+> #make sure the function to add a vector up works
+> a<-1:5
+> right<-sum(a)
+> stuff<-.C("sumup",as.double(a),as.integer(length(a)),double(1))[[3]]
+> all.equal(stuff,right)
+[1] TRUE
 > 
+> #make sure the function to do a-b works
+> a<-6:10
+> b<-1:5
+> right<-a-b
+> stuff<-.C("subvec",as.double(a),as.double(b),length(a),result=double(length(a)))
+> all.equal(right,stuff$result)
+[1] TRUE
 > 
-> 
-> 
-> 
+> # make sure matTvecmult works
+> a<-matrix(1:8,nrow=2)
+> b<-1:2
+> right<-t(a)%*%b
+> alsoright<-.C("matvecmult",as.double(t(a)),as.double(b),as.integer(nrow(t(a))),as.integer(ncol(t(a))),double(4))[[5]]
+> alsoright<-matrix(alsoright,ncol=1)
+> all.equal(right,alsoright)
+[1] TRUE
+> stuff<-matrix(.C("matTvecmult",as.double(a),as.double(b),as.integer(nrow(a)),as.integer(ncol(a)),double(4))[[5]],ncol=1)
+> all.equal(stuff,right)
+[1] TRUE
 > 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  0.195   0.023   0.191 
+  0.459   0.062   0.497 

@@ -98,7 +98,39 @@ for(i=0;i<(*nrow);++i)
 	}
 }
 
+/* sum a one-dim array   */
+void sumup(double *a, int *lena, double *suma)
+{
+	*suma=0;	
+	int i=0;
+	for(i=0;i<(*lena);i++){
+		*suma+=*(a+i);
+	}
+}
 
+/* subtract two vectors: out= a-b */
+void subvec(double *a, double *b, int *len, double *out)
+{
+	int i=0;
+	for(i=0;i<(*len);i++){
+		*(out+i)=*(a+i)-*(b+i);
+	}
+}
 
-/* calculate dotproduct of two vectors */
+/* dot product two vectors or t(a)%*%b */
+/*void dot(double *a, double *b, int *len, double *out)*/
+/*{*/
+/*    double one = 1.0;*/
+/*    F77_CALL(ddot)(len,a,one,b,one);*/
+/*}*/
+
+/* calculate eigenvalues of a matrix with lower triangle a
+the first "n" is to say "just eigvals, not eigvecs"
+second argument says lower tri, not upper*/
+/*void eigval(double *a, int *ncol, double *result)*/
+/*{*/
+
+/*    F77_CALL(dsyev)("N", "L", ncol, a, ncol, b, &ione, &zero, result,*/
+/*        &ione);*/
+/*}*/
 

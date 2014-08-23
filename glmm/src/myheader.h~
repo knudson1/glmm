@@ -16,6 +16,8 @@ void matTvecmult(double *a, double *b, int *nrow, int *ncol, double *result);
 void diag(double *invec, int *nrow, double *outmat);
 void matTmatmult(double *a, double *b, int *nrowa, int *ncola, int *ncolb,
     double *c);
+void matmatmult(double *a, double *b, int *nrowa, int *ncola, int *ncolb,
+    double *c);
 
 #include <math.h>
 

@@ -40,7 +40,7 @@ Loading required package: mvtnorm
 > addVecs<-glmm:::addVecs
 > 
 > ############################################
-> #this should be the same as el
+> #this should be the same as elc
 > logfyuk<-function(eta,x,y){
 + 	value<-sum(y*eta)-sum(log(1+exp(eta)))
 + 	Pi<-exp(eta)/(1+exp(eta))
@@ -49,7 +49,7 @@ Loading required package: mvtnorm
 + 	list(value=value,gradient=gradient,hessian=hessian)
 + }
 > 
-> #compare el and logfyuk for a value of eta
+> #compare elc and logfyuk for a value of eta
 > eta<-rep(2,150)
 > this<-.C("elc",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1),gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))
 > that<-logfyuk(eta,mod.mcml$x,mod.mcml$y)
@@ -83,12 +83,23 @@ Loading required package: mvtnorm
 > 
 > 
 > ###############################################
-> #will want to check distRandGeneral
-> #need to get D*
-> distRandGeneral<-glmm:::distRandGeneral
+> #distRandGeneral in R first
+> distRandGeneral<-function(uvec,mu,Sigma.inv){
++ 	logDetSigmaInv<-sum(log(eigen(Sigma.inv,symmetric=TRUE)$values))
++ 	umu<-uvec-mu
++ 	piece2<-t(umu)%*%Sigma.inv%*%umu
++ 	as.vector(.5*(logDetSigmaInv-piece2))
++ }
 > D.star<-2*diag(10)
-> this<-distRandGeneral(you,u.pql,D.star)
+> D.star.inv<-.5*diag(10)
+> this<-distRandGeneral(you,u.pql,D.star.inv)
 > all.equal(this,that$value)
+[1] TRUE
+> 
+> #check distRandGenC
+> logdet<-sum(log(eigen(D.star.inv)$values))
+> stuff<-.C("distRandGenC",as.double(D.star.inv),as.double(logdet), as.integer(length(you)), as.double(you), as.double(u.pql), double(1))[[6]]
+> all.equal(that$value,stuff)
 [1] TRUE
 > 
 > ############################################
@@ -117,9 +128,9 @@ Loading required package: mvtnorm
 + 	piece1<- logfyuk(eta,x,y)$value	
 + 	piece2<- distRandCheck(nu,uvec,rep(0,10))$value
 + 	
-+ 	piece3[1]<- distRandGeneral(uvec, rep(0,10),D.star)
-+ 	piece3[2]<- distRandGeneral(uvec, u.star, D.star)
-+ 	piece3[3]<-distRandGeneral(uvec,u.star,Sigmuh)
++ 	piece3[1]<- distRandGeneral(uvec, rep(0,10),D.star.inv)
++ 	piece3[2]<- distRandGeneral(uvec, u.star, D.star.inv)
++ 	piece3[3]<-distRandGeneral(uvec,u.star,Sigmuh.inv)
 + 
 + 	damax<-max(piece3)
 + 	blah<-sum(exp(piece3-damax)/3)
@@ -144,4 +155,4 @@ Loading required package: mvtnorm
 > 
 > proc.time()
    user  system elapsed 
-  1.747   0.032   1.760 
+  1.114   0.039   1.137 

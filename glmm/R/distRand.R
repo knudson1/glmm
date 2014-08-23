@@ -60,12 +60,20 @@ tdist <-function(nu,U,z.list,mu,gamm){
 
 }
 
-distRandGeneral<-function(uvec,mu,Sigma){
-	Sigma.inv<-solve(Sigma)
-	logDetSigmaInv<-sum(log(eigen(Sigma.inv,symmetric=TRUE)$values))
+#distRandGeneral<-function(uvec,mu,Sigma.inv){
+#	logDetSigmaInv<-sum(log(eigen(Sigma.inv,symmetric=TRUE)$values))
 
-	umu<-uvec-mu
-	piece2<-t(umu)%*%Sigma.inv%*%umu
+#	umu<-uvec-mu
+#	piece2<-t(umu)%*%Sigma.inv%*%umu
 
-	as.vector(.5*(logDetSigmaInv-piece2))
-}
+#	as.vector(.5*(logDetSigmaInv-piece2))
+#}
+
+# no longer used
+#distRandGeneral2<-function(uvec,mu,Sigma.inv,logDetSigmaInv){
+#	print("still using distRandGeneral2.R")
+#	umu<-uvec-mu
+#	piece2<-t(umu)%*%Sigma.inv%*%umu
+
+#	as.vector(.5*(logDetSigmaInv-piece2))
+#}

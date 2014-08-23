@@ -67,6 +67,9 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 	eta<-b<-rep(0,m)
 	lfu<-lfyu<-list(rep(c(0,0,0),m))
 	lfu.twid<-matrix(data=NA,nrow=m,ncol=4)
+
+	D.star.inv<-solve(D.star)
+	Sigmuh.inv<-solve(Sigmuh)
 	
 	#for each simulated random effect vector
 	for(k in 1:m){
@@ -84,11 +87,11 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 
 		#log f~_theta(u_k)
 		if(distrib=="normal"){
-			lfu.twid[k,1]<-distRandGeneral(Uk,zeros,D.star)}
+			lfu.twid[k,1]<-distRandGeneral(Uk,zeros,D.star.inv)}
 		if(distrib=="tee") {
 			lfu.twid[k,1]<-tdist(nu.pql,Uk,mod.mcml$z,u.star,gamm)}
-		lfu.twid[k,2]<-distRandGeneral(Uk,u.star,D.star)
-		lfu.twid[k,3]<-distRandGeneral(Uk,u.star,Sigmuh)
+		lfu.twid[k,2]<-distRandGeneral(Uk,u.star,D.star.inv)
+		lfu.twid[k,3]<-distRandGeneral(Uk,u.star,Sigmuh.inv)
 		
 		tempmax<-max(lfu.twid[k,1:3])
 		blah<-exp(lfu.twid[k,1:3]-tempmax)
@@ -174,8 +177,13 @@ function(Y,X,eta,family.mcml){
 #here are some other functions we'll need to compare objfun and objfunNOC
 getFamily<-glmm:::getFamily
 distRand<-glmm:::distRand
-distRandGeneral<-glmm:::distRandGeneral
 addMats<-glmm:::addMats
+distRandGeneral<-function(uvec,mu,Sigma.inv){
+	logDetSigmaInv<-sum(log(eigen(Sigma.inv,symmetric=TRUE)$values))
+	umu<-uvec-mu
+	piece2<-t(umu)%*%Sigma.inv%*%umu
+	as.vector(.5*(logDetSigmaInv-piece2))
+}
 
 #finally, compare objfun and objfunNOC for B+H example
 that<-objfunNOC(par=par, nbeta=1, nu.pql=nu.gen, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="normal",p1=p1,p2=p2,p3=p3, Sigmuh=Sigmuh,D.star=D.star)

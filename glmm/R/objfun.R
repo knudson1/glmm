@@ -18,6 +18,12 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 	lfu<-lfyu<-list(rep(c(0,0,0),m))
 	lfu.twid<-matrix(data=NA,nrow=m,ncol=4)
 	family.glmm<-getFamily(family.glmm)
+
+	D.star.inv<-solve(D.star)
+	Sigmuh.inv<-solve(Sigmuh)
+	logdet.D.star.inv<-	sum(log(eigen(D.star.inv,symmetric=TRUE)$values))
+	logdet.Sigmuh.inv<-sum(log(eigen(Sigmuh.inv,symmetric=TRUE)$values))
+ 	myq<-nrow(D.star.inv)
 	
 	#for each simulated random effect vector
 	for(k in 1:m){
@@ -26,7 +32,8 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 		zeros<-rep(0,length(Uk))
 
 		#log f_theta(u_k)
-		lfu[[k]]<-distRand(nu,Uk,mod.mcml$z,zeros) 
+
+		lfu[[k]]<-distRand(nu,Uk,mod.mcml$z,zeros)  
 
 		#log f_theta(y|u_k)
 		if(family.glmm$family.glmm=="bernoulli.glmm"){	
@@ -36,11 +43,14 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 		lfyu[[k]]<-list(blah$value,blah$gradient,matrix(blah$hessian,byrow=FALSE,nrow=nbeta))
 		#log f~_theta(u_k)
 		if(distrib=="normal"){
-			lfu.twid[k,1]<-distRandGeneral(Uk,zeros,D.star)}
+			lfu.twid[k,1]<-.C("distRandGenC",as.double(D.star.inv),as.double(logdet.D.star.inv), as.integer(myq), as.double(Uk), as.double(zeros), double(1))[[6]]}
+			#lfu.twid[k,1]<-distRandGeneral2(Uk,zeros,D.star.inv,logdet.D.star.inv)}
 		if(distrib=="tee") {
 			lfu.twid[k,1]<-tdist(nu.pql,Uk,mod.mcml$z,u.star,gamm)}
-		lfu.twid[k,2]<-distRandGeneral(Uk,u.star,D.star)
-		lfu.twid[k,3]<-distRandGeneral(Uk,u.star,Sigmuh)
+		lfu.twid[k,2]<-.C("distRandGenC",as.double(D.star.inv),as.double(logdet.D.star.inv), as.integer(myq), as.double(Uk), as.double(u.star), double(1))[[6]]
+		lfu.twid[k,3]<-.C("distRandGenC",as.double(Sigmuh.inv),as.double(logdet.Sigmuh.inv), as.integer(myq), as.double(Uk), as.double(u.star), double(1))[[6]]
+		#lfu.twid[k,2]<-distRandGeneral2(Uk,u.star,D.star.inv,logdet.D.star.inv)
+		#lfu.twid[k,3]<-distRandGeneral2(Uk,u.star,Sigmuh.inv,logdet.Sigmuh.inv)
 		
 		tempmax<-max(lfu.twid[k,1:3])
 		blah<-exp(lfu.twid[k,1:3]-tempmax)
