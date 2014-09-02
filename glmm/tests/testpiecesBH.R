@@ -40,6 +40,7 @@ all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
 
 ############################################
 #want to check distRand when we use a normal distribution to get our random effects
+#check written for BH
 distRandCheck<-function(nu,uvec,muvec){
 ukmuk<-sum((uvec-muvec)^2)
 value<--5*log(nu)-ukmuk/(2*nu)
@@ -49,7 +50,56 @@ hessian<-as.matrix(hessian)
 list(value=value,gradient=gradient,hessian=hessian)
 }
 
-distRand<-glmm:::distRand
+#function written originally in R
+distRand <-
+function(nu,U,z.list,mu){
+	# T=number variance components
+	T<-length(z.list)
+	
+	#nrandom is q_t
+	nrand<-lapply(z.list,ncol)
+	nrandom<-unlist(nrand)
+	totnrandom<-sum(nrandom)
+	
+	mu.list<-U.list<-NULL
+	if(T==1) {
+		U.list[[1]]<-U
+		mu.list[[1]]<-mu
+		}
+
+	if(T>1){
+		U.list[[1]]<-U[1:nrandom[1]] 
+		mu.list[[1]]<-mu[1:nrandom[1]]
+		for(t in 2:T){
+			thing1<-sum(nrandom[1:t-1])+1
+			thing2<-sum(nrandom[1:t])
+			U.list[[t]]<-U[thing1:thing2]
+			mu.list[[t]]<-mu[thing1:thing2]
+		}
+	}
+	
+	val<-gradient<-Hessian<-rep(0,T)
+	
+	#for each variance component
+	for(t in 1:T){
+		you<-as.vector(U.list[[t]])
+		mew<-as.vector(mu.list[[t]])
+		Umu<-(you-mew)%*%(you-mew)
+		val[t]<- as.numeric(-.5*nrandom[t]*log(nu[t])-Umu/(2*nu[t]))
+		
+		gradient[t]<- -nrandom[t]/(2*nu[t])+Umu/(2*(nu[t])^2)
+		
+		Hessian[t]<- nrandom[t]/(2*(nu[t])^2)- Umu/((nu[t])^3)
+		
+	}
+		
+	value<-sum(val)
+	if(T>1) hessian<-diag(Hessian)
+	if(T==1) hessian<-matrix(Hessian,nrow=1,ncol=1)
+	
+	list(value=value,gradient=gradient,hessian=hessian)		
+}
+
 
 you<-umat[1,]
 this<-distRandCheck(2,you,u.pql)
@@ -57,7 +107,20 @@ that<-distRand(2,you,mod.mcml$z,u.pql)
 
 all.equal(this,that)
 
+#compare the gradient and hessian of the C functions by using these functions
+#(the value is checked in distRandGeneral)
 
+mynu<-2
+mymu<-rep(0,10)
+T<-1
+nrandom<-10
+meow<-c(0,10)
+set.seed(1234)
+myyou<-rnorm(10)
+hohum<-.C("distRand3C",as.double(mynu), as.double(mymu), as.integer(T), as.integer(nrandom), as.integer(meow), as.double(myyou), double(T), double(T^2)) 
+drcheck<-distRandCheck(mynu,myyou,mymu)
+all.equal(drcheck$gradient,hohum[[7]])
+all.equal(drcheck$hessian,matrix(hohum[[8]],nrow=T,byrow=F))
 
 ###############################################
 #distRandGeneral in R first
@@ -76,6 +139,7 @@ all.equal(this,that$value)
 logdet<-sum(log(eigen(D.star.inv)$values))
 stuff<-.C("distRandGenC",as.double(D.star.inv),as.double(logdet), as.integer(length(you)), as.double(you), as.double(u.pql), double(1))[[6]]
 all.equal(that$value,stuff)
+
 
 ############################################
 #want to check that the value of objfun is the same for a value of nu and beta

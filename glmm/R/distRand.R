@@ -1,53 +1,4 @@
-distRand <-
-function(nu,U,z.list,mu){
-	# T=number variance components
-	T<-length(z.list)
-	
-	#nrandom is q_t
-	nrand<-lapply(z.list,ncol)
-	nrandom<-unlist(nrand)
-	totnrandom<-sum(nrandom)
-	
-	mu.list<-U.list<-NULL
-	if(T==1) {
-		U.list[[1]]<-U
-		mu.list[[1]]<-mu
-		}
-
-	if(T>1){
-		U.list[[1]]<-U[1:nrandom[1]] 
-		mu.list[[1]]<-mu[1:nrandom[1]]
-		for(t in 2:T){
-			thing1<-sum(nrandom[1:t-1])+1
-			thing2<-sum(nrandom[1:t])
-			U.list[[t]]<-U[thing1:thing2]
-			mu.list[[t]]<-mu[thing1:thing2]
-		}
-	}
-	
-	val<-gradient<-Hessian<-rep(0,T)
-	
-	#for each variance component
-	for(t in 1:T){
-		you<-as.vector(U.list[[t]])
-		mew<-as.vector(mu.list[[t]])
-		Umu<-(you-mew)%*%(you-mew)
-		val[t]<- as.numeric(-.5*nrandom[t]*log(nu[t])-Umu/(2*nu[t]))
-		
-		gradient[t]<- -nrandom[t]/(2*nu[t])+Umu/(2*(nu[t])^2)
-		
-		Hessian[t]<- nrandom[t]/(2*(nu[t])^2)- Umu/((nu[t])^3)
-		
-	}
-		
-	value<-sum(val)
-	if(T>1) hessian<-diag(Hessian)
-	if(T==1) hessian<-matrix(Hessian,nrow=1,ncol=1)
-	
-	list(value=value,gradient=gradient,hessian=hessian)		
-}
-
-
+#all normal distRand versions now moved to C and to the test files
 tdist <-function(nu,U,z.list,mu,gamm){
 	#use nu and z.list to get D which is scale matrix
 	eek<-getEk(z.list)
@@ -60,15 +11,6 @@ tdist <-function(nu,U,z.list,mu,gamm){
 
 }
 
-#distRandGeneral<-function(uvec,mu,Sigma.inv){
-#	logDetSigmaInv<-sum(log(eigen(Sigma.inv,symmetric=TRUE)$values))
-
-#	umu<-uvec-mu
-#	piece2<-t(umu)%*%Sigma.inv%*%umu
-
-#	as.vector(.5*(logDetSigmaInv-piece2))
-#}
-
 # no longer used
 #distRandGeneral2<-function(uvec,mu,Sigma.inv,logDetSigmaInv){
 #	print("still using distRandGeneral2.R")
@@ -77,3 +19,9 @@ tdist <-function(nu,U,z.list,mu,gamm){
 
 #	as.vector(.5*(logDetSigmaInv-piece2))
 #}
+
+# old version of distRand, used only for tests
+
+
+
+

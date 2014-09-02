@@ -122,7 +122,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	D.star.inv<-diag(1/D.star)
 	D.star<-diag(D.star)
 
-	#determine m1, m2, m3
+	#determine m1, m2, m3 based on probs p1, p2, p3
 	foo<-runif(m)
 	m1<-sum(foo<p1)
 	m2<-sum(foo<p1+p2)-m1	
@@ -157,7 +157,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	#use trust to max the objfun (monte carlo likelihood)
 	trust.out<-trust(objfun,parinit=par.init,rinit=10, rmax=10000, 
 iterlim=100, minimize=F, nbeta=length(beta.pql), nu.pql=nu.gen, 
-umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T, cache=cache, distrib=distrib,gamm=gamm,p1=p1,p2=p2,p3=p3,D.star=D.star,Sigmuh=Sigmuh)
+umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T, cache=cache, distrib=distrib, gamm=gamm, p1=p1,p2=p2, p3=p3, D.star=D.star,Sigmuh=Sigmuh)
 
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]
