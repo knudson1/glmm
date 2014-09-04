@@ -38,6 +38,15 @@ all.equal(as.numeric(this$value),as.numeric(that$value))
 all.equal(as.numeric(this$gradient),as.numeric(that$gradient))
 all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
 
+#compare elval to logfyuk
+this<-.C("elval",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1))
+all.equal(as.numeric(this$value),as.numeric(that$value))
+
+#compare elGH to logfyuk
+this<-.C("elGH",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))
+all.equal(as.numeric(this$gradient),as.numeric(that$gradient))
+all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
+
 ############################################
 #want to check distRand when we use a normal distribution to get our random effects
 #check written for BH

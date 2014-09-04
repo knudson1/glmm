@@ -60,6 +60,18 @@ Loading required package: mvtnorm
 > all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
 [1] TRUE
 > 
+> #compare elval to logfyuk
+> this<-.C("elval",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1))
+> all.equal(as.numeric(this$value),as.numeric(that$value))
+[1] TRUE
+> 
+> #compare elGH to logfyuk
+> this<-.C("elGH",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))
+> all.equal(as.numeric(this$gradient),as.numeric(that$gradient))
+[1] TRUE
+> all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
+[1] TRUE
+> 
 > ############################################
 > #want to check distRand when we use a normal distribution to get our random effects
 > #check written for BH
@@ -221,4 +233,4 @@ Loading required package: mvtnorm
 > 
 > proc.time()
    user  system elapsed 
-  0.941   0.031   0.953 
+  1.614   0.034   1.635 

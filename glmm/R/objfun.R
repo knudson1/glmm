@@ -19,9 +19,6 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 
 	eta<-b<-rep(0,m)
 	lfuval<-rep(0,m)
-	lfugradient<-matrix(data=NA,nrow=m,ncol=T)
-	lfuhess<-list()	
-	lfyu<-list(rep(c(0,0,0),m))
 	lfu.twid<-matrix(data=NA,nrow=m,ncol=4)
 	family.glmm<-getFamily(family.glmm)
 
@@ -48,26 +45,27 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 		}
 	}
 	
+	zeros<-rep(0,ncol(umat))
+
+	lfyu.val<-rep(0,m)
+	lfyu.gradient<-matrix(0,nrow=m,ncol=length(beta))
+	lfyu.hess<-list()
+	
 	#for each simulated random effect vector
 	for(k in 1:m){
 		Uk<-umat[k,]  #use the simulated vector as our random effect vec	
 		eta<-mod.mcml$x%*%beta+Z%*%Uk # calculate eta using Uk
-		zeros<-rep(0,length(Uk))
 
 		#log f_theta(u_k)
 		lfuval[k]<-.C("distRandGenC",as.double(Dinvfornu),as.double(logdetDinvfornu), as.integer(myq), as.double(Uk), as.double(zeros), double(1))[[6]]
-		lfutemp<- .C("distRand3C",as.double(nu), as.double(zeros), as.integer(T), as.integer(nrandom), as.integer(meow), as.double(Uk), double(T), double(T^2))  
-		lfugradient[k,]<-lfutemp[[7]]
-		lfuhess[[k]]<-matrix(lfutemp[[8]],byrow=F,nrow=T)
 
-		#log f_theta(y|u_k)
+		#log f_theta(y|u_k) value
 		if(family.glmm$family.glmm=="bernoulli.glmm"){	
-			blah<-.C("elc",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1),gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))}
+			lfyu.val[k]<-.C("elval",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1))$value}
 		if(family.glmm$family.glmm=="poisson.glmm"){		
-			blah<-.C("elc",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(2),value=double(1),gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))}
-		lfyu[[k]]<-list(blah$value,blah$gradient,matrix(blah$hessian,byrow=FALSE,nrow=nbeta))
-		#log f~_theta(u_k)
-	
+			lfyu.val[k]<-.C("elval",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(2),value=double(1))$value}
+		
+		#value of log f~_theta(u_k)
 		lfu.twid[k,1]<-.C("distRandGenC",as.double(D.star.inv),as.double(logdet.D.star.inv), as.integer(myq), as.double(Uk), as.double(zeros), double(1))[[6]]
 		lfu.twid[k,2]<-.C("distRandGenC",as.double(D.star.inv),as.double(logdet.D.star.inv), as.integer(myq), as.double(Uk), as.double(u.star), double(1))[[6]]
 		lfu.twid[k,3]<-.C("distRandGenC",as.double(Sigmuh.inv),as.double(logdet.Sigmuh.inv), as.integer(myq), as.double(Uk), as.double(u.star), double(1))[[6]]
@@ -78,7 +76,7 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 		qux<-pee%*%blah
 		lfu.twid[k,4]<-tempmax+log(qux)
 		
-		b[k]<-as.numeric(lfuval[k])+as.numeric(lfyu[[k]][[1]])-lfu.twid[k,4]
+		b[k]<-as.numeric(lfuval[k])+as.numeric(lfyu.val[k])-lfu.twid[k,4]
 	}
 
 	a<-max(b)
@@ -88,44 +86,46 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 	#bk are log weights
 	cache$weights<-exp(b)
 	
-	Gpiece<-matrix(data=NA,nrow=nrow(umat),ncol=length(par))
-	
-	#lfuky<-NA
-	for(k in 1:nrow(umat)){
-		Gpiece[k,]<-c(lfyu[[k]][[2]],lfugradient[k,])*v[k]	
-		
-				#lfuky[k]<-c(lfyu[[k]]$gradient,lfu[[k]]$gradient)
-		#Gpiece[k,]<-lfuky[k]*v[k]	
-	}
-	G<-apply(Gpiece,2,sum)
-	
+	G<-rep(0,length(par))
 	#Hessian has three pieces: panda, lobster, GGT
-	panda.list<-list()
+	lobster<-panda<-matrix(rep(0,(length(par))^2),nrow=length(par))
+
 	for(k in 1:nrow(umat)){
-		panda.list[[k]]<-c(lfyu[[k]][[2]],lfugradient[k,])%*%t(c(lfyu[[k]][[2]],lfugradient[k,]))*v[[k]]
+		Uk<-umat[k,]  #use the simulated vector as our random effect vec	
+		eta<-mod.mcml$x%*%beta+Z%*%Uk # calculate eta using Uk
+		lfutemp<- .C("distRand3C",as.double(nu), as.double(zeros), as.integer(T), as.integer(nrandom), as.integer(meow), as.double(Uk), double(T), double(T^2))  
+		lfugradient<-lfutemp[[7]]
+		lfuhess<-matrix(lfutemp[[8]],byrow=F,nrow=T)
 
+		#gradient and hessian log f_theta(y|u_k) 
+		if(family.glmm$family.glmm=="bernoulli.glmm"){	
+blah<-.C("elGH",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))}	
+		if(family.glmm$family.glmm=="poisson.glmm"){		
+blah<-.C("elGH",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(2),gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))}
+		lfyu.gradient<-blah$gradient
+		lfyu.hess<-matrix(blah$hessian,byrow=FALSE,nrow=nbeta)
+
+		#for gradient calculation
+		Gpiece<-c(lfyu.gradient,lfugradient)*v[k]	
+		G<-G+Gpiece
+
+		#for hessian calculation
+		panda.temp<-c(lfyu.gradient,lfugradient)%*%t(c(lfyu.gradient,lfugradient))*v[k]
+		panda<-panda+panda.temp
+
+		#for lobster part of hessian calculation
+		newmat<-matrix(data=0,nrow=nbeta+T,ncol=nbeta+T)
+		newmat[1:nbeta,1:nbeta]<-lfyu.hess
+		here<-nbeta+1
+		there<-nbeta+T
+		newmat[here:there,here:there]<-lfuhess	
+		lobster.temp<-newmat*v[k]
+		lobster<-lobster+lobster.temp
 	}
-	panda<-addMats(panda.list)
 	
-	lobster.list<-list()
-	for(k in 1:nrow(umat)){
-
-		mat1<-lfyu[[k]][[3]]
-		mat2<-lfuhess[[k]]
-
-		d1<-nrow(mat1)
-		d2<-nrow(mat2)
-		newmat<-matrix(data=0,nrow=d1+d2,ncol=d1+d2)
-
-		newmat[1:d1,1:d1]<-mat1
-		here<-d1+1
-		there<-d1+d2
-		newmat[here:there,here:there]<-mat2	
-		lobster.list[[k]]<-newmat*v[k]
-	}
-	lobster<-addMats(lobster.list)
-	
+	#this is for Hessian calculation
 	hessian<-lobster+panda-G%*%t(G)
+
 	list(value=value,gradient=G,hessian=hessian)
 }
 
