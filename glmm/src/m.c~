@@ -118,11 +118,11 @@ void subvec(double *a, double *b, int *len, double *out)
 }
 
 /* dot product two vectors or t(a)%*%b */
-void dot(double *a, double *b, int *len, double *out)
-{
-    double one = 1.0;
-    F77_CALL(ddot)(len,a,one,b,one);
-}
+/*void dot(double *a, double *b, int *len, double *out)*/
+/*{*/
+/*    double one = 1.0;*/
+/*    F77_CALL(ddot)(len,a,one,b,one);*/
+/*}*/
 
 /* calculate eigenvalues of a matrix with lower triangle a
 the first "n" is to say "just eigvals, not eigvecs"

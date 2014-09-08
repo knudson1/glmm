@@ -18,6 +18,11 @@ void matTmatmult(double *a, double *b, int *nrowa, int *ncola, int *ncolb,
     double *c);
 void matmatmult(double *a, double *b, int *nrowa, int *ncola, int *ncolb,
     double *c);
+void matvecmult(double *a, double *b, int *nrow, int *ncol, double *result);
+void identmat(int *nrow, int *diagmat);
+void sumup(double *a, int *lena, double *suma);
+void subvec(double *a, double *b, int *len, double *out);
+void addvec(double *a, double *b, int *len, double *out);
 
 #include <math.h>
 

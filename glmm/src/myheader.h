@@ -22,6 +22,8 @@ void matvecmult(double *a, double *b, int *nrow, int *ncol, double *result);
 void identmat(int *nrow, int *diagmat);
 void sumup(double *a, int *lena, double *suma);
 void subvec(double *a, double *b, int *len, double *out);
+void addvec(double *a, double *b, int *len, double *out);
+void distRandGenC(double *SigmaInv, double *logdet, int *nrow, double *uvec, double *mu, double *distRandGenVal);
 
 #include <math.h>
 
