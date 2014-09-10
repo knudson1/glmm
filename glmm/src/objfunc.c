@@ -6,7 +6,7 @@ z is n by myq matrix
 pee is the vector of sampling proportions (usually 1/3, 1/3, 1/3)
 nps is the length of pee (3 for now, maybe more if imp sampling distrib changes)
 */
-void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps,  double *b)
+void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps,  double *tops, double *v)
 {
 	double *Uk=Calloc(myq,double);
 	int k=0,i=0,Uindex=0;
@@ -23,11 +23,11 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 	double tempmax=1.0;
 	double *lfutwidpieces=Calloc(*nps,double);
 	double diffs=0.0;
-/*	double *diffs=Calloc(*nps,double);*/
 	double *lfuval=Calloc(*m,double);
 	double *lfyuval=Calloc(*m,double);
 	double *lfutwid=Calloc(*m,double);
-/*	double *tempmaxvec=Calloc(*nps,double);*/
+	double *b=Calloc(*m,double);
+	double *a=Calloc(1,double);
 
 	for(k=0;k<*m;k++){
 		/*start by getting Uk  */
@@ -67,31 +67,58 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 		if(*double1>tempmax){tempmax=*double1;}
 
 		lfutwid[k]=0.0;
-/*		memset(tempmaxvec,tempmax,*nps);*/
-/*		subvec(lfutwidpieces,tempmaxvec,nps,diffs); diffs=lfutwidpieces-tempmaxvec */
 
 		/* calculate diffs= lfutwidpieces-tempmax */
-		/* and lfutwid = tempmax + sum(pee[i]*exp(diffs)) */
+		/* and lfutwid = tempmax + log(sum(pee[i]*exp(diffs))) */
 		for(i=0;i<*nps;i++){
 			diffs=lfutwidpieces[i]- tempmax;
-			lfutwid[k]+=*(pee+i)*exp(diffs);
+			lfutwid[k]+=*(pee+i)*exp(diffs); /*sum(pee[i]*exp(diffs))*/
 		}
-	lfutwid[k]=log(lfutwid[k])+tempmax;
+	lfutwid[k]=log(lfutwid[k])+tempmax; /* finishes lfutwid calc */
+
 	b[k]=*(lfuval+k)+*(lfyuval+k)-*(lfutwid+k);
 
-
+	if(k==0){*a=b[k];}
+	if(b[k]>*a){*a=b[k];}
 	}
+
+	Free(mzeros);
+	Free(lfutwidpieces);
+	Free(lfuval);
+	Free(lfyuval);
+	Free(lfutwid);
+
+	/* Calculate weights v[k] */
+	double *avec=Calloc(*m,double);
+/*	double *tops=Calloc(*m,double);*/
+/*	memset(avec,*a,*m);*/
+/*	Free(a);*/
+/*	subvec(b,avec,m,tops);*/
+	for(i=0;i<*m;i++){
+		tops[i]=exp(b[i]-*a);
+	}
+
+/*	Free(avec);*/
+	double bottom=0.0;
+	for(i=0;i<*m;i++){
+		/* want tops = exp(b-a) */
+/*		tops[i]=exp(tops[i]) ;*/
+		/* want bottom = sum(exp(b-a)) */
+		bottom+=tops[i];
+	}
+	/* calc tops/bottom */
+	for(i=0;i<*m;i++){
+		v[i]=tops[i]/bottom;
+	}
+
+/*	Free(tops);*/
+
+	Free(b);
 
 	Free(Uk);
 	Free(xbeta);
 	Free(zu);
 	Free(eta);
-	Free(mzeros);
-	Free(lfutwidpieces);
-
-	Free(lfuval);
-	Free(lfyuval);
-	Free(lfutwid);
 }
 
 

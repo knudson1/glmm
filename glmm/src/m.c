@@ -117,12 +117,21 @@ void subvec(double *a, double *b, int *len, double *out)
 	}
 }
 
-/* subtract two vectors: out= a-b */
+/* add two vectors: out= a+b */
 void addvec(double *a, double *b, int *len, double *out)
 {
 	int i=0;
 	for(i=0;i<(*len);i++){
 		*(out+i)=*(a+i)+*(b+i);
+	}
+}
+
+/* divide one vector by another elementwise: out= a/b */
+void divvec(double *a, double *b, int *len, double *out)
+{
+	int i=0;
+	for(i=0;i<(*len);i++){
+		*(out+i)=*(a+i)/(*(b+i));
 	}
 }
 
