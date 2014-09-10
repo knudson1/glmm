@@ -6,7 +6,7 @@ z is n by myq matrix
 pee is the vector of sampling proportions (usually 1/3, 1/3, 1/3)
 nps is the length of pee (3 for now, maybe more if imp sampling distrib changes)
 */
-void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps,  double *tops, double *v)
+void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *meow, double *v, double *value)
 {
 	double *Uk=Calloc(myq,double);
 	int k=0,i=0,Uindex=0;
@@ -89,32 +89,50 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 	Free(lfutwid);
 
 	/* Calculate weights v[k] */
-	double *avec=Calloc(*m,double);
-/*	double *tops=Calloc(*m,double);*/
-/*	memset(avec,*a,*m);*/
-/*	Free(a);*/
-/*	subvec(b,avec,m,tops);*/
+	double *tops=Calloc(*m,double);
 	for(i=0;i<*m;i++){
 		tops[i]=exp(b[i]-*a);
 	}
+	Free(b);
 
-/*	Free(avec);*/
 	double bottom=0.0;
 	for(i=0;i<*m;i++){
-		/* want tops = exp(b-a) */
-/*		tops[i]=exp(tops[i]) ;*/
-		/* want bottom = sum(exp(b-a)) */
 		bottom+=tops[i];
 	}
 	/* calc tops/bottom */
 	for(i=0;i<*m;i++){
 		v[i]=tops[i]/bottom;
 	}
+	Free(tops);
 
-/*	Free(tops);*/
+	/* calculate value */
+	*value=*a-log(*m)+log(bottom);
+	Free(a);
 
-	Free(b);
+/* done with value! */
+/* now going to do second loop, which calcs grad and hess */
+	int npar=*nbeta+*T;
+	double *G=Calloc(npar,double);
+	Uindex=0;	
+	
+	for(k=0;k<*m;k++){
+		/*start by getting Uk  */
+		for(i=0;i<*myq;i++){
+			Uk[i]=Umat[Uindex];
+			Uindex++;
+		}
 
+		/* calculate eta for this value of Uk
+		first calculate ZUk*/
+		matvecmult(z,Uk,n,myq,zu);
+
+		/* then add xbeta+zu to get current value of eta */
+		addvec(xbeta,zu,n,eta);
+
+
+	}
+
+	Free(G);
 	Free(Uk);
 	Free(xbeta);
 	Free(zu);
