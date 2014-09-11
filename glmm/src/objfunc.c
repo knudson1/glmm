@@ -194,12 +194,16 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 	Free(lfyuhess);
 	Free(mzeros);
 
+	double *GtG=Calloc((npar*npar),double);
+	matmatmult(G,G,&npar,ione,&npar,GtG);
+
 	/* finally, hessian = lobster+ panda + G t(G) */
 	for(i=0;i<(npar*npar);i++){
-		hessian[i]=panda[i];
+		hessian[i]=panda[i]+GtG[i];
 	}
 
 	Free(panda);
+	Free(GtG);
 
 }
 
