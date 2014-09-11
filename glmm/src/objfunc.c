@@ -6,7 +6,7 @@ z is n by myq matrix
 pee is the vector of sampling proportions (usually 1/3, 1/3, 1/3)
 nps is the length of pee (3 for now, maybe more if imp sampling distrib changes)
 */
-void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *meow, double *v, double *value)
+void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, double *v, double *value, double *G)
 {
 	double *Uk=Calloc(myq,double);
 	int k=0,i=0,Uindex=0;
@@ -82,7 +82,7 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 	if(b[k]>*a){*a=b[k];}
 	}
 
-	Free(mzeros);
+
 	Free(lfutwidpieces);
 	Free(lfuval);
 	Free(lfyuval);
@@ -112,9 +112,14 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 /* done with value! */
 /* now going to do second loop, which calcs grad and hess */
 	int npar=*nbeta+*T;
-	double *G=Calloc(npar,double);
+	double *Gpiece=Calloc(npar,double);
+	double *lfugradient=Calloc(*T,double);
+	double *lfuhess=Calloc((*T)*(*T),double);
+	double *lfyugradient=Calloc(*nbeta,double);
+	double *lfyuhess=Calloc((*nbeta)*(*nbeta),double);
 	Uindex=0;	
-	
+	int Gindex=0;
+
 	for(k=0;k<*m;k++){
 		/*start by getting Uk  */
 		for(i=0;i<*myq;i++){
@@ -129,14 +134,55 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 		/* then add xbeta+zu to get current value of eta */
 		addvec(xbeta,zu,n,eta);
 
+		/* calculate lfu gradient and hessian */
+		distRand3C(nu, mzeros, T, nrandom, meow, Uk, lfugradient, lfuhess);
 
+		/* calculate gradient and hessian log f_theta(y|u_k) */
+		elGH(y,x,n,nbeta,eta,family_glmm,lfyugradient,lfyuhess);
+
+		/* calculate what is called Gpiece in R version (G for kth component) 
+		then G= sum(Gpieces) */
+		Gindex=0;
+
+		for(i=0;i<*nbeta;i++){
+			G[Gindex]+=lfyugradient[i]*v[k];
+			Gindex++;
+		}
+		for(i=0;i<*T;i++){
+			G[Gindex]+=lfugradient[i]*v[k];
+			Gindex++;
+		}
+
+/*		for(i=0;i<*nbeta;i++){	*/
+/*			Gpiece[Gindex]=lfyugradient[i]*v[k];*/
+/*			Gindex++;*/
+/*		}*/
+/*		*/
+/*		for(i=0;i<*T;i++){	*/
+/*			Gpiece[Gindex]=lfugradient[i]*v[k];*/
+/*			Gindex++;*/
+/*		}*/
+		
+		/* now add this Gpieces to the running total of G
+		where G is gradient at end of loop 
+		want G+=Gpiece*/
+/*		for(i=0;i<npar;i++){*/
+/*		G[i]+=Gpiece[i];	*/
+/*		}*/
+		
 	}
 
-	Free(G);
+
+	Free(Gpiece);
 	Free(Uk);
 	Free(xbeta);
 	Free(zu);
 	Free(eta);
+	Free(lfugradient);
+	Free(lfuhess);
+	Free(lfyugradient);
+	Free(lfyuhess);
+	Free(mzeros);
 }
 
 
