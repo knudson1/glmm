@@ -116,13 +116,18 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 	double *lfuhess=Calloc((*T)*(*T),double);
 	double *lfyugradient=Calloc(*nbeta,double);
 	double *lfyuhess=Calloc((*nbeta)*(*nbeta),double);
+
 	double *pandabit1=Calloc(npar,double);
 	double *pandabit2=Calloc(npar,double);
 	double *panda=Calloc(npar*npar,double);
 	double *pandatemp=Calloc(npar*npar,double);
+
 	Uindex=0;	
 	int Gindex=0;
 	int thing1=1,*ione=&thing1;
+
+	double *lobster=Calloc(npar*npar,double);
+	int lfyuindex=0,lfuindex=0,matindex=0,j=0;
 
 	for(k=0;k<*m;k++){
 		/*start by getting Uk  */
@@ -157,7 +162,7 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 		}
 
 	/* Now moving on to HESSIAN. 3 parts: panda, lobster, and matrix G t(G) 
-	need loops for panda and lobster, but G t(G) will be calc at end.
+	need loops for panda and lobster, but G t(G) will be calc outside of k-loop.
 		First do panda. for each k, add on pandabit1 %*% t(pandabit2) 
 		where pandabit2=pandabit1* v[k]. */
 		Gindex=0;
@@ -179,6 +184,30 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 			panda[i]+=pandatemp[i];
 		}
 
+		/* now work on adding to lobster */
+		lfyuindex=0; /* every k-iteration want to start at */
+		lfuindex=0; /* beginning of array for lfyuhess, lfuhess, lobster */
+		matindex=0;
+		for(i=0;i<*nbeta;i++){ /* for first nbeta columns of lobster */
+			for(j=0;j<*nbeta;j++){
+				lobster[matindex]+=lfyuhess[lfyuindex]*v[k];
+				matindex++;
+				lfyuindex++;
+			}
+			for(j=0;j<*T;j++){
+				matindex++; /* add 0 to lobster */
+			}
+		}
+		for(i=0;i<*T;i++){ /* for last T cols of lobster */
+			for(j=0;j<*nbeta;j++){
+				matindex++; /* add 0 to lobster */
+			}
+			for(j=0;j<*T;j++){
+				lobster[matindex]+=lfuhess[lfuindex]*v[k];
+				matindex++;
+				lfuindex++;
+			}
+		}
 	}
 
 	Free(pandatemp);
@@ -197,13 +226,15 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 	double *GtG=Calloc((npar*npar),double);
 	matmatmult(G,G,&npar,ione,&npar,GtG);
 
-	/* finally, hessian = lobster+ panda + G t(G) */
+	/* finally, hessian = lobster+ panda - G t(G) */
 	for(i=0;i<(npar*npar);i++){
-		hessian[i]=panda[i]+GtG[i];
+		hessian[i]=lobster[i]-GtG[i]+panda[i];
+
 	}
 
 	Free(panda);
 	Free(GtG);
+	Free(lobster);
 
 }
 
