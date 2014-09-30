@@ -1,5 +1,6 @@
 glmm <-
 function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,distrib="normal",gamm=15,nu.multiplier=1, p1=1/3,p2=1/3,p3=1/3){
+
 	if(is.numeric(nu.multiplier)!=TRUE) stop("nu.multiplier must be numeric.")
 	if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
 	if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
@@ -88,13 +89,14 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	#cache will hold some pql estimates and the importance sampling weights that wouldn't otherwise be returned
 	cache <- new.env(parent = emptyenv())
 
+
 	if(doPQL==TRUE){
 	      #do PQL
 	      pql.out<-pql(mod.mcml,family.glmm,cache)
 	      s.pql<-cache$s.twid	
 	      sigma.pql<-pql.out$sigma
 	      nu.pql<-sigma.pql^2
-	      beta.pql<-cache$beta.twid #works through here, cache is ok
+	      beta.pql<-cache$beta.twid 
 	}
 	
 	if(doPQL==FALSE){
@@ -105,6 +107,9 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	      sigma.pql<-nu.pql<-rep(1,length(mod.mcml$z))
 	      beta.pql<-rep(1,ncol(mod.mcml$x))
 	}
+
+
+
 	nu.gen<-nu.pql*nu.multiplier
 	sigma.gen<-sqrt(nu.gen)
 	par.init<-c(beta.pql,nu.gen) 
@@ -153,7 +158,10 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 #	genData2<-genRand(ones,zeros,mod.mcml$z,m2,distrib="normal",gamm)
 
 	umat<-rbind(genData$u,genData2$u,genData3$u)
-	
+
+
+
+
 	#use trust to max the objfun (monte carlo likelihood)
 	trust.out<-trust(objfun,parinit=par.init,rinit=10, rmax=10000, 
 iterlim=100, minimize=F, nbeta=length(beta.pql), nu.pql=nu.gen, 

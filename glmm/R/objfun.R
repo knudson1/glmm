@@ -1,5 +1,6 @@
 objfun <-
 function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,gamm,p1,p2,p3,D.star,Sigmuh){
+
 	beta<-par[1:nbeta]
 	nu<-par[-(1:nbeta)]
 	m<-nrow(umat)
@@ -47,9 +48,12 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 	pee<-c(p1,p2,p3)
 	n<-nrow(mod.mcml$x)
 
+
+
 	stuff<-.C("objfunc", as.double(mod.mcml$y),as.double(t(umat)), as.integer(myq), as.integer(m), as.double(mod.mcml$x), as.integer(n), as.integer(nbeta), as.double(beta), as.double(Z), as.double(Dinvfornu), as.double(logdetDinvfornu),as.integer(family_glmm), as.double(D.star.inv), as.double(logdet.D.star.inv), as.double(u.star), as.double(Sigmuh.inv), as.double(logdet.Sigmuh.inv), pee=as.double(pee), nps=as.integer(length(pee)), T=as.integer(T), nrandom=as.integer(nrandom), meow=as.integer(meow),nu=as.double(nu), v=double(m),value=double(1),gradient=double(length(par)),hessian=double((length(par))^2))
 
-	cache$weights<-stuff$v
+
+	cache$weights<-stuff$v		
 
 	list(value=stuff$value,gradient=stuff$gradient,hessian=matrix(stuff$hessian,ncol=length(par),byrow=FALSE))
 
