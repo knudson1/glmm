@@ -13,6 +13,7 @@ beta.pql<-stuff$beta.pql
 nu.pql<-stuff$nu.pql
 u.pql<-u.star<-stuff$u.star
 umat<-stuff$umat
+m1<-stuff$m1
 
 family.glmm<-bernoulli.glmm
 
@@ -141,6 +142,7 @@ distRandGeneral<-function(uvec,mu,Sigma.inv){
 }
 D.star<-2*diag(10)
 D.star.inv<-.5*diag(10)
+A.star<-sqrt(2)*diag(10)
 this<-distRandGeneral(you,u.pql,D.star.inv)
 all.equal(this,that$value)
 
@@ -167,6 +169,18 @@ Sigmuh<-solve(Sigmuh.inv)
 
 piece3<-rep(0,3)
 
+#calculate objfun's value for comparison
+cache<-new.env(parent = emptyenv())
+objfun<-glmm:::objfun
+that<-objfun(c(beta,nu),nbeta=1,nu.pql=nu.pql,u.star=u.star,mod.mcml=mod.mcml, family.glmm=bernoulli.glmm,cache=cache,distrib="normal",gamm=15,umat=umat, p1=1/3,p2=1/3,p3=1/3,m1=m1,D.star=D.star,A.star=A.star,Sigmuh=Sigmuh)
+
+
+#need to scale first m1 vectors of generated random effects by multiplying by A.star
+for(k in 1:m1){
+	u.swoop<-umat[k,]
+	umat[k,]<-u.swoop%*%A.star
+	}
+
 #now go through row by row of umat 
 #ie go through each vector of gen rand eff
 for(k in 1:m){
@@ -188,10 +202,7 @@ for(k in 1:m){
 a<-max(b)
 top<-exp(b-a)
 value<-a+log(mean(top))
-#going to compare this against objfun's value
-cache<-new.env(parent = emptyenv())
-objfun<-glmm:::objfun
-that<-objfun(c(beta,nu),nbeta=1,nu.pql=nu.pql,u.star=u.star,mod.mcml=mod.mcml, family.glmm=bernoulli.glmm,cache=cache,distrib="normal",gamm=15,umat=umat, p1=1/3,p2=1/3,p3=1/3,D.star=D.star,Sigmuh=Sigmuh)
+
 all.equal(value,that$value)	
 #Given generated random effects, the value of the objective function is correct.
 #This plus the test of finite diffs for objfun should be enough.
