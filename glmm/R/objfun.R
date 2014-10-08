@@ -1,5 +1,5 @@
 objfun <-
-function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,gamm,p1,p2,p3,m1,D.star,A.star,Sigmuh){
+function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,gamm,p1,p2,p3,m1,D.star,Sigmuh){
 
 	beta<-par[1:nbeta]
 	nu<-par[-(1:nbeta)]
@@ -35,6 +35,7 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 	Dinvfornu<-addVecs(preDinvfornu)
 	Dinvfornu<-diag(Dinvfornu)
 	logdetDinvfornu<-sum(log(eigen(Dinvfornu,symmetric=TRUE)$values))
+
 	
 	meow<-rep(0,T+1)
 	meow[1]=0
@@ -48,15 +49,15 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 	pee<-c(p1,p2,p3)
 	n<-nrow(mod.mcml$x)
 
-#need to scale first m1 vectors of generated random effects by multiplying by A.star
+#need to scale first m1 vectors of generated random effects by multiplying by A
+
+	preAfornu<-Map("*",eek,sqrt(nu))
+	Afornu<-addVecs(preAfornu)
+
 	for(k in 1:m1){
 		u.swoop<-umat[k,]
-		umat[k,]<-u.swoop%*%A.star
+		umat[k,]<-u.swoop*Afornu
 		}
-#later will change this: instead of mult by A.star will mult by A
-	#preDfornu<-Map("*",eek,sqrt(nu))
-	#Dfornu<-addVecs(preDfornu)
-	
 
 	stuff<-.C("objfunc", as.double(mod.mcml$y),as.double(t(umat)), as.integer(myq), as.integer(m), as.double(mod.mcml$x), as.integer(n), as.integer(nbeta), as.double(beta), as.double(Z), as.double(Dinvfornu), as.double(logdetDinvfornu),as.integer(family_glmm), as.double(D.star.inv), as.double(logdet.D.star.inv), as.double(u.star), as.double(Sigmuh.inv), as.double(logdet.Sigmuh.inv), pee=as.double(pee), nps=as.integer(length(pee)), T=as.integer(T), nrandom=as.integer(nrandom), meow=as.integer(meow),nu=as.double(nu), v=double(m),value=double(1),gradient=double(length(par)),hessian=double((length(par))^2))
 

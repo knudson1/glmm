@@ -160,6 +160,9 @@ sigsq<-nu<-2
 beta<-6
 Z<-mod.mcml$z[[1]]
 D.star.inv<-.5*diag(10)
+A<-sqrt(2)*diag(10)
+D<-2*diag(10)
+D.inv<-.5*diag(10)
 
 eta.star<-x*beta.pql+as.vector(Z%*%u.star)
 cdouble<-as.vector(bernoulli.glmm()$cpp(eta.star)) #still a vector
@@ -172,13 +175,13 @@ piece3<-rep(0,3)
 #calculate objfun's value for comparison
 cache<-new.env(parent = emptyenv())
 objfun<-glmm:::objfun
-that<-objfun(c(beta,nu),nbeta=1,nu.pql=nu.pql,u.star=u.star,mod.mcml=mod.mcml, family.glmm=bernoulli.glmm,cache=cache,distrib="normal",gamm=15,umat=umat, p1=1/3,p2=1/3,p3=1/3,m1=m1,D.star=D.star,A.star=A.star,Sigmuh=Sigmuh)
+that<-objfun(c(beta,nu),nbeta=1,nu.pql=nu.pql,u.star=u.star,mod.mcml=mod.mcml, family.glmm=bernoulli.glmm,cache=cache,distrib="normal",gamm=15,umat=umat, p1=1/3,p2=1/3,p3=1/3,m1=m1,D.star=D.star,Sigmuh=Sigmuh)
 
 
-#need to scale first m1 vectors of generated random effects by multiplying by A.star
+#need to scale first m1 vectors of generated random effects by multiplying by A
 for(k in 1:m1){
 	u.swoop<-umat[k,]
-	umat[k,]<-u.swoop%*%A.star
+	umat[k,]<-u.swoop%*%A
 	}
 
 #now go through row by row of umat 
@@ -190,7 +193,8 @@ for(k in 1:m){
 	piece1<- logfyuk(eta,x,y)$value	
 	piece2<- distRandCheck(nu,uvec,rep(0,10))$value
 	
-	piece3[1]<- distRandGeneral(uvec, rep(0,10),D.star.inv)
+	piece3[1]<-piece2
+	#piece3[1]<- distRandGeneral(uvec, rep(0,10),D.inv)
 	piece3[2]<- distRandGeneral(uvec, u.star, D.star.inv)
 	piece3[3]<-distRandGeneral(uvec,u.star,Sigmuh.inv)
 

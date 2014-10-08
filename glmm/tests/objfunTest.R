@@ -1,3 +1,4 @@
+
 #check objfun using finite differences
 library(glmm)
 data(BoothHobert)
@@ -17,7 +18,7 @@ u.pql<-debug$u.star
 m1<-debug$m1
 
 par<-c(6,1.5)
-del<-rep(.00000001,2)
+del<-rep(.00000000001,2)
 
 objfun<-glmm:::objfun
 getEk<-glmm:::getEk
@@ -29,10 +30,6 @@ Aks<-Map("*",eek,nu.pql)
 D.star<-addVecs(Aks) 
 D.star<-diag(D.star)
 D.star.inv<-solve(D.star)
-#need to get A.star
-Aks<-Map("*",eek,sqrt(nu.pql))
-A.star<-addVecs(Aks) 
-A.star<-diag(A.star)
 
 
 #need to also recreate the variance matrix of last imp sampling distribution
@@ -46,8 +43,8 @@ Sigmuh<-solve(Sigmuh.inv)
 p1=p2=p3=1/3
 
 # define a few things that will be used for finite differences
-lth<-objfun(par=par, nbeta=1, nu.pql=nu.gen, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="normal",p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh,D.star=D.star,A.star=A.star)
-lthdel<-objfun(par=par+del, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="normal",p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh,D.star=D.star,A.star=A.star)
+lth<-objfun(par=par, nbeta=1, nu.pql=nu.gen, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="normal",p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh,D.star=D.star)
+lthdel<-objfun(par=par+del, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="normal",p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh,D.star=D.star)
 
 all.equal(as.vector(lth$gradient%*%del),lthdel$value-lth$value)
 all.equal(as.vector(lth$hessian%*%del),lthdel$gradient-lth$gradient)
@@ -55,10 +52,19 @@ all.equal(as.vector(lth$hessian%*%del),lthdel$gradient-lth$gradient)
 ##### to make sure that the objfun function is correct, compare it against the version without any C code. here is objfun without c:
 objfunNOC <-
 function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,gamm,p1,p2,p3,D.star,Sigmuh){
+
 	#print(par)
 	beta<-par[1:nbeta]
 	nu<-par[-(1:nbeta)]
+	D<-nu*diag(10)
+	D.inv<-(1/nu)*diag(10)
 	m<-nrow(umat)
+
+
+	for(k in 1:m1){
+		u.swoop<-umat[k,]
+		umat[k,]<-u.swoop*sqrt(nu)
+	}
 
 	if (!missing(cache)) stopifnot(is.environment(cache))
 	if(missing(cache)) cache<-new.env(parent = emptyenv())
@@ -93,7 +99,7 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 
 		#log f~_theta(u_k)
 		if(distrib=="normal"){
-			lfu.twid[k,1]<-distRandGeneral(Uk,zeros,D.star.inv)}
+			lfu.twid[k,1]<-lfu[[k]][[1]] }#distRandGeneral(Uk,zeros,D.inv)}
 		if(distrib=="tee") {
 			lfu.twid[k,1]<-tdist(nu.pql,Uk,mod.mcml$z,u.star,gamm)}
 		lfu.twid[k,2]<-distRandGeneral(Uk,u.star,D.star.inv)
@@ -240,5 +246,6 @@ function(nu,U,z.list,mu){
 }
 
 #finally, compare objfun and objfunNOC for B+H example
+
 that<-objfunNOC(par=par, nbeta=1, nu.pql=nu.gen, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="normal",p1=p1,p2=p2,p3=p3, Sigmuh=Sigmuh,D.star=D.star)
 all.equal(that,lth)

@@ -135,7 +135,8 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 
 	#generate m1 from N(0,I) and will be scaled to N(0,D) later
 	zeros<-rep(0,length(u.star))
-	genData<-genRand(zeros,diag(length(u.star)),m1)
+	ident<-diag(length(u.star))
+	genData<-genRand(zeros,ident,m1)
 	
 	#generate m2 from N(u*,D*)
 	genData2<-genRand(u.star,D.star,m2)
@@ -165,7 +166,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	#use trust to max the objfun (monte carlo likelihood)
 	trust.out<-trust(objfun,parinit=par.init,rinit=10, rmax=10000, 
 iterlim=100, minimize=F, nbeta=length(beta.pql), nu.pql=nu.gen, 
-umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T, cache=cache, distrib=distrib, gamm=gamm, p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star,A.star=A.star,Sigmuh=Sigmuh)
+umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T, cache=cache, distrib=distrib, gamm=gamm, p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star,Sigmuh=Sigmuh)
 
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]

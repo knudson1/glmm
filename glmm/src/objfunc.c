@@ -54,9 +54,10 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 		/* value of log f~_theta(u_k) 
 		first calculate value of log f~_theta(u_k) for 3 distribs used 
 		and find largest value as you go */
-		distRandGenC(Dstarinv,logdetDstarinv, myq, Uk, mzeros, double1);
-		tempmax=*double1;
-		lfutwidpieces[0]=*double1;
+		/* distRandGenC(Dinvfornu,logdetDinvfornu, myq, Uk, mzeros, double1);
+		first piece is dist for N(0,D)=log f_theta(uk)*/
+		tempmax=*(lfuval+k);
+		lfutwidpieces[0]=*(lfuval+k); 
 		
 		distRandGenC(Dstarinv,logdetDstarinv, myq, Uk, ustar, double1);
 		lfutwidpieces[1]=*double1;

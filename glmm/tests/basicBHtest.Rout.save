@@ -20,28 +20,30 @@ Loading required package: trust
 Loading required package: mvtnorm
 > data(BoothHobert)
 > set.seed(1234)
-> mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,family.glmm=bernoulli.glmm,m=100,doPQL=TRUE)
+> mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,family.glmm=bernoulli.glmm,m=1000,doPQL=TRUE)
+> mod.mcml1$likelihood.hessian
+           [,1]       [,2]
+[1,] -0.8816358  0.3947268
+[2,]  0.3947268 -0.7460351
 > summary(mod.mcml1)
 
 Call:
 glmm(fixed = y ~ 0 + x1, random = list(y ~ 0 + z1), varcomps.names = c("z1"), 
-    data = BoothHobert, family.glmm = bernoulli.glmm, m = 100, 
+    data = BoothHobert, family.glmm = bernoulli.glmm, m = 1000, 
     doPQL = TRUE)
 
 Fixed Effects:
    Estimate Std. Error z value Pr(>|z|)    
-x1    6.134      1.081   5.672 1.41e-08 ***
+x1    5.923      1.219   4.858 1.19e-06 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 
 Variance Components for Random Effects (P-values are one-tailed):
-   Estimate Std. Error z value Pr(>|z|)/2  
-z1   1.4943     0.9055    1.65     0.0494 *
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+   Estimate Std. Error z value Pr(>|z|)/2
+z1    1.455      1.325   1.098      0.136
 
 > 
 > proc.time()
    user  system elapsed 
-  0.935   0.028   0.956 
+  1.435   0.029   1.447 
