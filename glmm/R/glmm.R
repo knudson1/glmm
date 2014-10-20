@@ -60,6 +60,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	if(!is.numeric(p1))stop("p1 must be a number between 0 and 1")
 	if(p1>1) stop("p1 must be a number between 0 and 1")
 	if(p1<0) stop("p1 must be a number between 0 and 1")
+	if(p1==0) stop("p1 must be nonzero")
 	if(!is.numeric(p2))stop("p2 must be a number between 0 and 1")
 	if(p2>1) stop("p2 must be a number between 0 and 1")
 	if(p2<0) stop("p2 must be a number between 0 and 1")
@@ -177,7 +178,7 @@ umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T,
 	names(nu.trust)<-varcomps.names
 
 	if(debug==TRUE){
-	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql, nu.gen=nu.gen, trust.argpath=trust.argpath, u.star=u.star, umat=umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=m1,m2=m2,m3=m3)
+	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql, nu.gen=nu.gen, trust.argpath=trust.argpath, u.star=u.star, umat=umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=m1,m2=m2,m3=m3,trust.argtry=trust.out$argtry, trust.steptype=trust.out$steptype, trust.accept=trust.out$accept, trust.r=trust.out$r, trust.rho=trust.out$rho, trust.valpath=trust.out$valpath, trust.valtry=trust.out$valtry, trust.preddif=trust.out$preddif, trust.stepnorm=trust.out$stepnorm)
 	}
 	
 	return(structure(list(beta=beta.trust,nu=nu.trust, likelihood.value=trust.out$value, likelihood.gradient=trust.out$gradient, likelihood.hessian=trust.out$hessian,

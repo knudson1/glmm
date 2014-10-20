@@ -19,12 +19,8 @@ Type 'q()' to quit R.
 Loading required package: trust
 Loading required package: mvtnorm
 > data(BoothHobert)
-> set.seed(1234)
+> set.seed(123)
 > mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,family.glmm=bernoulli.glmm,m=1000,doPQL=TRUE)
-> mod.mcml1$likelihood.hessian
-           [,1]       [,2]
-[1,] -0.8816358  0.3947268
-[2,]  0.3947268 -0.7460351
 > summary(mod.mcml1)
 
 Call:
@@ -34,16 +30,16 @@ glmm(fixed = y ~ 0 + x1, random = list(y ~ 0 + z1), varcomps.names = c("z1"),
 
 Fixed Effects:
    Estimate Std. Error z value Pr(>|z|)    
-x1    5.923      1.219   4.858 1.19e-06 ***
+x1    6.063      1.413   4.291 1.78e-05 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 
 Variance Components for Random Effects (P-values are one-tailed):
    Estimate Std. Error z value Pr(>|z|)/2
-z1    1.455      1.325   1.098      0.136
+z1    1.647      1.623   1.015      0.155
 
 > 
 > proc.time()
    user  system elapsed 
-  1.435   0.029   1.447 
+  1.414   0.030   1.437 

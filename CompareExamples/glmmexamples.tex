@@ -38,7 +38,7 @@
 \def\baro{\vskip  .2truecm\hfill \hrule height.5pt \vskip  .2truecm}
 \def\barba{\vskip -.1truecm\hfill \hrule height.5pt \vskip .4truecm}
 
-\title{R package glmm}
+\title{R package \texttt{glmm}}
 
 \author{Christina Knudson}
 
@@ -46,21 +46,22 @@
 \maketitle{}
 
 \section{Bacteria example}
-The MASS package contains the command glmmPQL and the bacteria data-set. The manual describes the data set as follows: ``Tests of the presence of the bacteria H. influenzae in children with otitis media in the Northern Territory of Australia.''
+The MASS package contains the command \texttt{glmmPQL} and the bacteria data-set. The manual describes the data set as follows: ``Tests of the presence of the bacteria H. influenzae in children with otitis media in the Northern Territory of Australia.''
 
-The data were fit using glmmPQL, glmm with $m=10^3$, glmm with $m=10^4$, glmm with $m=10^5$. (The data did need to be reformatted, which took only a couple minutes). The parameter estimates are summarized in the following table. More model details can be seen in the output that follows the table.
+The data were fit using \texttt{glmmPQL},  \texttt{glmer}  from the \texttt{lme4} package (method implemented was Laplace approximation),  \texttt{glmm} with $m=10^4$,  \texttt{glmm} with $m=10^5$, and \texttt{glmm} with $m=10^6$. (The data did need to be reformatted in a process described at the end of the document). The parameter estimates are summarized in the following table. More model details can be seen in the output that follows the table.
 
 \begin{tabular}{lccccc}
 & Intercept & trtdrug & trtdrug+ & I(week$>2$) TRUE & $\nu$ \\ \hline
-glmmPQL & 3.41 & -1.25 & -.75 & -1.61 & 1.99\\
-glmm $m=10^3$ & 3.02 & -1.20 & -.89 & -1.44 & .81 \\
-glmm $m=10^4$ & 3.65 & -1.36 & -.92 & -1.66 & 2.02 \\
-glmm $m=10^5$ & 3.49& -1.65 & -.90 & -1.46 & .90 \\
+\texttt{glmmPQL} & 3.41 & -1.25 & -.75 & -1.61 & 1.99\\
+\texttt{glmer} & 3.55 & -1.37 & -.78 & -1.60 & 1.54\\
+\texttt{glmm} $m=10^4$ & 3.57 & -1.38 & -.80 & -1.62 & 1.66 \\
+\texttt{glmm} $m=10^5$ & 3.60& -1.39 & -.79 & -1.63 & 1.73 \\
+\texttt{glmm} $m=10^6$ & 3.58& -1.37 & -.79 & -1.63 & 1.71 \\
 \end{tabular}
 
-It's safe to say that the bacteria glmm results with a paltry Monte Carlo sample size of $m=10^3$ are not reliable. We conclude this because the estimates change quite a bit when $m=10^4$. The results using $m=10^4$ are very similar to the glmmPQL results.
 
-The glmmPQL results:
+
+The \texttt{glmmPQL} results:
 \begin{verbatim}
 > bac.pql<-glmmPQL(y ~ trt + I(week > 2), random = ~ 1 | ID,
 +                 family = binomial, data = bacteria)
@@ -98,42 +99,10 @@ Number of Observations: 220
 Number of Groups: 50 
 \end{verbatim}
 
-The bacteria glmm results with a  Monte Carlo sample size of $m=10^3$:
 \begin{verbatim}
-> set.seed(1234)
-> bac.glmm1<-glmm(y2~trt+I(week > 2),list(~0+ID), 
-family=bernoulli.glmm, data=bacteria, m=10^3, varcomps.names=c("ID"))
-
-> summary(bac.glmm1)
-
-Call:
-glmm(fixed = y2 ~ trt + I(week > 2), random = list(~0 + ID),  varcomps.names = c("ID"), 
-data = bacteria, family.glmm = bernoulli.glmm,     m = 10^3)
-
-Fixed Effects:
-                Estimate Std. Error z value Pr(>|z|)    
-(Intercept)       3.0199     0.4667   6.471 9.75e-11 ***
-trtdrug          -1.1989     0.4473  -2.680 0.007357 ** 
-trtdrug+         -0.8883     0.4742  -1.873 0.061021 .  
-I(week > 2)TRUE  -1.4407     0.4258  -3.384 0.000716 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-
-Variance Components for Random Effects (P-values are one-tailed):
-   Estimate Std. Error z value Pr(>|z|)/2    
-ID   0.8175     0.1635   4.998   2.89e-07 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-
-
-\end{verbatim}
-The results from fitting the bacteria dataset with glmm and $m=10^4$:
-
-\begin{verbatim}
-> set.seed(1234)
-> bac.glmm2<-glmm(y2~trt+I(week > 2),list(~0+ID), family=bernoulli.glmm, data=bacteria, m=10^4, varcomps.names=c("ID"))
+proc.time()-ptm
+user  system elapsed 
+ 16.226   0.044  16.281 
 > summary(bac.glmm2)
 
 Call:
@@ -143,27 +112,30 @@ glmm(fixed = y2 ~ trt + I(week > 2), random = list(~0 + ID),
 
 Fixed Effects:
                 Estimate Std. Error z value Pr(>|z|)    
-(Intercept)       3.6514     0.6327   5.771  7.9e-09 ***
-trtdrug          -1.3645     0.7461  -1.829 0.067427 .  
-trtdrug+         -0.9186     0.7619  -1.206 0.227915    
-I(week > 2)TRUE  -1.6660     0.4645  -3.587 0.000334 ***
+(Intercept)       3.5745     0.6371   5.611 2.01e-08 ***
+trtdrug          -1.3779     0.6701  -2.056 0.039768 *  
+trtdrug+         -0.8014     0.6878  -1.165 0.243950    
+I(week > 2)TRUE  -1.6224     0.4674  -3.471 0.000518 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 
 Variance Components for Random Effects (P-values are one-tailed):
-   Estimate Std. Error z value Pr(>|z|)/2   
-ID   2.0244     0.7515   2.694    0.00353 **
+   Estimate Std. Error z value Pr(>|z|)/2  
+ID   1.6635     0.7807   2.131     0.0165 *
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
+
 \end{verbatim}
 
-Results  of glmm with $m=10^5$:
+Results from  \texttt{glmm}  with $m=10^5$.
 \begin{verbatim}
-> set.seed(1234)
-> bac.glmm3<-glmm(y2~trt+I(week > 2),list(~0+ID), family=bernoulli.glmm, data=bacteria, m=10^5, varcomps.names=c("ID"))
-> summary(bac.glmm3)
+> bac.glmm2<-glmm(y2~trt+I(week > 2),list(~0+ID), family=bernoulli.glmm, data=bacteria, m=10^5, varcomps.names=c("ID"))
+> proc.time()-ptm
+   user  system elapsed 
+175.729   0.150 176.211 
+> summary(bac.glmm2)
 
 Call:
 glmm(fixed = y2 ~ trt + I(week > 2), random = list(~0 + ID), 
@@ -172,21 +144,87 @@ glmm(fixed = y2 ~ trt + I(week > 2), random = list(~0 + ID),
 
 Fixed Effects:
                 Estimate Std. Error z value Pr(>|z|)    
-(Intercept)       3.4888     0.4861   7.178 7.08e-13 ***
-trtdrug          -1.6526     0.5232  -3.159 0.001586 ** 
-trtdrug+         -0.8968     0.5160  -1.738 0.082196 .  
-I(week > 2)TRUE  -1.4614     0.4334  -3.372 0.000746 ***
+(Intercept)       3.6008     0.7666   4.697 2.64e-06 ***
+trtdrug          -1.3868     0.7126  -1.946 0.051641 .  
+trtdrug+         -0.7940     0.6996  -1.135 0.256348    
+I(week > 2)TRUE  -1.6321     0.4917  -3.319 0.000903 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 
 Variance Components for Random Effects (P-values are one-tailed):
-   Estimate Std. Error z value Pr(>|z|)/2    
-ID   0.8999     0.2471   3.641   0.000136 ***
+   Estimate Std. Error z value Pr(>|z|)/2  
+ID    1.738      1.317    1.32     0.0935 .
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+\end{verbatim}
+
+Results from \texttt{glmm} with $m=10^6$.
+\begin{verbatim}
+ proc.time()-ptm
+    user   system  elapsed 
+1491.511    1.299 1494.133 
+> summary(bac.glmm2)
+
+Call:
+glmm(fixed = y2 ~ trt + I(week > 2), random = list(~0 + ID), 
+    varcomps.names = c("ID"), data = bacteria, family.glmm = bernoulli.glmm, 
+    m = 10^6)
+
+Fixed Effects:
+                Estimate Std. Error z value Pr(>|z|)    
+(Intercept)       3.5824     0.6952   5.153 2.57e-07 ***
+trtdrug          -1.3714     0.6935  -1.978 0.047980 *  
+trtdrug+         -0.7929     0.7034  -1.127 0.259644    
+I(week > 2)TRUE  -1.6278     0.4801  -3.391 0.000698 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 
+Variance Components for Random Effects (P-values are one-tailed):
+   Estimate Std. Error z value Pr(>|z|)/2  
+ID    1.707      1.050   1.626      0.052 .
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+\end{verbatim}
+
+Results from \texttt{lme4}.
+\begin{verbatim}
+ summary(bac.glmer)
+Generalized linear mixed model fit by maximum likelihood (Laplace
+  Approximation) [glmerMod]
+ Family: binomial ( logit )
+Formula: y2 ~ trt + I(week > 2) + (1 | ID)
+   Data: bacteria
+
+     AIC      BIC   logLik deviance df.resid 
+   202.3    219.2    -96.1    192.3      215 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-4.5615  0.1359  0.3022  0.4217  1.1276 
+
+Random effects:
+ Groups Name        Variance Std.Dev.
+ ID     (Intercept) 1.543    1.242   
+Number of obs: 220, groups: ID, 50
+
+Fixed effects:
+                Estimate Std. Error z value Pr(>|z|)    
+(Intercept)       3.5479     0.6958   5.099 3.41e-07 ***
+trtdrug          -1.3667     0.6770  -2.019 0.043517 *  
+trtdrug+         -0.7826     0.6831  -1.146 0.251926    
+I(week > 2)TRUE  -1.5985     0.4759  -3.359 0.000783 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) trtdrg trtdr+
+trtdrug     -0.593              
+trtdrug+    -0.537  0.487       
+I(wk>2)TRUE -0.656  0.126  0.064
+> 
 \end{verbatim}
 
 \section{Herd CBPP Example}
@@ -197,12 +235,12 @@ goal of the survey was to study the within-herd spread of CBPP in newly infected
 samples were quarterly collected from all animals of these herds to determine their CBPP status.
 These data were used to compute the serological incidence of CBPP (new cases occurring during a given time period). Some data are missing (lost to follow-up).''
 
-First, I fit the data using glmer in lme4. The model summary says it was fit with Adaptive Hermite Quadrature with 9 quadrature nodes. Then I fit the data using glmm with $m=10^4$. This took 16.75 minutes on my netbook. The point estimates and some of the standard errors are very similar between the two  methods of model-fitting. 
+First, I fit the data using glmer in lme4. The model summary says it was fit with Adaptive Hermite Quadrature with 9 quadrature nodes. Then I fit the data using \texttt{glmm}with $m=10^4$. This took 16.75 minutes on my netbook. The point estimates and some of the standard errors are very similar between the two  methods of model-fitting. 
 
 \begin{tabular}{lccccc}
 & Intercept & period2 & period3 & period4 & $\nu$ \\ \hline
 glmer (numerical integration) & -1.40 & -.99 & -1.13 & -1.58 & .41\\
-glmm $m=10^4$ & -1.42 & -.99 & -1.13 & -1.58 & .44 \\
+\texttt{glmm}$m=10^4$ & -1.42 & -.99 & -1.13 & -1.58 & .44 \\
 \end{tabular}
 
 
@@ -244,7 +282,7 @@ period4 -0.260  0.213  0.198
 
 \end{verbatim}
 
-Next, the results using glmm with $m=10^4$:
+Next, the results using \texttt{glmm}with $m=10^4$:
 \begin{verbatim}
 > summary(herd.glmm1)
 
@@ -274,12 +312,12 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 \section{Salamander}
 The salamander dataset represents success or failure in matings between two types of salamanders denoted by R and W. Four types of crosses are possible: RR, RW, WR, WW. These are the fixed effects. There is a random effect for each female salamander and for each male salamander. Thus, there are two variance components: one for the females and one for the males. The response is binary: whether or not the mating was successful.
 
-I fit the salamander data set using  my glmm package (with $m=10^4$ twice and with $m=10^6$ once)  and compared those results to the MCEM results of Booth and Hobert. They do not look so great, and the $m=10^6$ results took 41 hours to get.
+I fit the salamander data set using  my \texttt{glmm} package (with $m=10^4$ twice and with $m=10^6$ once)  and compared those results to the MCEM results of Booth and Hobert. They do not look so great, and the $m=10^6$ results took 41 hours to get.
 
 \begin{tabular}{lcccccc}
 & Intercept & RW & WR & WW & $\nu_F$ & $\nu_M$ \\ \hline
 MCEM (B+H) & 1.03 & .32 & -1.95 & .99 & 1.4 & 1.25 \\
-glmm $m=10^5$ &   0.964      -0.645      -2.767      -0.008
+\texttt{glmm} $m=10^5$ &   0.964      -0.645      -2.767      -0.008
 \end{tabular}
 
 
@@ -291,7 +329,7 @@ glmm $m=10^5$ &   0.964      -0.645      -2.767      -0.008
 
 
 \section{Murder}
-Subjects were asked how many victims of homicide they personally knew. The data set is from Agresti's \textit{Categorical Data Analysis} book. I found similar answers from my glmm package as from glmmPQL.
+Subjects were asked how many victims of homicide they personally knew. The data set is from Agresti's \textit{Categorical Data Analysis} book. I found similar answers from my glmm package as from \texttt{glmmPQL}.
 
 The results from my package:
 
@@ -344,7 +382,7 @@ white 1.070e-08  1.440e-08   0.743      0.229
 
 \end{verbatim}
 
-The murder model resulting from glmmPQL:
+The murder model resulting from \texttt{glmmPQL}:
 \begin{verbatim}
 > murder.pql<-glmmPQL(y~race,random=~1|race,data=murder,family=poisson)iteration 1
 > summary(murder.pql)
