@@ -76,3 +76,44 @@ function(object,...){
 	coefficients
 }
 
+varcomps<-function(object,...){
+
+	mod<-object
+   	stopifnot(inherits(mod, "glmm"))
+	coefficients<-mod$nu
+	coefficients
+}
+
+confint.glmm<-function(object,parm,level=.95,...){
+   	stopifnot(inherits(object, "glmm"))
+
+	cf<-c(coef(object),varcomps(object))
+	pnames<-names(cf)
+	if(missing(parm)) parm<-pnames
+	else if (is.numeric(parm)) parm<-pnames[parm]
+	stopifnot(parm %in% pnames)
+
+	a<-(1-level)/2
+	a<-c(a,1-a)
+	fac<-qnorm(a)
+	pct<-a*100
+	
+	betaandnu<-c(object$beta,	nu<-object$nu)
+	hessian<-object$likelihood.hessian
+	if(det(hessian)==0) {
+            warning(paste("estimated Fisher information matrix not positive",
+               "definite, making all standard errors infinite"))
+            all.ses <- rep(Inf, nrow(hessian))
+        }
+	else{	all.ses<-sqrt(diag(solve(-hessian)))}
+	
+	names(all.ses)<-pnames
+	ci<-matrix(data=NA,nrow=length(parm),ncol=2)
+	colnames(ci)<-a
+	rownames(ci)<-parm
+	ci[,1]<-betaandnu[parm]+a[1]*all.ses[parm]
+	ci[,2]<-betaandnu[parm]+a[2]*all.ses[parm]
+
+	ci
+}
+
