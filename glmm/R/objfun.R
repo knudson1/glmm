@@ -40,9 +40,9 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 	meow<-rep(0,T+1)
 	meow[1]=0
 	meow[2]=nrandom[1]
-	if(T>2){	
-		for(t in 2:T+1){
-		meow[t]=meow[t-1]+nrandom[t-1]
+	if(T>1){	
+		for(i in 2:T){
+		meow[i+1]=meow[i]+nrandom[i]
 		}
 	}
 	
