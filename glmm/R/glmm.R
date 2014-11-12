@@ -81,8 +81,8 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	}
 	names(z)<-varcomps.names
 
-	mod.mcml<-structure(list(x = x, z=z,y = y), class = "bar")
-   	mod.mcml
+	mod.mcml<-list(x = x, z=z,y = y)
+
 	
 	#so now the 3 items are x (matrix), z (list), y (vector)
 	#end figuring out how to interpret the formula
@@ -119,7 +119,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	nrand<-lapply(mod.mcml$z,ncol)
 	nrandom<-unlist(nrand)
 	q<-sum(nrandom)
-	if(q!=length(s.pql)) stop("Number of random effects inconsistent between s.star and mod.mcml$z")
+	if(q!=length(s.pql)) stop("Can't happen. Number of random effects returned by PQL must match number of random effects specified by model.")
 	eek<-getEk(mod.mcml$z)
 	Aks<-Map("*",eek,sigma.pql)
 	A.star<-addVecs(Aks) #at this point still a vector
@@ -165,20 +165,21 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 
 
 	#use trust to max the objfun (monte carlo likelihood)
-	trust.out<-trust(objfun,parinit=par.init,rinit=10, rmax=10000, 
-iterlim=100, minimize=F, nbeta=length(beta.pql), nu.pql=nu.gen, 
-umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=T, cache=cache, distrib=distrib, gamm=gamm, p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star,Sigmuh=Sigmuh)
+	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, nbeta=length(beta.pql), nu.pql=nu.gen, rmax=1000,
+umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=debug, cache=cache, distrib=distrib, gamm=gamm, p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star,Sigmuh=Sigmuh)
 
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]
 
-	trust.argpath<-trust.out$argpath
+#while(trust.out$converged==FALSE){
+
+#}
 
 	names(beta.trust)<-colnames(mod.mcml$x)
 	names(nu.trust)<-varcomps.names
 
 	if(debug==TRUE){
-	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql, nu.gen=nu.gen, trust.argpath=trust.argpath, u.star=u.star, umat=umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=m1,m2=m2,m3=m3,trust.argtry=trust.out$argtry, trust.steptype=trust.out$steptype, trust.accept=trust.out$accept, trust.r=trust.out$r, trust.rho=trust.out$rho, trust.valpath=trust.out$valpath, trust.valtry=trust.out$valtry, trust.preddif=trust.out$preddif, trust.stepnorm=trust.out$stepnorm)
+	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql, nu.gen=nu.gen, trust.argpath=trust.out$argpath, u.star=u.star, umat=umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=m1,m2=m2,m3=m3,trust.argtry=trust.out$argtry, trust.steptype=trust.out$steptype, trust.accept=trust.out$accept, trust.r=trust.out$r, trust.rho=trust.out$rho, trust.valpath=trust.out$valpath, trust.valtry=trust.out$valtry, trust.preddif=trust.out$preddif, trust.stepnorm=trust.out$stepnorm)
 	}
 	
 	return(structure(list(beta=beta.trust,nu=nu.trust, likelihood.value=trust.out$value, likelihood.gradient=trust.out$gradient, likelihood.hessian=trust.out$hessian,
