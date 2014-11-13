@@ -36,9 +36,10 @@ function(par,nbeta,nu.pql,umat,u.star,mod.mcml,family.glmm,cache,distrib,gamm,p1
 	logdetDinvfornu<-sum(log(eigen(Dinvfornu,symmetric=TRUE)$values))
 
 	
-	meow<-rep(0,T+1)
-	meow[1]=0
-	meow[2:T+1]<-cumsum(nrandom)
+	meow<-rep(1,T+1)
+	meow[1]<-0
+	throwaway<-T+1
+	meow[2:throwaway]<-cumsum(nrandom)
 	
 	pee<-c(p1,p2,p3)
 	n<-nrow(mod.mcml$x)

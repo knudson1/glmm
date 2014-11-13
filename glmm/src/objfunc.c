@@ -19,7 +19,6 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 	double *zu=Calloc(*n,double);
 	double *eta=Calloc(*n,double);
 	double *qzeros=Calloc(*myq,double);
-	double *mzeros=Calloc(*m,double);
 	double tempmax=1.0;
 	double *lfutwidpieces=Calloc(*nps,double);
 	double diffs=0.0;
@@ -145,7 +144,7 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 		addvec(xbeta,zu,n,eta);
 
 		/* calculate lfu gradient and hessian */
-		distRand3C(nu, mzeros, T, nrandom, meow, Uk, lfugradient, lfuhess);
+		distRand3C(nu, qzeros, T, nrandom, meow, Uk, lfugradient, lfuhess);
 
 		/* calculate gradient and hessian log f_theta(y|u_k) */
 		elGH(y,x,n,nbeta,eta,family_glmm,lfyugradient,lfyuhess);
@@ -223,7 +222,6 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 	Free(lfyugradient);
 	Free(lfyuhess);
 	Free(qzeros);
-	Free(mzeros);
 
 	double *GtG=Calloc((npar*npar),double);
 	matmatmult(G,G,&npar,ione,&npar,GtG);
