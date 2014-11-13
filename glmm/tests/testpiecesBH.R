@@ -40,7 +40,7 @@ all.equal(as.numeric(this$gradient),as.numeric(that$gradient))
 all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
 
 #compare elval to logfyuk
-this<-.C("elval",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1))
+this<-.C("elval",as.double(mod.mcml$y),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1))
 all.equal(as.numeric(this$value),as.numeric(that$value))
 
 #compare elGH to logfyuk

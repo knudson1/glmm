@@ -14,19 +14,19 @@ void cum3(double *etain, int *neta, int *typein, double *cumout)
     {
 	double eta = etain[i];
 	switch (type) {
-	case 1:
+	case BERNOULLI:
 	    if(eta>0)
 			{
-			cumout[0]+= eta+log(exp(-eta)+1);
+			cumout[0]+= eta+log1p(exp(-eta));
 			break;
 			}
    	    else
 			{
-			cumout[0]+= log(1+exp(eta));
+			cumout[0]+= log1p(exp(eta));
 			break;
 			}
 
-    case 2:
+    case POISSON:
         cumout[0]+= exp(eta);
 	    break;
     default:

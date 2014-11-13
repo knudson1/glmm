@@ -58,7 +58,7 @@ all.equal(as.numeric(that$gradient),this$gradient)
 all.equal(as.numeric(that$hessian),this$hessian)
 
 #compare to elval
-elvalout<-.C("elval",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1))
+elvalout<-.C("elval",as.double(mod.mcml$y),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1))
 all.equal(as.numeric(that$value),elvalout$value)
 
 #compare to elGH

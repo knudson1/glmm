@@ -3,15 +3,11 @@
 void distRand3C(double *nu, double *mu, int *T, int *nrandom, int *meow, double *Uvec, double *drgradient, double *drhessian)
 {
 	double *umu=Calloc(*T,double);
-	int t;
-	int i;
 	double *drhessvec=Calloc(*T, double);
 
-	for(t=0;t<*T;t++){
-		for(i=meow[t];i<meow[t+1];i++){
-/*		for(i=*(meow+t);i<*(meow+t+1);i++){*/
+	for(int t=0;t<*T;t++){
+		for(int i=meow[t];i<meow[t+1];i++){
 			umu[t]+=(Uvec[i]-mu[t])*(Uvec[i]-mu[t]);
-			/* *(umu+t)+=(*(Uvec+i)-*(mu+t))*(*(Uvec+i)-*(mu+t)); */
 		}
 		drgradient[t]=umu[t]/(2*(nu[t])*(nu[t]))-nrandom[t]/(2*nu[t]);
 		drhessvec[t]=-umu[t]/((nu[t])*(nu[t])*(nu[t]))+nrandom[t]/(2*(nu[t])*(nu[t]));

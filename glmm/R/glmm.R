@@ -1,5 +1,5 @@
 glmm <-
-function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,distrib="normal",gamm=15,nu.multiplier=1, p1=1/3,p2=1/3,p3=1/3){
+function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,distrib="normal",gamm=15,nu.multiplier=1, p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000){
 
 	if(is.numeric(nu.multiplier)!=TRUE) stop("nu.multiplier must be numeric.")
 	if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
@@ -165,8 +165,8 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 
 
 	#use trust to max the objfun (monte carlo likelihood)
-	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, nbeta=length(beta.pql), nu.pql=nu.gen, rmax=1000,
-umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star, blather=debug, cache=cache, distrib=distrib, gamm=gamm, p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star,Sigmuh=Sigmuh)
+	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug, nbeta=length(beta.pql), nu.pql=nu.gen, 
+umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star,  cache=cache, distrib=distrib, gamm=gamm, p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star,Sigmuh=Sigmuh)
 
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]

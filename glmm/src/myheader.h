@@ -25,7 +25,7 @@ void subvec(double *a, double *b, int *len, double *out);
 void addvec(double *a, double *b, int *len, double *out);
 void divvec(double *a, double *b, int *len, double *out);
 void distRandGenC(double *SigmaInv, double *logdet, int *nrow, double *uvec, double *mu, double *distRandGenVal);
-void elval(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family, double *elval);
+void elval(double *Y,  int *nrowX, int *ncolX, double *eta, int *family, double *elval);
 
 void distRand3C(double *nu, double *mu, int *T, int *nrandom, int *meow, double *Uvec, double *drgradient, double *drhessian);
 

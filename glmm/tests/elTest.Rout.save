@@ -80,7 +80,7 @@ Loading required package: mvtnorm
 [1] TRUE
 > 
 > #compare to elval
-> elvalout<-.C("elval",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1))
+> elvalout<-.C("elval",as.double(mod.mcml$y),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1))
 > all.equal(as.numeric(that$value),elvalout$value)
 [1] TRUE
 > 
@@ -96,4 +96,4 @@ Loading required package: mvtnorm
 > 
 > proc.time()
    user  system elapsed 
-  0.938   0.018   0.936 
+  0.921   0.043   0.947 

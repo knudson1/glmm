@@ -2,9 +2,7 @@
 void elGH(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family, double *elgradient, double *elhessian)
 {
 	double *cpout=Calloc(*nrowX,double);
-	memset(cpout,0,*nrowX);
 	double *cppout=Calloc(*nrowX,double);
-	memset(cppout,0,*nrowX);
 
 	/*calling cp3, cpp3 will just change the doubles cpout, cppout  */
 
@@ -12,13 +10,13 @@ void elGH(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family
 	cpp3(eta,nrowX,family,cppout);
 
 	/*calculate gradient of el: X^T (Y-c'(eta))  
-	first use loop to calculate Y-c'(eta) and turn c''(eta) into -c''(eta)*/
+	first use loop to calculate Y-c'(eta). then turn c''(eta) into -c''(eta)*/
 	double *Yminuscp=Calloc(*nrowX,double);
 	int i=0;
 	for(i=0;i<(*nrowX);i++)
 		{
-		*(Yminuscp+i)=*(Y+i)-*(cpout+i);
-		*(cppout+i)=-*(cppout+i);
+		Yminuscp[i]=Y[i]-cpout[i];
+		cppout[i]=-cppout[i];
 		}
 	Free(cpout);
 	/*invoking matTvecmult clobbers dummy values of elgradient with actual values*/
@@ -28,7 +26,6 @@ void elGH(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family
 	/*  need to create diagonal matrix negcdub=-c''(eta) from vector cppout  */
 	int sizemat=(*nrowX)*(*nrowX);
 	double *negcdub=Calloc(sizemat,double);
-	memset(negcdub,0,sizemat);
 	diag(cppout, nrowX, negcdub); 
 	Free(cppout);
 
@@ -41,7 +38,6 @@ void elGH(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family
 
 	/*then calculate X^T mat    
 	this multiplication will clobber elhessian with the correct value*/
-	elhessian[0]=1.0;
 	matTmatmult(X,mat,nrowX,ncolX,ncolX,elhessian);
 	Free(mat);
 }
