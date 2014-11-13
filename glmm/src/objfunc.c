@@ -18,8 +18,8 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 	matvecmult(x,beta,n,nbeta,xbeta);
 	double *zu=Calloc(*n,double);
 	double *eta=Calloc(*n,double);
+	double *qzeros=Calloc(*myq,double);
 	double *mzeros=Calloc(*m,double);
-	memset(mzeros,0,*m);
 	double tempmax=1.0;
 	double *lfutwidpieces=Calloc(*nps,double);
 	double diffs=0.0;
@@ -44,7 +44,7 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 		addvec(xbeta,zu,n,eta);
 
 		/*log f_theta(u_k)*/
-		distRandGenC(Dinvfornu,logdetDinvfornu,myq,Uk,mzeros,double1); 
+		distRandGenC(Dinvfornu,logdetDinvfornu,myq,Uk,qzeros,double1); 
 		*(lfuval+k)=*double1; 
 
 		/* log f_theta(y|u_k) value */
@@ -54,7 +54,7 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 		/* value of log f~_theta(u_k) 
 		first calculate value of log f~_theta(u_k) for 3 distribs used 
 		and find largest value as you go */
-		/* distRandGenC(Dinvfornu,logdetDinvfornu, myq, Uk, mzeros, double1);
+		/* distRandGenC(Dinvfornu,logdetDinvfornu, myq, Uk, qzeros, double1);
 		first piece is dist for N(0,D)=log f_theta(uk)*/
 		tempmax=*(lfuval+k);
 		lfutwidpieces[0]=*(lfuval+k); 
@@ -222,6 +222,7 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 	Free(lfuhess);
 	Free(lfyugradient);
 	Free(lfyuhess);
+	Free(qzeros);
 	Free(mzeros);
 
 	double *GtG=Calloc((npar*npar),double);
