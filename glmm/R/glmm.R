@@ -1,10 +1,7 @@
 glmm <-
-function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000){
-
-
+function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000,par.init=NULL){
 	if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
 	if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
-
 	if(missing(varcomps.equal)){
 		varcomps.equal<- c(1:length(varcomps.names))}
 	call<-match.call()
@@ -86,11 +83,21 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	
 	#so now the 3 items are x (matrix), z (list), y (vector)
 	#end figuring out how to interpret the formula
+
+	#make sure par.init has the right number of parameters and that the variance 
+	#components are positive to start
+	if(!is.null(par.init)){
+		nbeta<-ncol(x)
+		nbetaplusT<-nbeta+length(z)
+		if(length(par.init)!=nbetaplusT) stop("par.init is not the correct length. It should contain initial values for the fixed effects and variance components.")
+		vcs<-par.init[-(1:nbeta)]
+		if(any(vcs<=10^-9)) stop("Initial values for the variance components in par.init must be positive and sufficiently large (greater than 10^-9).")
+	}
 	
 	#cache will hold some pql estimates and the importance sampling weights that wouldn't otherwise be returned
 	cache <- new.env(parent = emptyenv())
 
-
+	#if the user wants to do pql, do it and use that as the trust start point
 	if(doPQL==TRUE){
 	      #do PQL
 	      pql.out<-pql(mod.mcml,family.glmm,cache)
@@ -98,20 +105,24 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	      sigma.pql<-pql.out$sigma
 	      nu.pql<-sigma.pql^2
 	      beta.pql<-cache$beta.twid 
+		  par.init<-c(beta.pql,nu.pql) 
 	}
 	
+	#if the user does not want to do pql, then the best guess of the rand effs is 0
+	#if the user did not provide par.init, then an arbitrary guess is 0 for beta
+	# and 1 for nu
 	if(doPQL==FALSE){
-	      nrand<-lapply(mod.mcml$z,ncol)
-	      nrandom<-unlist(nrand)
-	      totnrandom<-sum(nrandom)
-	      s.pql<-rep(0,totnrandom)
-	      sigma.pql<-nu.pql<-rep(1,length(mod.mcml$z))
-	      beta.pql<-rep(1,ncol(mod.mcml$x))
+	    nrand<-lapply(mod.mcml$z,ncol)
+	    nrandom<-unlist(nrand)
+	    totnrandom<-sum(nrandom)
+	    s.pql<-rep(0,totnrandom)
+		#if(!is.null(par.init)) then par.init is already specified by user
+		if(is.null(par.init)){
+	        sigma.pql<-nu.pql<-rep(1,length(mod.mcml$z))
+	        beta.pql<-rep(0,ncol(mod.mcml$x))
+		    par.init<-c(beta.pql,nu.pql) 
+		}
 	}
-
-
-
-	par.init<-c(beta.pql,nu.pql) 
 
 	#calculate A*, D* and u*
 	nrand<-lapply(mod.mcml$z,ncol)
@@ -119,12 +130,18 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	q<-sum(nrandom)
 	if(q!=length(s.pql)) stop("Can't happen. Number of random effects returned by PQL must match number of random effects specified by model.")
 	eek<-getEk(mod.mcml$z)
+	#if any of the variance components are too close to 0, make them bigger:
+	if(any(sigma.pql<10^-3)){
+		theseguys<-which(sigma.pql<10^-3)
+		sigma.pql[theseguys]<-10^-3
+	}
 	Aks<-Map("*",eek,sigma.pql)
 	A.star<-addVecs(Aks) #at this point still a vector
 	D.star<-A.star*A.star #still a vector
 	u.star<-A.star*s.pql 
 	D.star.inv<-diag(1/D.star)
 	D.star<-diag(D.star)
+	#how D.star.inv and D.star are both diagonal matrices
 
 	#determine m1, m2, m3 based on probs p1, p2, p3
 	foo<-runif(m)
@@ -138,16 +155,20 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	genData<-genRand(zeros,ident,m1)
 	
 	#generate m2 from N(u*,D*)
-	genData2<-genRand(u.star,D.star,m2)
+	if(m2>0) genData2<-genRand(u.star,D.star,m2)
+	if(m2==0) genData2<-NULL
 
 	#generate m3 from N(u*,(Z'c''(Xbeta*+zu*)Z+D*^{-1})^-1)
-	Z=do.call(cbind,mod.mcml$z)
-	eta.star<-as.vector(mod.mcml$x%*%beta.pql+Z%*%u.star)
-	cdouble<-family.glmm$cpp(eta.star) #still a vector
-	cdouble<-diag(cdouble)
-	Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
-	Sigmuh<-solve(Sigmuh.inv)
-	genData3<-genRand(u.star,Sigmuh,m3)
+	if(m3>0){
+		Z=do.call(cbind,mod.mcml$z)
+		eta.star<-as.vector(mod.mcml$x%*%beta.pql+Z%*%u.star)
+		cdouble<-family.glmm$cpp(eta.star) #still a vector
+		cdouble<-diag(cdouble)
+		Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
+		Sigmuh<-solve(Sigmuh.inv)
+		genData3<-genRand(u.star,Sigmuh,m3)
+	}
+	if(m3==0) genData3<-NULL
 
 #	#these are from distribution based on data
 #	if(distrib=="tee")genData<-genRand(sigma.gen,s.pql,mod.mcml$z,m1,distrib="tee",gamm)
@@ -157,7 +178,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 #	zeros<-rep(0,length(s.pql))
 #	genData2<-genRand(ones,zeros,mod.mcml$z,m2,distrib="normal",gamm)
 
-	umat<-rbind(genData$u,genData2$u,genData3$u)
+	umat<-rbind(genData,genData2,genData3)
 
 
 

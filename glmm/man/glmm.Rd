@@ -3,7 +3,7 @@
 \title{Fitting Generalized Linear Mixed Models using MCML}
 \description{This function fits generalized linear mixed models (GLMMs) by approximating the likelihood with ordinary Monte Carlo, then maximizing the approximated likelihood. }
 \usage{glmm(fixed, random, varcomps.names, data, family.glmm, m, 
-varcomps.equal, doPQL = TRUE,debug=FALSE, p1=1/3,p2=1/3,p3=1/3,rmax,iterlim)}
+varcomps.equal, doPQL = TRUE,debug=FALSE, p1=1/3,p2=1/3,p3=1/3,rmax,iterlim,par.init)}
 
 
 \arguments{
@@ -21,6 +21,7 @@ varcomps.equal, doPQL = TRUE,debug=FALSE, p1=1/3,p2=1/3,p3=1/3,rmax,iterlim)}
 \item{p3}{A probability for mixing the random effects generated from three distributions. \code{p3} is the proportion of random effects from the third distribution specified in the design document.}
 \item{rmax}{The maximum allowed trust region radius. This may be set very large. If set small, the algorithm traces a steepest ascent path.}
 \item{iterlim}{A positive integer specifying the maximum number of trust iterations to be performed before the trust program is terminated.}
+\item{par.init}{An optional argument. A single vector that specifies the initial values of the fixed effects and variance components. The parameters should be inputted in the order that \code{\link{summary.glmm}} outputs them, with fixed effects followed by variance components. }
 }
 \details{
 Let \eqn{\beta}{beta} be a vector of fixed effects and let \eqn{u}{u} be a vector of random effects. Let \eqn{X}{X} and \eqn{Z}{Z} be design matrices for the fixed and random effects, respectively. The random effects are assumed to be normally distributed with mean 0 and variance matrix \eqn{D}{D}, where \eqn{D}{D} is diagonal with entries from the unknown vector \eqn{\nu}{nu}. Letting \eqn{g}{g} be the link function, \eqn{g(\mu)=X \beta+ZU}{g(mu)=X beta+ ZU}. For example, if the response is Bernoulli, then the logit function is the link.

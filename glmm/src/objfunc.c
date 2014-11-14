@@ -11,7 +11,8 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 	double *Uk=Calloc(myq,double);
 	int Uindex=0;
 
-	double db1=0.0,*double1=&db1; /*temp to hold info that will be put into lfuval*/
+	double db1=0.0;
+	double *double1=&db1; /*temp to hold info that will be put into lfuval*/
 
 	/* Calculate xbeta, needed to calculate eta for each Uk=U[k,] in R notation */
 	double *xbeta=Calloc(*n,double);

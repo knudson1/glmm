@@ -32,7 +32,7 @@ Loading required package: mvtnorm
 > nu.gen<-debug$nu.gen
 > beta.pql<-debug$beta.pql
 > beta.pql
-[1] 1
+[1] 0
 > family.glmm<-out$family.glmm
 > umat<-debug$umat
 > u.pql<-debug$u.star
@@ -277,4 +277,4 @@ Loading required package: mvtnorm
 > 
 > proc.time()
    user  system elapsed 
-  0.390   0.019   0.389 
+  0.414   0.022   0.416 
