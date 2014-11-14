@@ -1,5 +1,5 @@
 objfun <-
-function(par,nbeta,nu.pql,umat,u.star,mod.mcml,family.glmm,cache,distrib,gamm,p1,p2,p3,m1,D.star,Sigmuh){
+function(par,nbeta,nu.pql,umat,u.star,mod.mcml,family.glmm,cache,p1,p2,p3,m1,D.star,Sigmuh){
 
 	beta<-par[1:nbeta]
 	nu<-par[-(1:nbeta)]

@@ -4,7 +4,7 @@ library(glmm)
 data(BoothHobert)
 set.seed(1234)
 out<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
-family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE,distrib="normal")
+family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE)
 mod.mcml<-out$mod.mcml
 debug<-out$debug
 nu.pql<-debug$nu.pql
@@ -43,15 +43,15 @@ Sigmuh<-solve(Sigmuh.inv)
 p1=p2=p3=1/3
 
 # define a few things that will be used for finite differences
-lth<-objfun(par=par, nbeta=1, nu.pql=nu.gen, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="normal",p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh,D.star=D.star)
-lthdel<-objfun(par=par+del, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="normal",p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh,D.star=D.star)
+lth<-objfun(par=par, nbeta=1, nu.pql=nu.gen, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh,D.star=D.star)
+lthdel<-objfun(par=par+del, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh,D.star=D.star)
 
 all.equal(as.vector(lth$gradient%*%del),lthdel$value-lth$value)
 all.equal(as.vector(lth$hessian%*%del),lthdel$gradient-lth$gradient)
 
 ##### to make sure that the objfun function is correct, compare it against the version without any C code. here is objfun without c:
 objfunNOC <-
-function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,gamm,p1,p2,p3,D.star,Sigmuh){
+function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,gamm,p1,p2,p3,D.star,Sigmuh){
 
 	#print(par)
 	beta<-par[1:nbeta]
@@ -98,10 +98,11 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,distrib,
 		lfyu[[k]]<-elR(mod.mcml$y,mod.mcml$x,eta,family.glmm) 
 
 		#log f~_theta(u_k)
-		if(distrib=="normal"){
-			lfu.twid[k,1]<-lfu[[k]][[1]] }#distRandGeneral(Uk,zeros,D.inv)}
-		if(distrib=="tee") {
-			lfu.twid[k,1]<-tdist(nu.pql,Uk,mod.mcml$z,u.star,gamm)}
+#		if(distrib=="normal"){
+			lfu.twid[k,1]<-lfu[[k]][[1]] #distRandGeneral(Uk,zeros,D.inv)
+#}
+#		if(distrib=="tee") {
+#			lfu.twid[k,1]<-tdist(nu.pql,Uk,mod.mcml$z,u.star,gamm)}
 		lfu.twid[k,2]<-distRandGeneral(Uk,u.star,D.star.inv)
 		lfu.twid[k,3]<-distRandGeneral(Uk,u.star,Sigmuh.inv)
 		
@@ -247,5 +248,5 @@ function(nu,U,z.list,mu){
 
 #finally, compare objfun and objfunNOC for B+H example
 
-that<-objfunNOC(par=par, nbeta=1, nu.pql=nu.gen, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,distrib="normal",p1=p1,p2=p2,p3=p3, Sigmuh=Sigmuh,D.star=D.star)
+that<-objfunNOC(par=par, nbeta=1, nu.pql=nu.gen, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3, Sigmuh=Sigmuh,D.star=D.star)
 all.equal(that,lth)

@@ -3,7 +3,7 @@
 \title{Fitting Generalized Linear Mixed Models using MCML}
 \description{This function fits generalized linear mixed models (GLMMs) by approximating the likelihood with ordinary Monte Carlo, then maximizing the approximated likelihood. }
 \usage{glmm(fixed, random, varcomps.names, data, family.glmm, m, 
-varcomps.equal, doPQL = TRUE,debug=FALSE,distrib="normal",gamm=15, nu.multiplier=1,p1=1/3,p2=1/3,p3=1/3,rmax,iterlim)}
+varcomps.equal, doPQL = TRUE,debug=FALSE, p1=1/3,p2=1/3,p3=1/3,rmax,iterlim)}
 
 
 \arguments{
@@ -16,9 +16,6 @@ varcomps.equal, doPQL = TRUE,debug=FALSE,distrib="normal",gamm=15, nu.multiplier
   \item{varcomps.equal}{An optional vector with elements 1 through the number of distinct variance components. Denotes variance components are to be set equal by assigning them the same integer. The length of varcomps.equal must be equal to the length of the list of random effects formulas. If omitted, varcomps.equal assumes no variance component should be set equal.}
   \item{doPQL}{logical. If \code{TRUE}, PQL estimates are used for the importance sampling distribution. If FALSE, the importance sampling distribution is standard normal.}
   \item{debug}{logical. If \code{TRUE}, extra output useful for testing will be provided.}
-\item{distrib}{Distribution used to generate random effects. Either "normal" or "tee".}
-\item{gamm}{Degrees of freedom for the t distribution used to generate the random effects. (only if using a t distribution)}
-\item{nu.multiplier}{If some of the importance sampling weights are relatively large and you are using \code{"distrib"="normal"}, increase \code{nu.multiplier}.}
 \item{p1}{A probability for mixing the random effects generated from three distributions. \code{p1} is the proportion of random effects from the first distribution specified in the design document.}
 \item{p2}{A probability for mixing the random effects generated from three distributions. \code{p2} is the proportion of random effects from the second distribution specified in the design document.}
 \item{p3}{A probability for mixing the random effects generated from three distributions. \code{p3} is the proportion of random effects from the third distribution specified in the design document.}
