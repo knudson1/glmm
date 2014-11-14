@@ -139,9 +139,12 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	A.star<-addVecs(Aks) #at this point still a vector
 	D.star<-A.star*A.star #still a vector
 	u.star<-A.star*s.pql 
-	D.star.inv<-diag(1/D.star)
-	D.star<-diag(D.star)
-	#how D.star.inv and D.star are both diagonal matrices
+	D.star.inv<-Diagonal(length(u.star),1/D.star)
+	D.star<-Diagonal(length(u.star),D.star)
+
+	#now D.star.inv and D.star are both diagonal matrices
+	#Diagonal from Matrix package is used bc these are sparse matrices
+	#If q (# rand effs) is large, then need to be careful with these
 
 	#determine m1, m2, m3 based on probs p1, p2, p3
 	foo<-runif(m)
@@ -151,19 +154,21 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 
 	#generate m1 from N(0,I) and will be scaled to N(0,D) later
 	zeros<-rep(0,length(u.star))
-	ident<-diag(length(u.star))
+	ones<-rep(1,length(u.star))
+	ident<-Diagonal(length(u.star),ones)
 	genData<-genRand(zeros,ident,m1)
 	
 	#generate m2 from N(u*,D*)
 	if(m2>0) genData2<-genRand(u.star,D.star,m2)
 	if(m2==0) genData2<-NULL
 
+
 	#generate m3 from N(u*,(Z'c''(Xbeta*+zu*)Z+D*^{-1})^-1)
 	if(m3>0){
 		Z=do.call(cbind,mod.mcml$z)
 		eta.star<-as.vector(mod.mcml$x%*%beta.pql+Z%*%u.star)
 		cdouble<-family.glmm$cpp(eta.star) #still a vector
-		cdouble<-diag(cdouble)
+		cdouble<-Diagonal(length(cdouble),cdouble)
 		Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
 		Sigmuh<-solve(Sigmuh.inv)
 		genData3<-genRand(u.star,Sigmuh,m3)

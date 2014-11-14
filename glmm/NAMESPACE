@@ -9,6 +9,7 @@ export(varcomps)
 
 import(trust)
 import(mvtnorm)
+import(Matrix)
 
 S3method(print, summary.glmm)
 S3method(summary, glmm)

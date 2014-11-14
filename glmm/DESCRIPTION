@@ -7,6 +7,6 @@ Author: Christina Knudson
 Maintainer: Christina Knudson <christina@stat.umn.edu>
 Description: Approximates the likelihood of a generalized linear mixed model using Monte Carlo likelihood approximation. Then maximizes the likelihood approximation to return maximum likelihood estimates and other model information.
 License: GPL-2
-Depends: R (>= 3.0.1), trust, mvtnorm
+Depends: R (>= 3.0.1), trust, mvtnorm, Matrix
 ByteCompile: TRUE
 NeedsCompilation: yes
