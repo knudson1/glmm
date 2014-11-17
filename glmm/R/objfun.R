@@ -24,7 +24,7 @@ function(par,nbeta,nu.pql,umat,u.star,mod.mcml,family.glmm,cache,p1,p2,p3,m1,D.s
 
 	D.star.inv<-solve(D.star)
 	Sigmuh.inv<-solve(Sigmuh)
-	logdet.D.star.inv<-	sum(log(eigen(D.star.inv,symmetric=TRUE)$values))
+	logdet.D.star.inv<-	-sum(log(diag(D.star)))
 	logdet.Sigmuh.inv<-sum(log(eigen(Sigmuh.inv,symmetric=TRUE)$values))
  	myq<-nrow(D.star.inv)
 
@@ -32,9 +32,8 @@ function(par,nbeta,nu.pql,umat,u.star,mod.mcml,family.glmm,cache,p1,p2,p3,m1,D.s
 	eek<-getEk(mod.mcml$z)
 	preDinvfornu<-Map("*",eek,(1/nu))
 	Dinvfornu<-addVecs(preDinvfornu)
+	logdetDinvfornu<-sum(log(Dinvfornu))
 	Dinvfornu<-diag(Dinvfornu)
-	logdetDinvfornu<-sum(log(eigen(Dinvfornu,symmetric=TRUE)$values))
-
 	
 	meow<-rep(1,T+1)
 	meow[1]<-0
