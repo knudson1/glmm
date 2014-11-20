@@ -52,37 +52,42 @@ This design document describes the process of performing Monte Carlo maximum lik
 
 \section{Theory}
 
-Let $y=(y_1, \ldots, y_n)^T$ be a vector of observed data. Let $u=(u_1,\ldots,u_q)'$ be a vector of unobserved random effects. Let $\beta$ be a vector of $p$ fixed effect parameters and let $\nu$ be a vector of $T$ variance components for the random effects. Let $\theta$ be a vector of length $p+T$ containing all unknown parameters. Then the data $y$ are distributed conditionally on the random effects according to $f_\theta(y|u)$ and the random effects are distributed according to $f_\theta(u)$. Although $f_\theta(u)$ does not actually depend on $\beta$ and $f_\theta(y|u)$ does not depend on $\nu$, we write the density like this to keep notation simple in future equations.
+Let $y=(y_1, \ldots, y_n)'$ be a vector of observed data. Let $u=(u_1,\ldots,u_q)'$ be a vector of unobserved random effects. Let $\beta$ be a vector of $p$ fixed effect parameters and let $\nu$ be a vector of $T$ variance components for the random effects. Let $\theta=(\beta ,  \nu)'$ be a vector containing all unknown parameters. Then the data $y$ are distributed conditionally on the random effects according to $f_\theta(y|u)$ and the random effects are distributed according to $f_\theta(u)$. Although $f_\theta(u)$ does not actually depend on $\beta$ and $f_\theta(y|u)$ does not depend on $\nu$, we write both densities with $\theta$ to keep notation simple in future equations.
 
 Since $u$ is unobservable, the log likelihood must be expressed by integrating out the random effects:
 \begin{align}
 l(\theta)=\log \int f_\theta(y|u) f_\theta(u) \; du
 \end{align}
-For most datasets, this integral is intractible. In these cases, performing even basic inference on the likelihood is not possible. Instead of evaluating the integral, \citet{geyer:thom:1992} suggest using a Monte Carlo approximation to the likelihood. Monte Carlo likelihood approximation (MCLA) uses an importance sampling distribution $\tilde{f}(u)$ to generate random effects $u_k, k=1, \ldots, m$ where $m$ is the Monte Carlo sample size.  Then the Monte Carlo log likelihood approximation is
+For most datasets, this integral is intractible. In these cases, performing even basic inference on the likelihood is not possible. Rather than evaluating the integral, \citet{geyer:thom:1992} suggest using a Monte Carlo approximation to the likelihood. Monte Carlo likelihood approximation (MCLA) uses an importance sampling distribution $\tilde{f}(u)$ to generate random effects $u_k, k=1, \ldots, m$ where $m$ is the Monte Carlo sample size.  MCLA theoretically works for any $\tilde{f}(u)$, but the  $\tilde{f}(u)$ chosen for this package is a mixture distribution specified in section \ref{sec:ftwiddle}.
+Then the Monte Carlo log likelihood approximation is
 \begin{align}
 l_{m}(\theta) &=\log \dfrac{1}{m} \sum_{k=1}^mf_\theta(y|u_k)  \dfrac{ f_\theta(u_k)   }{\tilde{f}(u_k)}\\
 &= \log \dfrac{1}{m} \sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}.
 \end{align}
 When $\tilde{f}$ depends on $\theta$, the gradient vector of the MCLA with respect to $\theta$ is
 \begin{align}
-\nabla l_m(\theta)= \dfrac{\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y) - \nabla \log \tilde{f} (u_k)  \right) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }, \label{eq:MCLAgradient}
+\nabla l_m(\theta)&= \dfrac{\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y) - \nabla \log \tilde{f} (u_k)  \right) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }, \label{eq:MCLAgradient}
 \end{align}
 and the Hessian matrix of the MCLA is
 \begin{align}
-\nabla^2 l_m(\theta)&= \dfrac{\sum_{k=1}^m    \left( \nabla^2 \log f_\theta(u_k,y)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right)}{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }- \nabla l_m(\theta) (\nabla l_m(\theta) )'  \\
-&+\dfrac{\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y) (\nabla \log f_\theta(u_k,y))'   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right)}{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }.
+&\nabla^2 l_m(\theta)= \dfrac{   \sum_{k=1}^m \left[ \nabla^2 \log f_\theta(y,u_k)  -
+   \nabla^2 \log \tilde{f}(u_k)   \right]  \dfrac{ f_\theta(y,u_k)}{\tilde{f}(u_k)}  }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}\\
+&+ \dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(y,u_k)  -
+   \nabla \log \tilde{f}(u_k) - \nabla l_m(\theta)   \right] \left[ \nabla \log f_\theta(y,u_k)  -
+   \nabla \log \tilde{f}(u_k) -\nabla l_m(\theta)  \right]'  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}   }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}.
 \end{align}
+Details for these equations can be found in section \ref{sec:calcs}. Calculation for the gradient and hessian when $\tilde{f}$ is independent of $\theta$ can be found in section \ref{sec:calcsindep}.
 
 
-Now any inference, such as maximum likelihood, can be performed on $l_m(\theta)$.  MCLA theoretically works for any $\tilde{f}(u)$, but the  $\tilde{f}(u)$ chosen for this package is a mixture distribution specified in section \ref{sec:ftwiddle}.
 
+Now any inference, such as maximum likelihood, can be performed on $l_m(\theta)$ and its derivatives.  
 
 
 
 
 %Let $y=(y_1, \ldots, y_n)^T$ be a vector of observed data. Let $u=(u_1,\ldots,u_q)^T$ be a vector of unobserved random effects. Let $\theta$ denote a vector of unknown parameters.  The data are distributed conditionally on the random effects according to $f_\theta(y|u)$.
 
-EDITED TO HERE.
+\section{Notation}
 
  Let $X$ be an $n \times p$ design matrix for the fixed effects.  Let $U$ be an unobservable normal random vector with length $q$, mean $0$ and variance matrix $D$. Let $Z$ be a $n \times q$ model matrix for the random effects. 
 
@@ -103,47 +108,6 @@ The choice of the link function is related to the distribution of the data, $\lo
 Y' \eta - c(\eta) = \sum_i \left[ Y_i \eta_i - c(\eta_i)  \right]
 \end{align}
 
-Since $U$ is unobservable, the likelihood must be expressed by integrating out the random effects:
-\begin{align}
-l(\theta)=\int f_\theta(y|u) f_\theta(u) \; du
-\end{align}
-For most datasets, this integral is intractible. In these cases, performing even basic inference on the likelihood is not possible. Instead of evaluating the integral, \citet{geyer:thom:1992} suggest using a Monte Carlo approximation to the likelihood. Monte Carlo likelihood approximation (MCLA) uses an importance sampling distribution $\tilde{f}(u)$ to generate random effects $u_k, k=1, \ldots, m$ where $m$ is the Monte Carlo sample size.  Then the MCLA of $l(\theta)$ is:
-\begin{align}
-l_{m}(\theta) = \sum_{k=1}^m \dfrac{ f_\theta(y|u_k) f_\theta(u_k)   }{\tilde{f}(u_k)}
-\end{align}
-Now any inference, such as maximum likelihood, can be performed on $l_m(\theta)$.  MCLA theoretically works for any $\tilde{f}(u)$, but the  $\tilde{f}(u)$ chosen for this package is a mixture distribution specified in section \ref{sec:ftwiddle}.
-
-
-%
-%Let $\beta$ be a vector of $p$ fixed effect parameters. Let $X$ be an $n \times p$ design matrix for the fixed effects.  Let $U$ be an unobservable normal random vector with length $q$, mean $0$ and variance matrix $D$. Let $Z$ be a $n \times q$ model matrix for the random effects. 
-%
-%There are $T$ distinct variance components  $\nu_t$, $t = 1,$ $\ldots,$ $T$.  For the first version of the package, $D$ is assumed diagonal. Let $E_t$ be a diagonal matrix with indicators on the diagonal so that $\sum_{t=1}^T E_t = I$. (Learn more about $E_t$ in section \ref{sec:getEk}.) Then $D= \sum_{t=1}^T \nu_t E_t$.  Later versions of this package will allow  more general covariance structures. With other structures, $D$ will be constructed by $D= \sum_{t=1}^T h_t (\nu_t) \; E_t$, but $E_t$ will no longer be diagonal and $h_t$ will be some function. We will have a D for distance (such as in the car theft data) and for autoregressive 1.
-%
-% Denote the density of $U$ by $f_\theta(u)$  with $\theta= (\beta,\nu_{1},\ldots,\nu_T)$. Although $f_\theta(u)$ does not actually depend on $\beta$, we write the density like this to keep notation simple. Since $U$ is normally distributed, we can write its log density as
-%\begin{align}
-%\log f_\theta(u) = -\dfrac{1}{2} \log |D| -\dfrac{1}{2} U' D^{-1} U
-%\end{align}
-%where $|D|$ denotes the determinant of $D$.  More details on the distribution of the random effects can be found in section \ref{sec:distRand}.
-%
-%Let $g$ be the canonical link function and $\mu$ be a vector of length $n$ such that
-%\begin{align}
-%g(\mu) = X \beta + Z U
-%\end{align}
-%The choice of the link function is related to the distribution of the data, $\log f_\theta(y|u)$. If the data have a  Bernoulli distribution, the link is $\logit(\mu)$. If the data have a Poisson distribution, the link is $\log (\mu)$. More on these two families can be found in section \ref{sec:fam}. For simplicity of future notation, let $\eta=g(\mu)=X \beta + Z U$. Let $c(\eta)$ denote the cumulant function such that the log of the data density can be written as
-%\begin{align}
-%Y' \eta - c(\eta) = \sum_i \left[ Y_i \eta_i - c(\eta_i)  \right]
-%\end{align}
-%
-%Since $U$ is unobservable, the likelihood must be expressed by integrating out the random effects:
-%\begin{align}
-%l(\theta)=\int f_\theta(y|u) f_\theta(u) \; du
-%\end{align}
-%For most datasets, this integral is intractible. In these cases, performing even basic inference on the likelihood is not possible. Instead of evaluating the integral, \citet{geyer:thom:1992} suggest using a Monte Carlo approximation to the likelihood. Monte Carlo likelihood approximation (MCLA) uses an importance sampling distribution $\tilde{f}(u)$ to generate random effects $u_k, k=1, \ldots, m$ where $m$ is the Monte Carlo sample size.  Then the MCLA of $l(\theta)$ is:
-%\begin{align}
-%l_{m}(\theta) = \sum_{k=1}^m \dfrac{ f_\theta(y|u_k) f_\theta(u_k)   }{\tilde{f}(u_k)}
-%\end{align}
-%Now any inference, such as maximum likelihood, can be performed on $l_m(\theta)$.  MCLA theoretically works for any $\tilde{f}(u)$, but the  $\tilde{f}(u)$ chosen for this package is a mixture distribution specified in section \ref{sec:ftwiddle}.
-%
 
 
 
@@ -1202,7 +1166,7 @@ l_{m}(\theta) &=\log \dfrac{1}{m} \sum_{k=1}^mf_\theta(y|u_k)  \dfrac{ f_\theta(
 &= \log \dfrac{1}{m} \sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}.
 \end{align}
 
-\subsection{MCLA derivatives when $\tilde{f}$ depends on $\theta$}
+\subsection{MCLA derivatives when $\tilde{f}$ depends on $\theta$} \label{sec:calcs}
 When $\tilde{f}$ contains $\theta$, the gradient of the MCLA is
 \begin{align}
 \nabla l_m(\theta) &= \dfrac{ \nabla \left[ \sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}  \right] }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}} \\
@@ -1238,9 +1202,26 @@ Then the Hessian of the MCLA is
    \nabla \log \tilde{f}(u_k)   \right]'  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}   }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}\\
 &- \left[ \nabla l_m(\theta)  \right] \left[ \nabla l_m(\theta)  \right]'
 \end{align}
+To reduce the risk of catastrophic cancellation, we can combine the last two terms of the Hessian:
+\begin{align}
+\nabla^2 l_m(\theta)&= \dfrac{   \sum_{k=1}^m \left[ \nabla^2 \log f_\theta(y,u_k)  -
+   \nabla^2 \log \tilde{f}(u_k)   \right]  \dfrac{ f_\theta(y,u_k)}{\tilde{f}(u_k)}  }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}\\
+&+ \dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(y,u_k)  -
+   \nabla \log \tilde{f}(u_k) - \nabla l_m(\theta)   \right] \left[ \nabla \log f_\theta(y,u_k)  -
+   \nabla \log \tilde{f}(u_k) -\nabla l_m(\theta)  \right]'  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}   }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}
+\end{align}
+We are able to combine the last two terms because $\nabla l_m(\theta)$ is a weighted mean of $\nabla \log f_\theta (y,u_k)- \nabla \log \tilde{f}(u_k)$. Letting
+\begin{align}
+Z&=\nabla \log f_\theta (y,u_k)- \nabla \log \tilde{f}(u_k)
+\end{align}
+ we can use the following equality:
+\begin{align}
+E(ZZ')-E(Z)E(Z)' = \left[ E(Z-EZ)  \right]\left[ E(Z-EZ)  \right]'.
+\end{align}
 
 
-\subsection{MCLA derivatives when $\tilde{f}$ independent of $\theta$}
+
+\subsection{MCLA derivatives when $\tilde{f}$ independent of $\theta$}\label{sec:calcsindep}
 
 When $\tilde{f}$ is independent of $\theta$, the gradient vector of the MCLA with respect to $\theta$ is
 \begin{align}
@@ -1251,5 +1232,6 @@ and the Hessian matrix of the MCLA is
 \nabla^2 l_m(\theta)&= \dfrac{\sum_{k=1}^m    \left( \nabla^2 \log f_\theta(u_k,y)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right)}{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }- \nabla l_m(\theta) (\nabla l_m(\theta) )'  \\
 &+\dfrac{\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y) (\nabla \log f_\theta(u_k,y))'   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right)}{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }.
 \end{align}
+
 
 \end{document}
