@@ -61,11 +61,11 @@ l(\theta)=\log \int f_\theta(y|u) f_\theta(u) \; du
 For most datasets, this integral is intractible. In these cases, performing even basic inference on the likelihood is not possible. Instead of evaluating the integral, \citet{geyer:thom:1992} suggest using a Monte Carlo approximation to the likelihood. Monte Carlo likelihood approximation (MCLA) uses an importance sampling distribution $\tilde{f}(u)$ to generate random effects $u_k, k=1, \ldots, m$ where $m$ is the Monte Carlo sample size.  Then the Monte Carlo log likelihood approximation is
 \begin{align}
 l_{m}(\theta) &=\log \dfrac{1}{m} \sum_{k=1}^mf_\theta(y|u_k)  \dfrac{ f_\theta(u_k)   }{\tilde{f}(u_k)}\\
-&= \log \dfrac{1}{m} \sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}
+&= \log \dfrac{1}{m} \sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}.
 \end{align}
-the gradient vector of the MCLA is
+When $\tilde{f}$ depends on $\theta$, the gradient vector of the MCLA with respect to $\theta$ is
 \begin{align}
-\nabla l_m(\theta)= \dfrac{\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right)}{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }, \label{eq:MCLAgradient}
+\nabla l_m(\theta)= \dfrac{\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y) - \nabla \log \tilde{f} (u_k)  \right) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }, \label{eq:MCLAgradient}
 \end{align}
 and the Hessian matrix of the MCLA is
 \begin{align}
@@ -1193,5 +1193,63 @@ I thought for three or four minutes about a one sided confidence interval, but I
 
 \bibliographystyle{apalike}
 \bibliography{brref}
+
+\appendix
+\section{MCLA calculations}
+The Monte Carlo log likelihood approximation is
+\begin{align}
+l_{m}(\theta) &=\log \dfrac{1}{m} \sum_{k=1}^mf_\theta(y|u_k)  \dfrac{ f_\theta(u_k)   }{\tilde{f}(u_k)}\\
+&= \log \dfrac{1}{m} \sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}.
+\end{align}
+
+\subsection{MCLA derivatives when $\tilde{f}$ depends on $\theta$}
+When $\tilde{f}$ contains $\theta$, the gradient of the MCLA is
+\begin{align}
+\nabla l_m(\theta) &= \dfrac{ \nabla \left[ \sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}  \right] }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}} \\
+&= \dfrac{   \sum_{k=1}^m  \dfrac{\nabla f_\theta(y,u_k)   }{\tilde{f}(u_k)} - \dfrac{ f_\theta(y,u_k)  \nabla \tilde{f}(u_k) }{\left(\tilde{f}(u_k) \right)^2 } }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}} \\
+&= \dfrac{   \sum_{k=1}^m  \dfrac{\nabla f_\theta(y,u_k)}{f_\theta(y,u_k)} \dfrac{f_\theta(y,u_k)}{\tilde{f}(u_k)} -
+ \dfrac{ f_\theta(y,u_k)}{\tilde{f}(u_k)} \dfrac{ \nabla \tilde{f}(u_k) }{\tilde{f}(u_k) } }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}} \\
+&= \dfrac{   \sum_{k=1}^m  \nabla \log f_\theta(y,u_k) \dfrac{f_\theta(y,u_k)}{\tilde{f}(u_k)} -
+ \dfrac{ f_\theta(y,u_k)}{\tilde{f}(u_k)}  \nabla \log \tilde{f}(u_k)  }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}} \\
+&= \dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(y,u_k)  -
+   \nabla \log \tilde{f}(u_k)   \right]  \dfrac{ f_\theta(y,u_k)}{\tilde{f}(u_k)}  }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}} 
+\end{align}
+
+Then the Hessian of the MCLA is
+\begin{align}
+\nabla^2 l_m (\theta) &= \nabla \left[ \dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(y,u_k)  -
+   \nabla \log \tilde{f}(u_k)   \right]  \dfrac{ f_\theta(y,u_k)}{\tilde{f}(u_k)}  }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}} \right] \\
+&= \dfrac{   \sum_{k=1}^m \left[ \nabla^2 \log f_\theta(y,u_k)  -
+   \nabla^2 \log \tilde{f}(u_k)   \right]  \dfrac{ f_\theta(y,u_k)}{\tilde{f}(u_k)}  }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}\\
+&+ \dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(y,u_k)  -
+   \nabla \log \tilde{f}(u_k)   \right]  \nabla \left[ \dfrac{ f_\theta(y,u_k)}{\tilde{f}(u_k)} \right]  }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}\\
+&-\left[\dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(y,u_k)  -
+   \nabla \log \tilde{f}(u_k)   \right]  \dfrac{ f_\theta(y,u_k)}{\tilde{f}(u_k)}  }{ \left( \sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)} \right)^2} \right] \nabla \left[ \sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)} \right]\\
+&= \dfrac{   \sum_{k=1}^m \left[ \nabla^2 \log f_\theta(y,u_k)  -
+   \nabla^2 \log \tilde{f}(u_k)   \right]  \dfrac{ f_\theta(y,u_k)}{\tilde{f}(u_k)}  }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}\\
+&+ \dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(y,u_k)  -
+   \nabla \log \tilde{f}(u_k)   \right] \left[ \nabla \log f_\theta(y,u_k)  -
+   \nabla \log \tilde{f}(u_k)   \right]'  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}   }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}\\
+&-\left[\dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(y,u_k)  -  \nabla \log \tilde{f}(u_k)   \right]  \dfrac{ f_\theta(y,u_k)}{\tilde{f}(u_k)}  }{ \left( \sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)} \right)^2} \right] \left[  \nabla \log f_\theta(y,u_k)  -  \nabla \log \tilde{f}(u_k)     \right]'\\
+&= \dfrac{   \sum_{k=1}^m \left[ \nabla^2 \log f_\theta(y,u_k)  -
+   \nabla^2 \log \tilde{f}(u_k)   \right]  \dfrac{ f_\theta(y,u_k)}{\tilde{f}(u_k)}  }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}\\
+&+ \dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(y,u_k)  -
+   \nabla \log \tilde{f}(u_k)   \right] \left[ \nabla \log f_\theta(y,u_k)  -
+   \nabla \log \tilde{f}(u_k)   \right]'  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}   }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}\\
+&- \left[ \nabla l_m(\theta)  \right] \left[ \nabla l_m(\theta)  \right]'
+\end{align}
+
+
+\subsection{MCLA derivatives when $\tilde{f}$ independent of $\theta$}
+
+When $\tilde{f}$ is independent of $\theta$, the gradient vector of the MCLA with respect to $\theta$ is
+\begin{align}
+\nabla l_m(\theta)= \dfrac{\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y)  \dfrac{f_\theta(u_k,y)   }{\tilde{f}(u_k)}\right) }{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) } \label{eq:MCLAgradient}
+\end{align}
+and the Hessian matrix of the MCLA is
+\begin{align}
+\nabla^2 l_m(\theta)&= \dfrac{\sum_{k=1}^m    \left( \nabla^2 \log f_\theta(u_k,y)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right)}{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }- \nabla l_m(\theta) (\nabla l_m(\theta) )'  \\
+&+\dfrac{\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y) (\nabla \log f_\theta(u_k,y))'   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right)}{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }.
+\end{align}
 
 \end{document}
