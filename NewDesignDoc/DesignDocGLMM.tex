@@ -548,9 +548,9 @@ Everything in this has already been defined except:
 
 
 \section{Summary of model}
-Typing \texttt{summary(mod)}  gives more detailed info of the model. This is broken into two pieces (as is usually done for summaries): there will be the \texttt{summary.glmm} and \texttt{print.summary.glmm}. We split this up because we have a lot of information in the summary that we do not necessarily want printed each time. When a user types \texttt{summary(mod)}, only the  basic information is automatically printed. More information can be found in the summary list.
+Typing \texttt{summary(mod)}  gives more detailed info of the model. This is broken into two pieces (as is usually done for summaries):  \texttt{summary.glmm} and \texttt{print.summary.glmm}. We split this up because we have a lot of information in the summary that we do not necessarily want printed each time. When a user types \texttt{summary(mod)}, only the  basic information is automatically printed. More information can be found in the summary list.
 
-The summary will do all the calculations and its value will be a list of the following:
+The summary performs all calculations and its value is a list of the following:
 \begin{itemize}
 \item call
 \item the variance estimate(s)
@@ -1198,9 +1198,16 @@ We see that
 &=\dfrac{1}{p_1} \int N(u|0,D) \left[  \dfrac{ \dfrac{\partial}{\partial \nu} N(u|0,D)}{ N(u|0,D)}   \right]^2 du\\
 &= \dfrac{1}{p_1} \int \dfrac{\left[ \dfrac{\partial}{\partial \nu} N(u|0,D)  \right]^2}{N(u|0,D)} du \\
 \end{align}
-
-
-
+Now we use
+\begin{align}
+\dfrac{\partial}{\partial \nu} \log N(u|0,D) = \dfrac{\dfrac{\partial}{\partial \nu}  N(u|0,D)}{N(u|0,D)}
+\end{align}
+to see
+\begin{align}
+ \dfrac{1}{p_1} \int \dfrac{\left[ \dfrac{\partial}{\partial \nu} N(u|0,D)  \right]^2}{N(u|0,D)} du &=\dfrac{1}{p_1} \int  N(u|0,D) \left[ \dfrac{\partial}{\partial \nu} \log N(u|0,D)  \right]^2 du \\
+&= \dfrac{1}{p_1} \int  N(u|0,D) \left[ \dfrac{\partial}{\partial \nu} \log N(u|0,D)  \right]^2 du 
+\end{align}
+which exists and is finite.
 
 
 
