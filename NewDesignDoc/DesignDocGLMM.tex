@@ -1059,6 +1059,7 @@ and the Hessian matrix of the MCLA is
 
 
 \section{Central Limit Theorem for MCLA}\label{sec:CLT}
+In this section, we focus on the gradient of the MCLA because the trust criterion for finding the maximum is based on the gradient.
 Define
 \begin{align}
 \gamma_1&= \int f_\theta(u,y) du\\
@@ -1066,8 +1067,7 @@ Define
 \end{align}
 Recall the calculation for the MCLA gradient originally stated in  \eqref{eq:MCLAgradient}:
 \begin{align}
-\nabla l_m(\theta)&= \dfrac{\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y) - \nabla \log \tilde{f} (u_k)  \right) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }\\
-&=\dfrac{\sum_{k=1}^m     \nabla \log f_\theta(u_k,y)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }   -\dfrac{\sum_{k=1}^m     \nabla \log \tilde{f}(u_k)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }
+\nabla l_m(\theta)&= \dfrac{\sum_{k=1}^m     \nabla \log f_\theta(u_k,y)  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }
 \end{align}
 
  Note that both the numerator and denominator are sample means. By the law of large numbers, the numerators and denominator  each converge to their true means. That is,
@@ -1077,13 +1077,13 @@ Recall the calculation for the MCLA gradient originally stated in  \eqref{eq:MCL
 &= \dfrac{\gamma_1}{\gamma_2} \int \nabla \log f_\theta (u,y)  \dfrac{f_\theta(u,y)}{\gamma_1}  du \\
 &=\dfrac{\gamma_1}{\gamma_2} E_f \left[ \nabla \log f_\theta(u,y)  \right]
 \end{align}
-and
-\begin{align}
-\dfrac{1}{m}\sum_{k=1}^m \nabla \log \tilde{f}(u_k)  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} &\rightarrow  E_{\tilde{f}} \left[ \nabla \log \tilde{f}(u)  \dfrac{f_\theta(u,y)}{\tilde{f}(u)}  \right] \\
-&= \int \nabla \log \tilde{f}(u)  \dfrac{f_\theta(u,y)}{\tilde{f}(u)} \dfrac{\tilde{f}(u)}{\gamma_2} du\\
-&= \dfrac{\gamma_1}{\gamma_2} \int \nabla \log \tilde{f}(u)  \dfrac{f_\theta(u,y)}{\gamma_1}  du \\
-&=\dfrac{\gamma_1}{\gamma_2} E_f \left[ \nabla \log \tilde{f}(u)  \right]
-\end{align}
+%and
+%\begin{align}
+%\dfrac{1}{m}\sum_{k=1}^m \nabla \log \tilde{f}(u_k)  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} &\rightarrow  E_{\tilde{f}} \left[ \nabla \log \tilde{f}(u)  \dfrac{f_\theta(u,y)}{\tilde{f}(u)}  \right] \\
+%&= \int \nabla \log \tilde{f}(u)  \dfrac{f_\theta(u,y)}{\tilde{f}(u)} \dfrac{\tilde{f}(u)}{\gamma_2} du\\
+%&= \dfrac{\gamma_1}{\gamma_2} \int \nabla \log \tilde{f}(u)  \dfrac{f_\theta(u,y)}{\gamma_1}  du \\
+%&=\dfrac{\gamma_1}{\gamma_2} E_f \left[ \nabla \log \tilde{f}(u)  \right]
+%\end{align}
 and
 \begin{align}
 \dfrac{1}{m}\sum_{k=1}^m \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} &\rightarrow E_{\tilde{f}} \left[ \dfrac{f_\theta(u,y)}{\tilde{f}(u)}  \right] \\
@@ -1091,18 +1091,18 @@ and
 &= \dfrac{\gamma_1}{\gamma_2} \int \dfrac{ f_\theta(u,y)}{\gamma_2} du \\
 &= \dfrac{\gamma_1}{\gamma_2}
 \end{align}
-Then, by Slutsky's,
+Then, by Slutsky's theorem,
 \begin{align}
-\nabla l_m(\theta)&\rightarrow \dfrac{  \dfrac{\gamma_1}{\gamma_2} E_f \left[ \nabla \log f_\theta(u,y)  \right] }{\dfrac{\gamma_1}{\gamma_2}}-\dfrac{  \dfrac{\gamma_1}{\gamma_2} E_f \left[ \nabla \log \tilde{f}(u)  \right] }{\dfrac{\gamma_1}{\gamma_2}}\\
-&=  E_f \left[ \nabla \log f_\theta(u,y) - \nabla \log \tilde{f}(u)  \right] \\
+\nabla l_m(\theta)&\rightarrow \dfrac{  \dfrac{\gamma_1}{\gamma_2} E_f \left[ \nabla \log f_\theta(u,y)  \right] }{\dfrac{\gamma_1}{\gamma_2}}\\
+&=  E_f \left[ \nabla \log f_\theta(u,y) \right] \\
 &=\nabla l(\theta)
 \end{align}
 In addition to a law of large numbers, we would like a Central Limit Theorem for $\nabla l_m(\theta)$. In other words, the quantity
 \begin{align}
-&\sqrt{m} \left[  \dfrac{\dfrac{1}{m}\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y) - \nabla \log \tilde{f}(u_k) \right)  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\dfrac{1}{m} \sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }- l(\theta)  \right] \\
+&\sqrt{m} \left[  \dfrac{\dfrac{1}{m}\sum_{k=1}^m    \nabla \log f_\theta(u_k,y)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\dfrac{1}{m} \sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}  }- l(\theta)  \right] \\
 &=
-\dfrac{\dfrac{1}{\sqrt{m}}\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y)  - \nabla \log \tilde{f}(u_k) \right) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\dfrac{1}{m} \sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }- \sqrt{m}\;  l(\theta)  \\
-&=\dfrac{\dfrac{1}{\sqrt{m}}\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y) - \nabla \log \tilde{f}(u_k) \right) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} 
+\dfrac{\dfrac{1}{\sqrt{m}}\sum_{k=1}^m     \nabla \log f_\theta(u_k,y)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\dfrac{1}{m} \sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }- \sqrt{m}\;  l(\theta)  \\
+&=\dfrac{\dfrac{1}{\sqrt{m}}\sum_{k=1}^m     \nabla \log f_\theta(u_k,y)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} 
  - l(\theta) \dfrac{1}{\sqrt{m}}\sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\dfrac{1}{m} \sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }   
 \end{align}
 will have a normal distribution if and only if the variances of
@@ -1113,35 +1113,108 @@ and
 \begin{align}
 \sum_{k=1}^m     \nabla \log f_\theta(u_k,y)\dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} 
 \end{align}
-and
-\begin{align}
-\sum_{k=1}^m     \nabla \log \tilde{f}(u_k)\dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} 
-\end{align}
-are each finite.
+are finite.
 First, we want to show that
 \begin{align}
-\sum_{k=1}^m \dfrac{f_\theta(u_k)}{\tilde{f}(u_k)}
+\sum_{k=1}^m \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}
 \end{align}
 has finite variance. This is true if and only if 
 \begin{align}
-\int \dfrac{f_\theta(u)^2}{\tilde{f}(u)} du < \infty.
+\int \dfrac{f_\theta(u,y)^2}{\tilde{f}(u)} du < \infty.
 \end{align}
 We see:
 \begin{align}
-\int \dfrac{f_\theta(u)^2}{\tilde{f}(u)} du &= \int \dfrac{N(u|0,D)^2}{p_1 N(u|0,D)+p_2 N(u|u^*, D^*) + p_3 N(u|u^*, ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})} du \\
-& \leq \int \dfrac{N(u|0,D)^2}{p_1 N(u|0,D)} du \\
-&= \dfrac{1}{p_1} \int N(u|0,D) du \\
-&= \dfrac{1}{p_1}.
+\int \dfrac{f_\theta(u,y)^2}{\tilde{f}(u)} du &=\int \dfrac{f_\theta(y|u)^2 f_\theta(u)^2}{\tilde{f}(u)} du\\
+&\leq \int \dfrac{f_\theta(y|u)^2 f_\theta(u)^2}{p_1 \grave{f}(u)} du\\
+&\propto \dfrac{1}{p_1} \int \dfrac{\exp(-u'D^{-1}u) \, f_\theta(y|u)^2  }{\left[ 1+u'u/\zeta  \right]^{-(\zeta+q)/2}} du
 \end{align}
-Therefore $\sum_{k=1}^m f_\theta(u_k)$ has finite variance as long as $p_1\neq 0$.
-
-
-
-Second, we want to show that
+Since
 \begin{align}
-\sum_{k=1}^m \nabla \log f_\theta (u_k,y) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}
+f_\theta(y|u)^2=\left( e^{y'\eta-c(\eta)} \right)^2 = e^{2y'\eta-2c(\eta)} ,
 \end{align}
- has finite variance. That is, we want to show the existence of
+\begin{align}
+\int \dfrac{f_\theta(u,y)^2}{\tilde{f}(u)} du &\propto \dfrac{1}{p_1} \int \dfrac{\exp(-u'D^{-1}u) \, \exp(2y'\eta)  }{\left[ 1+u'u/\zeta  \right]^{-(\zeta+q)/2} \,  \exp(2c(\eta))  } du\\
+&=\dfrac{1}{p_1} \int \dfrac{ \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} \, \exp(2y'\eta)  }{\exp(u'D^{-1}u)   \,  \exp(2c(\eta))  } du \\
+&=\dfrac{1}{p_1} \int \dfrac{ \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} \, \exp(2y'Zu)  }{\exp(u'D^{-1}u)   \,  \exp(2c(\eta))  } du 
+\end{align}
+When $y|u\sim$ Bernoulli, then
+\begin{align}
+c(\eta)=\log(1+e^\eta) \Rightarrow \exp(2c(\eta))&= \exp( 2 \log(1+e^\eta)  )\\
+&= ( \exp( \log(1+e^\eta)  )  )^2\\
+&= (1+e^\eta) ^2
+\end{align}
+and
+\begin{align}
+\int \dfrac{f_\theta(u,y)^2}{\tilde{f}(u)} du &\propto \dfrac{1}{p_1} \int \dfrac{ \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} \, \exp(2y'Zu)  }{\exp(u'D^{-1}u)   \,  (1+e^\eta) ^2  } du,
+\end{align}
+which converges since $\exp(u'D^{-1}u$ grows faster than any term in the numerator of the integrand.
+
+On the other hand, when $y|u\sim$ Poisson, then 
+\begin{align}
+c(\eta)=\exp(\eta) \Rightarrow \exp(2 c(\eta)) = (\exp(\exp(\eta)))^2
+\end{align}
+and
+\begin{align}
+\int \dfrac{f_\theta(u,y)^2}{\tilde{f}(u)} du &\propto \dfrac{1}{p_1} \int \dfrac{ \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} \, \exp(2y'Zu)  }{\exp(u'D^{-1}u)   \,   (\exp(\exp(\eta)))^2  } du,
+\end{align}
+which converges since  $(\exp(\exp(\eta)))^2$ grows faster than any term in the numerator of the integrand.  
+
+Therefore, whether the data are Bernoulli or Poisson distributed, the importance sampling weights 
+\begin{align}
+\sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}
+\end{align}
+have finite variance.
+
+Now, we want to show that
+\begin{align}
+\sum_{k=1}^m \nabla \log f_\theta (u_k,y) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} =\sum_{k=1}^m \nabla \log f_\theta (y|u_k) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} +\sum_{k=1}^m \nabla \log f_\theta (u_k) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} 
+\end{align}
+ has finite variance. We need to show the following are finite:
+\begin{align}
+\var \left( \sum_{k=1}^m \nabla \log f_\theta (y|u_k) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}   \right) \\
+\var \left(\sum_{k=1}^m \nabla \log f_\theta (u_k) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right)\\
+\cov \left(\sum_{k=1}^m \nabla \log f_\theta (y|u_k) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \, , \, \sum_{k=1}^m \nabla \log f_\theta (u_k) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right)_.
+\end{align}
+
+That is, we want to show the existence of the following:
+\begin{align}
+&\int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(u,y)\right]^2}{\tilde{f}(u)} du \label{eq:first} \\
+&\int \dfrac{ \left[ \nabla \log f_\theta (u) \right]^2 \left[ f_\theta(u,y)\right]^2}{\tilde{f}(u)} du \label{eq:second} \\
+&\int \dfrac{  \nabla \log f_\theta (u)  \nabla \log f_\theta (y|u)  \left[ f_\theta(u,y)\right]^2}{\tilde{f}(u)} du \\
+\end{align}
+
+First, we start with \eqref{eq:first}:
+\begin{align}
+\int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(u,y)\right]^2}{\tilde{f}(u)} du 
+&=\int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{\tilde{f}(u)} du \\
+&\leq \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{p_1\grave{f}(u)} du \\
+&\propto \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(y|u)\right]^2 \exp(-u'D^{-1}u)}{p_1\left[ 1+u'u/\zeta  \right]^{-(\zeta+q)/2}} du \\
+&= \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(y|u)\right]^2 \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \exp(u'D^{-1}u)} du \\
+&= \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \, \exp(2y'(X \beta+Zu)) \,  \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{ p_1 \, \exp(2 c(\eta)) \,\exp(u'D^{-1}u)} du \label{eq:soon}
+\end{align}
+By the Cauchy-Schwartz inequality, the integral in \eqref{eq:soon} exists if
+\begin{align}
+ & \int \dfrac{ \left[\dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]^2 \, \exp(2y'(X \beta+Zu)) \,  \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{ p_1 \, \exp(2 c(\eta)) \,\exp(u'D^{-1}u)} du \nonumber \\
+&\propto  \int \dfrac{ \left[X' c'(\eta) \right]^2 \, \exp(2y'(X \beta+Zu)) \,  \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{ p_1 \, \exp(2 c(\eta)) \,\exp(u'D^{-1}u)} du \label{eq:soon2}
+\end{align}
+exists, where $c'(\eta)$ is a vector with components $c'(\eta_i)$.  This will converge as long as no term in the numerator of the integrand grows more quickly than $\exp(u'D^{-1}u$. The second and third terms grow less quickly than $\exp(u'D^{-1}u$, so $\left[ c'(\eta)\right]^2$ is the only term to check.  If $y|u \sim$ Bernoulli, then 
+\begin{align}
+c'(\eta_i)= \dfrac{\exp(\eta_i)}{1+\exp(\eta_i)},
+\end{align}
+which does not grow more quickly than $\exp(u'D^{-1}u)$. If $y|u \sim$ Poisson, then
+\begin{align}
+c'(\eta_i)= e^{\eta_i},
+\end{align}
+which does not grow more quickly than $\exp(u'D^{-1}u)$. Therefore, \eqref{eq:first} exists and is finite, and the variance of 
+\begin{align}
+\sum_{k=1}^m \nabla \log f_\theta (y|u_k) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}
+\end{align}
+is finite.
+
+Next, we move on to showing the existence of \eqref{eq:second}.
+EDITED TO HERE.
+
+ That is, we want to show the existence of
 \begin{align}
 \int \dfrac{N(u|0,D)^2 \left[\nabla \left(\log f_\theta(y|u)+\log f_\theta (u) \right) \right]^2}{p_1 N(u|0,D)+p_2 N(u|u^*, D^*) + p_3 N(u|u^*, ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})} du.
 \end{align}
@@ -1206,7 +1279,7 @@ Then
 \end{align}
 exists and is finite.
 
-Third and lastly, we want to show that 
+Next, we want to show that 
 \begin{align}
 \sum_{k=1}^m \nabla \log \tilde{f} (u_k) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}
 \end{align}
