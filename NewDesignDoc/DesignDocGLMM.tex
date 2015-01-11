@@ -1180,7 +1180,7 @@ That is, we want to show the existence of the following:
 \begin{align}
 &\int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(u,y)\right]^2}{\tilde{f}(u)} du \label{eq:first} \\
 &\int \dfrac{ \left[ \nabla \log f_\theta (u) \right]^2 \left[ f_\theta(u,y)\right]^2}{\tilde{f}(u)} du \label{eq:second} \\
-&\int \dfrac{  \nabla \log f_\theta (u)  \nabla \log f_\theta (y|u)  \left[ f_\theta(u,y)\right]^2}{\tilde{f}(u)} du \\
+&\int \dfrac{  \nabla \log f_\theta (u)  \nabla \log f_\theta (y|u)  \left[ f_\theta(u,y)\right]^2}{\tilde{f}(u)} du \label{eq:third} 
 \end{align}
 
 First, we start with \eqref{eq:first}:
@@ -1205,116 +1205,166 @@ which does not grow more quickly than $\exp(u'D^{-1}u)$. If $y|u \sim$ Poisson, 
 \begin{align}
 c'(\eta_i)= e^{\eta_i},
 \end{align}
-which does not grow more quickly than $\exp(u'D^{-1}u)$. Therefore, \eqref{eq:first} exists and is finite, and the variance of 
+which does not grow more quickly than $\exp(u'D^{-1}u)$. Therefore, \eqref{eq:first} exists and is finite, and 
 \begin{align}
-\sum_{k=1}^m \nabla \log f_\theta (y|u_k) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}
+\var \left( \sum_{k=1}^m \nabla \log f_\theta (y|u_k) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) < \infty.
 \end{align}
 is finite.
 
 Next, we move on to showing the existence of \eqref{eq:second}.
-EDITED TO HERE.
-
- That is, we want to show the existence of
 \begin{align}
-\int \dfrac{N(u|0,D)^2 \left[\nabla \left(\log f_\theta(y|u)+\log f_\theta (u) \right) \right]^2}{p_1 N(u|0,D)+p_2 N(u|u^*, D^*) + p_3 N(u|u^*, ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})} du.
+\int \dfrac{ \left[ \nabla \log f_\theta (u) \right]^2 \left[ f_\theta(u,y)\right]^2}{\tilde{f}(u)} du &= 
+\int \dfrac{ \left[ \nabla \log f_\theta (u) \right]^2 \left[ f_\theta(y|u)\right]^2  \left[ f_\theta(u)\right]^2}{\tilde{f}(u)} du\\
+&\leq \int \dfrac{ \left[ \nabla \log f_\theta (u) \right]^2 \left[ f_\theta(y|u)\right]^2  \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u)} du
 \end{align}
-That is, we want to show the existence of
+By the Cauchy-Schwartz inequality, the above integral exists as long as  
 \begin{align}
-\int &\dfrac{N(u|0,D)^2 \left[\nabla \left(\log f_\theta(y|u)+\log f_\theta (u) \right) \right]^2}{p_1 N(u|0,D)+p_2 N(u|u^*, D^*) + p_3 N(u|u^*, ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})} du \\
-&\leq \int  \dfrac{N(u|0,D)^2 \left[\nabla \left(\log f_\theta(y|u) + \log f_\theta (u) \right) \right]^2}{p_1 N(u|0,D)} du  \\
-&\leq  \int \dfrac{N(u|0,D)^2 \left[ \dfrac{\partial}{\partial \beta} \log f_\theta(y|u) \, \, \dfrac{\partial}{\partial \nu} \log f_\theta (u)  \right]^2}{p_1 N(u|0,D)} du  \\
-&\leq \dfrac{1}{p_1}  \int N(u|0,D) \left[ \dfrac{\partial}{\partial \beta}\log f_\theta(y|u) \, \, \dfrac{\partial}{\partial \nu} \log f_\theta (u)  \right]^2 du.
+\int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t} \log f_\theta (u) \right]^2 \left[ f_\theta(y|u)\right]^2  \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u)} du < \infty
 \end{align}
-By the Cauchy-Schwartz inequality, 
+for every $t=1,\ldots, T$. We see
 \begin{align}
-  &\int N(u|0,D) \left[ \dfrac{\partial}{\partial \beta}\log f_\theta(y|u) \, \, \dfrac{\partial}{\partial \nu} \log f_\theta (u)  \right]^2 du \\
-& \leq \left[  \int N(u|0,D) \left[  \dfrac{\partial}{\partial \nu} \log f_\theta (u)  \right]^2 du \right]^{1/2}  \left[  \int N(u|0,D) \left[ \dfrac{\partial}{\partial \beta}\log f_\theta(y|u)   \right]^2 du \right]^{1/2} .
+&\int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t} \log f_\theta (u) \right]^2 \left[ f_\theta(y|u)\right]^2  \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u)} du \\
+&= \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t} \log f_\theta (u) \right]^2 \exp(2y'(X\beta+Zu)   )  \left[ f_\theta(u)\right]^2}{p_1 \exp(2c(\eta))    \grave{f}(u)} du \\
+&\propto \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t} \log f_\theta (u) \right]^2 \exp(2y'(X\beta+Zu)   ) \,   \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \exp(2c(\eta)) \, \exp(u'D^{-1}u)  } du\\
+&= \int \dfrac{ \left[  -\dfrac{q_t}{2 \nu_t} + \dfrac{u_t'u_t}{2 \nu_t^2}   \right]^2 \exp(2y'(X\beta+Zu)   ) \,   \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \exp(2c(\eta)) \, \exp(u'D^{-1}u)  } du
 \end{align}
-Therefore, I need to show that each of these two integrals is finite.  I will start with the first of the two integrals: 
+Because every term in the numerator of the integrand grows less quickly than $\exp(u'D^{-1}u)$, the integral exists.  Therefore, \eqref{eq:second} exists and 
 \begin{align}
-\int N(u|0,D) \left[  \dfrac{\partial}{\partial \nu} \log f_\theta(u)  \right]^2 du. 
-\end{align}
-Recall the notation from section \ref{sec:Ddiag}.  If
-\begin{align}
-\int N(u_t|0,D_t) \left[  \dfrac{\partial}{\partial \nu_t} \log f_\theta(u)  \right]^2 du_t< \infty 
-\end{align}
-for every $t=1,...,T$, then
-\begin{align}
-\int N(u|0,D) \left[  \dfrac{\partial}{\partial \nu} \log f_\theta(u)  \right]^2 du < \infty
-\end{align}
-by Cauchy Schwartz.  Therefore, I will prove the integral is finite for the general case of $u_t$ and $\nu_t$. First, we recognize that our integral is actually an expectation of a function of a normal random variable:
-\begin{align}
-\int N(u_t|0,D_t) \left[  \dfrac{\partial}{\partial \nu_t} \log f_\theta(u)  \right]^2 du_t &=
-\int \dfrac{1}{\nu_t^{q_t/2}} e^{-u_t'u_t/(2 \nu_t)} \left[ -\dfrac{q_t}{2 \nu_t} + \dfrac{u_t'u_t}{2 \nu_t^2}  \right]^2 du_t .
-\end{align}
-Normal distributions have finite moments of all orders, so we know that\begin{align}
-\int N(u_t|0,D_t) \left[  \dfrac{\partial}{\partial \nu_t} \log f_\theta(u)  \right]^2 du_t < \infty.
+\var \left(\sum_{k=1}^m \nabla \log f_\theta (u_k) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) < \infty.
 \end{align}
 
+Lastly, we want to show the existence of \eqref{eq:third}. We see
+\begin{align}
+\int \dfrac{  \nabla \log f_\theta (u)\,  \nabla \log f_\theta (y|u) \, \left[ f_\theta(u,y)\right]^2}{\tilde{f}(u)} du &=
+\int \dfrac{  \nabla \log f_\theta (u) \, \nabla \log f_\theta (y|u) \, \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{\tilde{f}(u)} du \\
+&\leq
+\int \dfrac{  \nabla \log f_\theta (u) \,  \nabla \log f_\theta (y|u)\,  \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u)} du \label{eq:this1}
+\end{align}
+Again, we use the Cauchy-Schwartz inequality to check the existence of \eqref{eq:this1}. If, for every $t=1,\ldots,T$,
+\begin{align}
+\int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t}  \log f_\theta (u) \right] \left[  \dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]   \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u)} du \label{eq:this1}
+\end{align}
+exists, then \eqref{eq:this1} also exists. Continuing, we see
+\begin{align}
+& \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t}  \log f_\theta (u) \right] \left[  \dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]   \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u)} du\\
+ &\propto \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t}  \log f_\theta (u) \right] \left[  \dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]   \left[ f_\theta(y|u)\right]^2 }{p_1 \, \exp(u'D^{-1}u) \, \grave{f}(u)} du\\
+ &\propto \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t}  \log f_\theta (u) \right] \left[  \dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]   \left[ f_\theta(y|u)\right]^2 \, \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \, \exp(u'D^{-1}u) } du\\
+&\propto \int \dfrac{ \left[      -\dfrac{q_t}{2 \nu_t} + \dfrac{u_t'u_t}{2 \nu_t^2}        \right] \left[  X'(y-c'(\eta)) \right]   \left[ f_\theta(y|u)\right]^2 \, \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \, \exp(u'D^{-1}u) } du\\
+&= \int \dfrac{ \left[      -\dfrac{q_t}{2 \nu_t} + \dfrac{u_t'u_t}{2 \nu_t^2}        \right] \left[  X'(y-c'(\eta)) \right]   \, \exp(2y'(X\beta+Zu)) \, \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \, \exp(u'D^{-1}u) \, \exp(2 c(\eta)) } du. \label{eq:this2}
+\end{align}
+We have already shown that $-c'(\eta)$ does not grow more quickly than $\exp(u'D^{-1}u)$. The other terms in the numerator of the integrand shown in \eqref{eq:this2} also grow more slowly than $\exp(u'D^{-1}u)$. We conclude that \eqref{eq:this2} exists, which implies that \eqref{eq:third} exists and
+\begin{align}
+\cov \left(\sum_{k=1}^m \nabla \log f_\theta (y|u_k) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \, , \, \sum_{k=1}^m \nabla \log f_\theta (u_k) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) < \infty.
+\end{align}
+This shows that
+\begin{align}
+\var \left( \sum_{k=1}^m     \nabla \log f_\theta(u_k,y)\dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) < \infty. 
+\end{align}
+Therefore, the gradient of the MCLA has finite variance and a central limit theorem.
 
-
-
-Next, we want to show 
-\begin{align}
-\int N(u|0,D) \left[\dfrac{\partial}{\partial \beta} \log f_\theta(y|u)   \right]^2 du < \infty.
-\end{align}
- Recall that $\eta=X \beta +Z u$. Letting $\dfrac{\partial}{\partial \eta} c(\eta)=\mu$, we see 
-\begin{align}
-\int N(u|0,D) \left[\dfrac{\partial}{\partial \beta} \log f_\theta(y|u)   \right]^2 du &= \int N(u|0,D) \left[ (Y'- \mu') X X'(Y- \mu)   \right] du
-%&\propto  \int N(u|0,D) \mu' XX' Y du + \int N(u|0,D) \mu' X X' \mu du   .
-\end{align}
-We will consider this integral for the cases of $Y|u$ being a Bernoulli and a Poisson random variable. When $Y|u$ is Bernoulli, then $0 \leq \mu \leq 1.$ Therefore,
-\begin{align}
-\int N(u|0,D) \left[ (Y'- \mu') X X'(Y- \mu)   \right] du
-\end{align}
-exists and is finite.
-When $Y|u$ is a Poisson random variable, then for any  $\eta$, 
-\begin{align}
-\dfrac{\partial}{\partial \eta} c(\eta) = e^\eta.
-\end{align}
-Then
-\begin{align}
-\int N(u|0,D) \left[ (Y'- \mu') X X'(Y- \mu)   \right] du &\propto \int N(u|0,D)  e^{\eta} e^{\eta}    du \\
-&\propto \int N(u|0,D) e^{2Zu} du 
-\end{align}
-exists and is finite.
-
-Next, we want to show that 
-\begin{align}
-\sum_{k=1}^m \nabla \log \tilde{f} (u_k) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}
-\end{align}
- has finite variance. That is, we want to show the existence of
-\begin{align}
-\int \dfrac{N(u|0,D)^2 \left[\nabla \log \tilde{f}u) \right]^2}{p_1 N(u|0,D)+p_2 N(u|u^*, D^*) + p_3 N(u|u^*, ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})} du.
-\end{align}
-We see that
-\begin{align}
-\int& \dfrac{N(u|0,D)^2 \left[\nabla \log \tilde{f}u) \right]^2}{p_1 N(u|0,D)+p_2 N(u|u^*, D^*) + p_3 N(u|u^*, ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})} du\\
-&\leq  \int \dfrac{N(u|0,D)^2 \left[\nabla \log \tilde{f}u) \right]^2}{p_1 N(u|0,D)} du\\
-&= \dfrac{1}{p_1} \int N(u|0,D) \left[\nabla \log \tilde{f}u) \right]^2 du\\
-&=\dfrac{1}{p_1} \int N(u|0,D) \left[  \dfrac{p_1 \dfrac{\partial}{\partial \nu} N(u|0,D)}{p_1 N(u|0,D)+p_2 N(u|u^*,D^*)+p_3 N(u|u^*, ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})}   \right]^2 du\\
-&\leq\dfrac{1}{p_1} \int N(u|0,D) \left[  \dfrac{p_1 \dfrac{\partial}{\partial \nu} N(u|0,D)}{p_1 N(u|0,D)}   \right]^2 du\\
-&=\dfrac{1}{p_1} \int N(u|0,D) \left[  \dfrac{ \dfrac{\partial}{\partial \nu} N(u|0,D)}{ N(u|0,D)}   \right]^2 du\\
-&= \dfrac{1}{p_1} \int \dfrac{\left[ \dfrac{\partial}{\partial \nu} N(u|0,D)  \right]^2}{N(u|0,D)} du \\
-\end{align}
-Now we use
-\begin{align}
-\dfrac{\partial}{\partial \nu} \log N(u|0,D) = \dfrac{\dfrac{\partial}{\partial \nu}  N(u|0,D)}{N(u|0,D)}
-\end{align}
-to see
-\begin{align}
- \dfrac{1}{p_1} \int \dfrac{\left[ \dfrac{\partial}{\partial \nu} N(u|0,D)  \right]^2}{N(u|0,D)} du &=\dfrac{1}{p_1} \int  N(u|0,D) \left[ \dfrac{\partial}{\partial \nu} \log N(u|0,D)  \right]^2 du \\
-&= \dfrac{1}{p_1} \int  N(u|0,D) \left[ \dfrac{\partial}{\partial \nu} \log N(u|0,D)  \right]^2 du 
-\end{align}
-which exists and is finite.
-
-
-
-Therefore, it is proven that 
-\begin{align}
-\int \dfrac{N(u|0,D)^2 \left[\nabla \left(\log f_\theta(y|u)+\log f_\theta (u) \right) \right]^2}{p_1 N(u|0,D)+p_2 N(u|u^*, D^*) + p_3 N(u|u^*, ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})} du 
-\end{align}
-exists and is finite. Therefore, since  the gradient of the MCLA has finite variance, we can conclude the gradient of the MCLA has a Central Limit Theorem.
+%EDITED TO HERE.
+%
+% That is, we want to show the existence of
+%\begin{align}
+%\int \dfrac{N(u|0,D)^2 \left[\nabla \left(\log f_\theta(y|u)+\log f_\theta (u) \right) \right]^2}{p_1 N(u|0,D)+p_2 N(u|u^*, D^*) + p_3 N(u|u^*, ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})} du.
+%\end{align}
+%That is, we want to show the existence of
+%\begin{align}
+%\int &\dfrac{N(u|0,D)^2 \left[\nabla \left(\log f_\theta(y|u)+\log f_\theta (u) \right) \right]^2}{p_1 N(u|0,D)+p_2 N(u|u^*, D^*) + p_3 N(u|u^*, ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})} du \\
+%&\leq \int  \dfrac{N(u|0,D)^2 \left[\nabla \left(\log f_\theta(y|u) + \log f_\theta (u) \right) \right]^2}{p_1 N(u|0,D)} du  \\
+%&\leq  \int \dfrac{N(u|0,D)^2 \left[ \dfrac{\partial}{\partial \beta} \log f_\theta(y|u) \, \, \dfrac{\partial}{\partial \nu} \log f_\theta (u)  \right]^2}{p_1 N(u|0,D)} du  \\
+%&\leq \dfrac{1}{p_1}  \int N(u|0,D) \left[ \dfrac{\partial}{\partial \beta}\log f_\theta(y|u) \, \, \dfrac{\partial}{\partial \nu} \log f_\theta (u)  \right]^2 du.
+%\end{align}
+%By the Cauchy-Schwartz inequality, 
+%\begin{align}
+%  &\int N(u|0,D) \left[ \dfrac{\partial}{\partial \beta}\log f_\theta(y|u) \, \, \dfrac{\partial}{\partial \nu} \log f_\theta (u)  \right]^2 du \\
+%& \leq \left[  \int N(u|0,D) \left[  \dfrac{\partial}{\partial \nu} \log f_\theta (u)  \right]^2 du \right]^{1/2}  \left[  \int N(u|0,D) \left[ \dfrac{\partial}{\partial \beta}\log f_\theta(y|u)   \right]^2 du \right]^{1/2} .
+%\end{align}
+%Therefore, I need to show that each of these two integrals is finite.  I will start with the first of the two integrals: 
+%\begin{align}
+%\int N(u|0,D) \left[  \dfrac{\partial}{\partial \nu} \log f_\theta(u)  \right]^2 du. 
+%\end{align}
+%Recall the notation from section \ref{sec:Ddiag}.  If
+%\begin{align}
+%\int N(u_t|0,D_t) \left[  \dfrac{\partial}{\partial \nu_t} \log f_\theta(u)  \right]^2 du_t< \infty 
+%\end{align}
+%for every $t=1,...,T$, then
+%\begin{align}
+%\int N(u|0,D) \left[  \dfrac{\partial}{\partial \nu} \log f_\theta(u)  \right]^2 du < \infty
+%\end{align}
+%by Cauchy Schwartz.  Therefore, I will prove the integral is finite for the general case of $u_t$ and $\nu_t$. First, we recognize that our integral is actually an expectation of a function of a normal random variable:
+%\begin{align}
+%\int N(u_t|0,D_t) \left[  \dfrac{\partial}{\partial \nu_t} \log f_\theta(u)  \right]^2 du_t &=
+%\int \dfrac{1}{\nu_t^{q_t/2}} e^{-u_t'u_t/(2 \nu_t)} \left[ -\dfrac{q_t}{2 \nu_t} + \dfrac{u_t'u_t}{2 \nu_t^2}  \right]^2 du_t .
+%\end{align}
+%Normal distributions have finite moments of all orders, so we know that\begin{align}
+%\int N(u_t|0,D_t) \left[  \dfrac{\partial}{\partial \nu_t} \log f_\theta(u)  \right]^2 du_t < \infty.
+%\end{align}
+%
+%
+%
+%
+%Next, we want to show 
+%\begin{align}
+%\int N(u|0,D) \left[\dfrac{\partial}{\partial \beta} \log f_\theta(y|u)   \right]^2 du < \infty.
+%\end{align}
+% Recall that $\eta=X \beta +Z u$. Letting $\dfrac{\partial}{\partial \eta} c(\eta)=\mu$, we see 
+%\begin{align}
+%\int N(u|0,D) \left[\dfrac{\partial}{\partial \beta} \log f_\theta(y|u)   \right]^2 du &= \int N(u|0,D) \left[ (Y'- \mu') X X'(Y- \mu)   \right] du
+%%&\propto  \int N(u|0,D) \mu' XX' Y du + \int N(u|0,D) \mu' X X' \mu du   .
+%\end{align}
+%We will consider this integral for the cases of $Y|u$ being a Bernoulli and a Poisson random variable. When $Y|u$ is Bernoulli, then $0 \leq \mu \leq 1.$ Therefore,
+%\begin{align}
+%\int N(u|0,D) \left[ (Y'- \mu') X X'(Y- \mu)   \right] du
+%\end{align}
+%exists and is finite.
+%When $Y|u$ is a Poisson random variable, then for any  $\eta$, 
+%\begin{align}
+%\dfrac{\partial}{\partial \eta} c(\eta) = e^\eta.
+%\end{align}
+%Then
+%\begin{align}
+%\int N(u|0,D) \left[ (Y'- \mu') X X'(Y- \mu)   \right] du &\propto \int N(u|0,D)  e^{\eta} e^{\eta}    du \\
+%&\propto \int N(u|0,D) e^{2Zu} du 
+%\end{align}
+%exists and is finite.
+%
+%Next, we want to show that 
+%\begin{align}
+%\sum_{k=1}^m \nabla \log \tilde{f} (u_k) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}
+%\end{align}
+% has finite variance. That is, we want to show the existence of
+%\begin{align}
+%\int \dfrac{N(u|0,D)^2 \left[\nabla \log \tilde{f}u) \right]^2}{p_1 N(u|0,D)+p_2 N(u|u^*, D^*) + p_3 N(u|u^*, ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})} du.
+%\end{align}
+%We see that
+%\begin{align}
+%\int& \dfrac{N(u|0,D)^2 \left[\nabla \log \tilde{f}u) \right]^2}{p_1 N(u|0,D)+p_2 N(u|u^*, D^*) + p_3 N(u|u^*, ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})} du\\
+%&\leq  \int \dfrac{N(u|0,D)^2 \left[\nabla \log \tilde{f}u) \right]^2}{p_1 N(u|0,D)} du\\
+%&= \dfrac{1}{p_1} \int N(u|0,D) \left[\nabla \log \tilde{f}u) \right]^2 du\\
+%&=\dfrac{1}{p_1} \int N(u|0,D) \left[  \dfrac{p_1 \dfrac{\partial}{\partial \nu} N(u|0,D)}{p_1 N(u|0,D)+p_2 N(u|u^*,D^*)+p_3 N(u|u^*, ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})}   \right]^2 du\\
+%&\leq\dfrac{1}{p_1} \int N(u|0,D) \left[  \dfrac{p_1 \dfrac{\partial}{\partial \nu} N(u|0,D)}{p_1 N(u|0,D)}   \right]^2 du\\
+%&=\dfrac{1}{p_1} \int N(u|0,D) \left[  \dfrac{ \dfrac{\partial}{\partial \nu} N(u|0,D)}{ N(u|0,D)}   \right]^2 du\\
+%&= \dfrac{1}{p_1} \int \dfrac{\left[ \dfrac{\partial}{\partial \nu} N(u|0,D)  \right]^2}{N(u|0,D)} du \\
+%\end{align}
+%Now we use
+%\begin{align}
+%\dfrac{\partial}{\partial \nu} \log N(u|0,D) = \dfrac{\dfrac{\partial}{\partial \nu}  N(u|0,D)}{N(u|0,D)}
+%\end{align}
+%to see
+%\begin{align}
+% \dfrac{1}{p_1} \int \dfrac{\left[ \dfrac{\partial}{\partial \nu} N(u|0,D)  \right]^2}{N(u|0,D)} du &=\dfrac{1}{p_1} \int  N(u|0,D) \left[ \dfrac{\partial}{\partial \nu} \log N(u|0,D)  \right]^2 du \\
+%&= \dfrac{1}{p_1} \int  N(u|0,D) \left[ \dfrac{\partial}{\partial \nu} \log N(u|0,D)  \right]^2 du 
+%\end{align}
+%which exists and is finite.
+%
+%
+%
+%Therefore, it is proven that 
+%\begin{align}
+%\int \dfrac{N(u|0,D)^2 \left[\nabla \left(\log f_\theta(y|u)+\log f_\theta (u) \right) \right]^2}{p_1 N(u|0,D)+p_2 N(u|u^*, D^*) + p_3 N(u|u^*, ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})} du 
+%\end{align}
+%exists and is finite. Therefore, since  the gradient of the MCLA has finite variance, we can conclude the gradient of the MCLA has a Central Limit Theorem.
 
 %
 %Next, we need to show that the hessian of the MCLA has finite variance. Again, it is enough to show that
