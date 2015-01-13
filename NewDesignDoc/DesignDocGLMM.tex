@@ -65,23 +65,20 @@ Then the Monte Carlo log likelihood approximation is
 l_{m}(\theta) &=\log \dfrac{1}{m} \sum_{k=1}^mf_\theta(y|u_k)  \dfrac{ f_\theta(u_k)   }{\tilde{f}(u_k)}\\
 &= \log \dfrac{1}{m} \sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}. \label{eq:MCLAval}
 \end{align}
-When $\tilde{f}$ depends on $\theta$, the gradient vector of the MCLA with respect to $\theta$ is
+When $\tilde{f}$ does not depend on $\theta$, the gradient vector of the MCLA with respect to $\theta$ is
 \begin{align}
-\nabla l_m(\theta)&= \dfrac{\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y) - \nabla \log \tilde{f} (u_k)  \right) \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }, \label{eq:MCLAgradient}
+\nabla l_m(\theta)&= \dfrac{\sum_{k=1}^m     \nabla \log f_\theta(u_k,y)  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}  }, \label{eq:MCLAgradient}
 \end{align}
 and the Hessian matrix of the MCLA is
 \begin{align}
-&\nabla^2 l_m(\theta)= \dfrac{   \sum_{k=1}^m \left[ \nabla^2 \log f_\theta(y,u_k)  -
-   \nabla^2 \log \tilde{f}(u_k)   \right]  \dfrac{ f_\theta(y,u_k)}{\tilde{f}(u_k)}  }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}\\
-&+ \dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(y,u_k)  -
-   \nabla \log \tilde{f}(u_k) - \nabla l_m(\theta)   \right] \left[ \nabla \log f_\theta(y,u_k)  -
-   \nabla \log \tilde{f}(u_k) -\nabla l_m(\theta)  \right]'  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}   }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}. \label{eq:MCLAhessian}
+\nabla^2 l_m(\theta)&= \dfrac{   \sum_{k=1}^m  \nabla^2 \log f_\theta(y,u_k)       \dfrac{ f_\theta(y,u_k)}{\tilde{f}(u_k)}  }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}} \nonumber\\
+&+ \dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(y,u_k)   - \nabla l_m(\theta)   \right] \left[ \nabla \log f_\theta(y,u_k)  - \nabla l_m(\theta)  \right]'  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}   }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}
 \end{align}
-Details for these equations can be found in section \ref{sec:calcs}. Calculation for the gradient and hessian when $\tilde{f}$ is independent of $\theta$ can be found in section \ref{sec:calcsindep}.
+Details for these derivatives can be found in section \ref{sec:calcsindep}. Calculation for the gradient and hessian when $\tilde{f}$ is dependent on $\theta$ can be found in section \ref{sec:calcs}.
 
 
 
-Now any inference, such as maximum likelihood, can be performed on $l_m(\theta)$ and its derivatives.  
+Now any likelihood-based inference, such as maximum likelihood, can be performed on $l_m(\theta)$ and its derivatives.  
 
 
 
@@ -92,13 +89,13 @@ Now any inference, such as maximum likelihood, can be performed on $l_m(\theta)$
 
 
 \section{Model fitting function} 
-This is be the primary function the user  uses. The user  specifies the response and the predictors using the R formula mini-language as interpreted by \texttt{model.matrix}. Let $n$ be the observed sample size and recall that $p$ is the number of fixed effects.  When the fixed effects are specified, the model matrix $X$  is created, where $X$ has dimensions $n \times p$. 
+The model fitting function is be the primary function the user  uses. The user  specifies the response and the predictors using the R formula mini-language as interpreted by \texttt{model.matrix}. Let $n$ be the observed sample size and recall that $p$ is the number of fixed effects.  As a result of the user specifying the fixed effects, the model fitting function creates matrix $X$, which has dimensions $n \times p$. 
 
-The user  specifies the random effects in the same way as for the R function \texttt{reaster} in the R package
- \texttt{aster} \citep{aster-package}. That is, random effects are expressed using the R formula mini-language. Let $q_t$ be the number of random effects associated with variance component $\nu_t$. When the random effects are specified, a list of T model matrices are created and the $t$th model matrix $Z_t$ has dimensions $n \times q_t$.
+The user  specifies the random effects in the same way as the fixed effects. This is also how users of  \texttt{reaster} (of R package
+ \texttt{aster} \citep{aster-package}) specify the random effects. That is, random effects are expressed using the R formula mini-language. Let $q_t$ be the number of random effects associated with variance component $\nu_t$. When the random effects are specified, a list of $T$ model matrices are created. The $t$th model matrix $Z_t$ has dimensions $n \times q_t$.
 
 
-The user also specifies the expontial family (details in section \ref{sec:fam}), the name of the data set, and the name of the variance components.  
+The user also specifies the expontial family (details in section \ref{sec:fam}), the name of the data set, and the names of the variance components.  
 
 Thus, the following is a sample command with fixed predictors $x_1$ and $x_2$ and with random effects created by categorical variables $school$ and $classroom$:
 \begin{verbatim}
@@ -107,9 +104,6 @@ data=schooldat,varcomps.names=c("school","classroom"),varcomps.equal=c(1,2),
 debug=FALSE)
  \end{verbatim} 
 
-
-%$\Box$ Most of the time (but not all the time), the random effects formula should be ``0+...'' If the user does not specify ``0+'' then I want to give a warning something like ``Did you mean to start your random effects formula with 0+? Most models require this, so please check if you meant to include it.''
-
 It is possible that the user could want some variance components to be set equal. For example, \pcite{coull:agresti:2000} influenza dataset contains four years with random effects for each year. The authors want the within-year variance components to be equal.  There are also variance components for subject-specific intercepts and for the decreased susceptibility to illness in year 4 (since the strain of flu during year 4 was a repeat of a previous year). Suppose \texttt{year} is a categorical variable with four levels, and \texttt{year1} through \texttt{year4} are dummy variables. Thus, the call  contains these arguments:
 \begin{verbatim}
 glmm(y~year,list(~0+subject,~0+year1,~0+year2,~0+repeat,~0+year3,~0+year4),
@@ -117,9 +111,9 @@ glmm(y~year,list(~0+subject,~0+year1,~0+year2,~0+repeat,~0+year3,~0+year4),
 data=flu,family.glmm=bernoulli.glmm)
 \end{verbatim}
 
-As a result of this command, \texttt{model.matrix}  makes $Z$ into a list of 6 design matrices. Since we have 3 distinct variance components, we want 3 design matrices. We take the design matrices that share a variance component and \texttt{cbind} them together. The result is 3 model matrices in the $Z$ list, one for each variance component. We  want to put them in order (1,2,3 according to \texttt{varcomps.equal}) so that the names for each model matrix  ("subject","year","repeat") are correctly assigned.  Also, the variance estimates  come out in this same order as well.
+Initially, \texttt{model.matrix}  makes $Z$ into a list of 6 design matrices. Since we have 3 distinct variance components, we want 3 design matrices. We take the design matrices that share a variance component and use \texttt{cbind} to bind them together. The result is 3 model matrices in the $Z$ list, one for each variance component. We  want to put them in order (1,2,3 according to \texttt{varcomps.equal}) so that the names for each model matrix  (``subject'',``year'',``repeat'') are correctly assigned.  The variance estimates  are eventually listed in the model summary in this same order as well.
     
-  After interpreting the model the user has specified, the next step is to find penalized quasi-likelihood (PQL) estimates.  The process of finding these estimates is detailed in section \ref{sec:pql}. The PQL estimates parameterize the importance sampling distribution $\tilde{f}(u_k)$ which generate the random effects.  More information on generated the random effects is in section \ref{sec:genRand}. 
+  After interpreting the model the user has specified, the next step is to find penalized quasi-likelihood (PQL) estimates.  The process of finding these estimates is detailed in section \ref{sec:pql}. The PQL estimates parameterize the importance sampling distribution $\tilde{f}(u_k)$ which generate the random effects.  More information on generating the random effects is in section \ref{sec:genRand}. 
 
 Next, \texttt{trust} is implemented to maximize  the MCLA objective function (details on the objective function are in section \ref{sec:objfun}). Finally, the function  returns parameter estimates, the log likelihood evaluated at those estimates, the gradient vector of the log likelihood,  the Hessian of the log likelihood at those estimates, information from the \texttt{trust} optimization, and other information.
 
@@ -130,13 +124,13 @@ Next, \texttt{trust} is implemented to maximize  the MCLA objective function (de
 
 Let $g$ be the canonical link function and $\mu$ be a vector of length $n$ such that
 \begin{align}
-g(\mu) = X \beta + Z U
+g(\mu) = X \beta + Z u
 \end{align}
 The choice of the link function is related to the distribution of the data, $ f_\theta(y|u)$. If the data have a  Bernoulli distribution, the link is $\logit(\mu)$. If the data have a Poisson distribution, the link is $\log (\mu)$. Currently, \texttt{glmm} offers only these two choices for the family, but any exponential family could work and can be easily added later.
 
- For simplicity of future notation, let $\eta=g(\mu)=X \beta + Z U$. Let $c(\eta)$ denote the cumulant function such that the log of the data density can be written as
+ For simplicity of future notation, let $\eta=g(\mu)=X \beta + Z u$. Let $c(\eta)$ denote the cumulant function such that the log of the data density can be written as
 \begin{align}
-Y' \eta - c(\eta) = \sum_i \left[ Y_i \eta_i - c(\eta_i)  \right]
+y' \eta - c(\eta) = \sum_i \left[ y_i \eta_i - c(\eta_i)  \right]
 \end{align}
 
 The user is required to specify the family in the model-fitting function. Once the family is specified, many family-specific functions are called. They are contained in an S3 class called ``glmm.family''. Each family function outputs a list including the family name (a character string such as ``bernoulli.glmm''), a function that calculates the value of the cumulant function $c(\eta)$,  a function that calculates the cumulant's first derivative $c'(\eta)$ with the derivative taken with respect to $\eta$, and  a function that calculates the cumulant's second derivative $c''(\eta)$. 
@@ -157,14 +151,14 @@ logDensity<-function(family.glmm)
 \end{verbatim}
 We interpret this as follows.  If the user has entered the family as a string, go get the R object with that family name, either from the immediate environment or the parent environment.  If this has happened, \texttt{family.glmm} is now a function.  If \texttt{family.glmm} is a function (either because the user entered it as a function or because of the preceding step), invoke that function.  At this point, \texttt{family.glmm} should have  class ``\texttt{glmm.family}.'' If this is not the case (maybe because of a typo or maybe because they entered ``\texttt{poisson}'' rather than ``\texttt{poisson.glmm}''), then stop and return an error.
 
-With this, calculating $c(\eta_i), c'(\eta_i),$ and  $c''(\eta_i)$ is as simple as: 
+With this family of functions, calculating $c(\eta_i), c'(\eta_i),$ and  $c''(\eta_i)$ is as simple as: 
 \begin{verbatim}
-family.glmm$c(args)
+family.glmm$cum(args)
 family.glmm$cp(args)
 family.glmm$cpp(args)
 \end{verbatim}
 
-For the Bernoulli distribution, we calculate these values (\texttt{c}, \texttt{cp}, and \texttt{cpp}) with careful computer arithmetic as follows. We also use the \texttt{log1p} function in R for $c(\eta_i)$. 
+For the Bernoulli distribution, we calculate these values (\texttt{cum}, \texttt{cp}, and \texttt{cpp}) as follows. In order to be careful with our computer arithmetic, we use the \texttt{log1p} function and the second set of equalities.  
 \begin{align}
 c(\eta_i) &= \log(1+e^{\eta_i}) =
   \begin{cases}
@@ -174,7 +168,7 @@ c(\eta_i) &= \log(1+e^{\eta_i}) =
 c'(\eta_i)&=\dfrac{ e^{{\eta_{i}}}}{ 1+e^{{\eta_{i}}}} = \dfrac{1}{1+e^{-\eta_i}}\\
 c''(\eta_i)&=   \dfrac{e^{{\eta_{i}}}}{  1+ e^{{\eta_{i}}} }  - \dfrac{e^{2{\eta_{i}}}}{    (  1+ e^{{\eta_{i}}})^2}  = \dfrac{1}{1+e^{-\eta_i}}\cdot \dfrac{1}{1+e^{\eta_i}}
 \end{align}
- For poisson, these values (\texttt{c}, \texttt{cp}, and \texttt{cpp}) are
+ For Poisson, these values (\texttt{cum}, \texttt{cp}, and \texttt{cpp}) are
 \begin{align}
 c(\eta_i)&=e^{\eta_i}\\
 c'(\eta_i)&=e^{{\eta_{i}}}\\
@@ -190,7 +184,7 @@ c(\eta)= \sum_i c(\eta_i).
 
 In the R function \texttt{glm}, the user can choose the link. The canonical link must be used in the \texttt{glmm} package so that we have an exponential family. The canonical link is included in \texttt{family.glmm}  in case the user does not know it already.
 
-Also, I have a function to check that the data are valid given the family type. If \texttt{family.glmm} is \texttt{bernoulli.glmm}, the data should be 0s or 1s. If \texttt{family.glmm} is \texttt{poisson.glmm}, then the data should be nonnegative integers.  If the data does not pass the check, the check returns an error message. 
+Also, this family of functions contains a check to ensure the data are valid given the family type. If \texttt{family.glmm} is \texttt{bernoulli.glmm}, the data should contain only $0$ and $1$. If \texttt{family.glmm} is \texttt{poisson.glmm}, then the data should be nonnegative.  If the data set does not pass the check, the check returns an error message. 
 
 \subsection{Redone in C}
 Redone in C, I  have  separate functions for calculating $c(\eta)$, $c'(\eta)$, $c''(\eta)$: \texttt{cum3.c}, \texttt{cp3.c}, and \texttt{cpp3.c}. The inputs for each function are identical:  \texttt{eta} (an array of doubles), $\texttt{neta}$ (the length of \texttt{eta}), the type (to denote the family: $1$ indicates Bernoulli and $2$ indicates Poisson), and an array of doubles to contain the result. These are passed in as pointers. The functions  calculate  the cumulant function or one of its first two derivatives. Each function  contains a switch statement for the glmm family. The calculations for each of these functions have  been shown earlier in this section. This function is type void: rather than returning the cumulant or its derivatives, the pointers are changed to contain the results. This function is invoked by \texttt{el}, described in section \ref{sec:el}.
@@ -202,42 +196,42 @@ This section provides details for the log density of the data and two of its der
 \subsection{Equations}
 Recall the log of the data density is
 \begin{align}
-\log f_\theta(y|u) &= Y' \eta +c(\eta) \\
-&= \sum_{i} Y_{i} {\eta_{i}} - c({\eta_{i}})
+\log f_\theta(y|u) &= y' \eta +c(\eta) \\
+&= \sum_{i} y_{i} {\eta_{i}} - c({\eta_{i}})
 \end{align}
 where
 \begin{align}
-\eta=X\beta+ZU.
+\eta=X\beta+Zu.
 \end{align}
 The derivative of this with respect to one component, $\eta_j$, is
 \begin{align}
-\dfrac{\partial}{\partial \eta_j} \log f_\theta(y|u)  = Y_j-c'(\eta_j).
+\dfrac{\partial}{\partial \eta_j} \log f_\theta(y|u)  = y_j-c'(\eta_j).
 \end{align}
 The derivative of the component $\eta_j$ with respect to one of the fixed effect predictors, $\beta_{l}$, is
 \begin{align}
 \dfrac{\partial \eta_j}{\partial \beta_{l}} = X_{j{l}}
 \end{align}
 
-We'd like the derivative of the log of the data density with respect to $\beta$. This can be written using the chain rule as follows:
+We'd like the derivative of the log of the data density with respect to $\beta$. The first step is using the chain rule as follows:
 \begin{align}
 \dfrac{\partial}{\partial \beta_{l}}  \log f_\theta(y|u) &= \dfrac{\partial \eta_j}{\partial \beta_{l}} \dfrac{\partial}{\partial \eta_j} \log f_\theta(y|u) \\
-&= \left[ Y_j-c'(\eta_j) \right]  X_{j{l}}
+&= \left[ y_j-c'(\eta_j) \right]  X_{j{l}}
 \end{align}
 
 The mixed partial derivative (with respect to $\beta_{l_1}$ and $\beta_{l_2}$) of the log data density can be written similarly:
 \begin{align}
-\dfrac{\partial^2}{\partial \beta_{l_1} \partial \beta_{l_2}}  \log f_\theta(y|u) &=\dfrac{\partial}{\partial \beta_{l_2}} \left( \left[ Y_j-c'(\eta_j) \right]  X_{j{l_1}} \right) \\
-&= \dfrac{\partial \eta_j}{\partial \beta_{l_2}} \dfrac{\partial}{\partial \eta_j} \left( \left[ Y_j-c'(\eta_j) \right]  X_{j{l_1}} \right) \\
+\dfrac{\partial^2}{\partial \beta_{l_1} \partial \beta_{l_2}}  \log f_\theta(y|u) &=\dfrac{\partial}{\partial \beta_{l_2}} \left( \left[ y_j-c'(\eta_j) \right]  X_{j{l_1}} \right) \\
+&= \dfrac{\partial \eta_j}{\partial \beta_{l_2}} \dfrac{\partial}{\partial \eta_j} \left( \left[ y_j-c'(\eta_j) \right]  X_{j{l_1}} \right) \\
 &= -X_{j{l_1}} X_{j{l_2}} c''(\eta_j) 
  \end{align}
 
 
 Letting $c'(\eta)$ be a vector with components $c'(\eta_j)$, the first derivative of the log data density can be written in matrix form as:
 \begin{align}
-\dfrac{\partial}{\partial \beta}  \log f_\theta(y|u) = X' \left[ Y-  c'(\eta)  \right].
+\dfrac{\partial}{\partial \beta}  \log f_\theta(y|u) = X' \left[ y-  c'(\eta)  \right].
 \end{align}
 
-Letting $ c(\eta)$ be a diagonal matrix with components $c''(\eta_j)$, the second derivative of the log data density can be written in matrix form as:
+Letting $ c''(\eta)$ be a diagonal matrix with components $c''(\eta_j)$, the second derivative of the log data density can be written in matrix form as:
 \begin{align}
    \frac{\partial^2}{\partial \beta^2} \log f_\theta(y|u) =   X' [ -  c''(\eta) ] X
 \end{align}
@@ -249,20 +243,20 @@ The function \texttt{el.C} calls the following C functions: \texttt{cum3.C} to c
 
 
 \section{Random effect generation and calculations}
-This section is focused on a vector of random effects $u$ with length $q$. We assume that $u \sim N(0,D)$ where $D$ depends on $\nu$. Section \ref{sec:getEk} details the  relationship between  $\nu$ and $D$ explicit. Section \ref{sec:genRand} describes the process of generating the random effects. Section \ref{sec:distRand} explains how to evaluate the distribution of the random effects and its first two derivatives.
+This section is focused on a vector of random effects $u$ with length $q$.  Section \ref{sec:getEk} details the  relationship between  $\nu$ and $D$.
+Section \ref{sec:ftwiddle} states the importance sampling distribution.
+ Section \ref{sec:genRand} describes the process of generating the random effects. Section \ref{sec:distRand} explains how to evaluate the distribution of the random effects and its first two derivatives.
 
 %%getEk
 \subsection{Constructing $D$ (\texttt{getEk})}\label{sec:getEk}
-For this version of the package, we that assume that $D$ is diagonal.  Let $\nu$ be length $T$ with components $\nu_t$, and let $E_t,t=1,\ldots,T$ be diagonal matrices with indicators on the diagonal so that $\sum_{t=1}^T E_t = I$. That is, the diagonal entries  of $E_t$ indicate whether that random effect has $\nu_t$ as a variance component. Then $D=\sum_{t=1}^T\nu_t  E_t $.  
+Recall that, for this version of the package, we assume that $D$ is diagonal.  Let $\nu$ be length $T$ with components $\nu_t$, and let $E_t,t=1,\ldots,T$ be diagonal matrices with indicators on the diagonal so that $\sum_{t=1}^T E_t = I$. That is, the diagonal entries  of $E_t$ indicate whether that random effect has $\nu_t$ as its variance component. Then $D=\sum_{t=1}^T\nu_t  E_t $.  
 
-If $q_t$ is the number of random effects associated with variance component $\nu_t$, then $q_t$ is also the number of nonzero entries in $E_t$ and $q=\sum_{t=1}^T q_t$ is the total number of random effects in the model.  
-The \texttt{model.matrix} part of \texttt{glmm} has made  \texttt{Z} into a list with $T$ design matrices (one for each distinct variance component).  In order to create $E_t$, we need to go through and count the  number of columns ($q_t$) for each design matrix $t$ in the list.
- Then $q=\sum_{t=1}^T q_t$ is the total number of random effects in the model, and $D$  has $q$ rows (and columns). Thus, each $E_t$  has $q$ rows and columns as well.  Then we know that $E_1$ has $q_1$ ones on the diagonal, followed by zeros to fill the rest of the diagonal.  $E_2$ has $q_1$ zeros, then $q_2$ ones, then zeros for the rest of the diagonal.
+Recall $q_t$ is the number of random effects associated with variance component $\nu_t$. Then $q_t$ is also the number of nonzero entries in $E_t$ and $q=\sum_{t=1}^T q_t$ is the total number of random effects in the model.  
+The model fitting function of \texttt{glmm} has made  $Z$ into a list with $T$ design matrices (one for each distinct variance component).  In order to create $E_t$, we need to go through and count the  number of columns ($q_t$) for each design matrix $t$ in the list.
+ Then $q=\sum_{t=1}^T q_t$ is the total number of random effects in the model, and $D$  is $q \times q$. Thus, each $E_t$  is $q \times q$.   $E_1$ has $q_1$ ones on the diagonal, followed by zeros to fill the rest of the diagonal.  $E_2$ has $q_1$ zeros, then $q_2$ ones, then zeros for the rest of the diagonal. We continue this process to complete the construction of $E_t, t=1,\ldots, T$.
 
-
-
-\subsection{Generating random effects (genRand)}\label{sec:genRand}
-The model fitting function \texttt{glmm}  calls the function that generates the random effects and  stores them for future calculations. Let $s$ be a vector of length $q$ that represents the random effects on the standard normal scale. That is, $u= D^{1/2}s$. Let $\sigma$ be a vector of length $T$ with components $\sqrt{\nu_t}$.  The  PQL step of \texttt{glmm} has resulted in PQL estimates for $\beta$, $\sigma$ and  $s$ denoted by $\beta^*$, $s^*$ and $\sigma^*$. Then let
+\subsection{Importance sampling distribution $\tilde{f}(u_k)$}\label{sec:ftwiddle}
+ Let $s$ be a vector of length $q$ that represents the random effects on the standard normal scale. That is $s$ is defined such that, $u= D^{1/2}s$. Let $\sigma$ be a vector of length $T$ with components $\sqrt{\nu_t}$.  Prior to generating random effects, the model fitting function of \texttt{glmm} has performed PQL and recorded the PQL estimates for $\beta$, $\sigma$ and  $s$. The PQL estimates are denoted by $\beta^*$, $s^*$ and $\sigma^*$. Let
 \begin{align}
 A^*=\sum_{t=1}^T E_t \sigma^*_t
 \end{align}\
@@ -270,34 +264,44 @@ and
 \begin{align}
  D^* =A^*A^*
 \end{align}
-be matrices based on PQL estimates. Also, we can ``unstandardize'' our PQL-based random effects:
+be matrices based on PQL estimates. We can ``unstandardize'' our PQL-based random effects:
 \begin{align}
 u^*&=A^*s^*.
 \end{align}
 
- Recall that $m$ is the overall Monte Carlo sample size. That is, $\breve{u}_k,k=1\ldots,m$ are vectors of random effects are drawn from a multivariate standard normal. Let $p_1,p_2,p_3$ be proportions such that  $p_1+p_2+p_3=1$ and let $m_1=m p_1$, $m_2= m p_2$, $m_3=m p_3$. Let $D$ and $A=D^{1/2}$ be determined by the current iteration of \texttt{trust}. Construct $((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})^{1/2} $ as described in section \ref{sec:sqrtmat}. Then we center and scale $\breve{u}_k$ as follows:
+
+Let $p_1,p_2,p_3$ be the proportions of the mixture distribution such that  $p_1+p_2+p_3=1$.  Let $f(u|\mu,\Sigma)$ denote the pdf for $u \sim N(\mu,\Sigma)$.  Let $\grave{f}(u)$ denote the pdf for $u \sim t_\zeta$, a $q$-dimensional multivariate standard $t$ with $\zeta$ degrees of freedom. Then the importance sampling distribution is:
 \begin{align}
-u_k&= A\, \breve{u}_k, k=1,\ldots,m_1\\
-u_k&= u^*+A^* \, \breve{u}_k, k=m_1+1,\ldots,m_1+m_2\\
-u_k&= u^*+ ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})^{1/2} \,  \breve{u}_k, k=m_1+m_2+1,\ldots,m.
+ \tilde{f}(u) = p_1  \grave{f}(u)+p_2  f(u \, | \, u^*, D^*)+p_3  f(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1}). \label{eq:ftwiddle}
 \end{align}
- The result or centering and scaling is that
-\begin{enumerate}
-\item $u_k,k=1,\ldots,m_1 \sim N(0,D)$
-\item $u_k,k=m_1+1,\ldots,m_1+m_2 \sim N(u^*,D^*)$
-\item $u_k,k=m_1+m2+1,\ldots,m \sim N(u^*,(Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})$.
-\end{enumerate}
- Let $f(u_k|\mu,\Sigma)$ denote the pdf for $u_k \sim N(\mu,\Sigma)$. Then the importance sampling distribution $\tilde{f}$ is the following mixture distribution:
+Then
 \begin{align}
- \tilde{f}(u) = p_1 \,  f(u \, | \, 0, D)+p_2 \, f(u \, | \, u^*, D^*)+p_3 \, f(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1}) \label{eq:ftwiddle}
+ \log \tilde{f}(u) = \log \left( p_1  \grave{f}(u)+p_2  f(u \, | \, u^*, D^*)+p_3  f(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1}) \right)
 \end{align}
 
+The first component of the mixture distribution $t_\zeta$ is chosen to ensure  the gradient of the MCLA has a central limit theorem, which is proven in  section \ref{sec:CLT}.  The second component is chosen because it is centered at the PQL best guess of the random effect values $u^*$ and  has the PQL guess of the variance. The last component is centered at the PQL guess $u^*$ and has a variance based on the Hessian of the PQL penalized likelihood.  The idea of this last distribution is to generate random effects from a distribution whose Hessian matches that of the target distribution $f_\theta(y|u) f_\theta(u)$.
 
-\subsubsection{Rationale}
-The first distribution $N(0,D)$ was chosen to ensure a Central Limit Theorem, which is proven in  section \ref{sec:CLT}.   The second distribution is chosen because it is centered at the PQL best guess of the random effect values $u^*$ and  has the PQL guess of the variance. The last distribution is centered at the PQL guess $u^*$ and has a variance based on the PQL penalized likelihood Hessian.  The idea of this last distribution is to generate random effects from a distribution whose Hessian matches that of the target distribution $f_\theta(y|u) f_\theta(u)$.
+\subsection{Generating random effects (genRand)}\label{sec:genRand}
+
+ Recall that $m$ is the overall Monte Carlo sample size.  Let $p_1,p_2,p_3$ be the proportions of the mixture distribution such that  $p_1+p_2+p_3=1$. Let $m_1=m p_1$, $m_2= m p_2$, $m_3=m p_3$. 
+%Let $D$ and $A=D^{1/2}$ be determined by the current iteration of \texttt{trust}.
+Then we draw 
+\begin{align}
+u_k &\sim t_\zeta ,k=1,\ldots,m_1\\
+u_k &\sim N(u \, | \, u^*, D^*) ,k=m_1+1,\ldots,m_1+m_2\\
+u_k &\sim N(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1}) ,k=m_1+m_2+1,\ldots,m.
+\end{align}
+Details for drawing from a nonstandard normal are in section \ref{sec:gennonstand}.
+ 
+
+
+
+
 
 \subsubsection{Finding the square root of a variance matrix}\label{sec:sqrtmat}
-The shifting and scaling of $\breve{u})_k$ relies on finding the square root of a variance matrix. In the first two distributions, the variance matrices $D$ and $D^*$ are diagonal, and therefore we simply take the root of the diagonal elements. For the third distribution, we can use eigendecomposition. Eigendecompositions take a little bit more time than Cholesky decompositions but are more stable. Let $\Sigma$ denote the nondiagonal variance matrix. Eigendecomposition of $\Sigma$ provides orthogonal matrix $O$ (containing the eigenvectors) and diagonal matrix $\Lambda$ (with diagonal entries $\lambda$ being the eigenvalues of $\Sigma$).  Then
+In order to generate draws from a nonstandard normal distribution, we need to calculate the square root of a variance matrix. When the variance matrix is diagonal (for example, $D^*$), we simply take the root of the diagonal elements.  When the variance matrix is not diagonal (for example, in the second component of the mixture distribution), we can use eigendecomposition. Eigendecompositions take a little bit more time than Cholesky decompositions but are more stable. 
+
+Let $\Sigma$ denote the nondiagonal variance matrix. Eigendecomposition of $\Sigma$ provides orthogonal matrix $O$ (containing the eigenvectors) and diagonal matrix $\Lambda$ (with diagonal entries $\lambda$ being the eigenvalues of $\Sigma$).  Then
 \begin{align}
 \Sigma^{1/2}= O \Lambda^{1/2} O'.
 \end{align}
@@ -309,59 +313,78 @@ Finding $\Lambda^{1/2}$ is as easy as taking the root of the diagonal entries.  
 &= \Sigma.
 \end{align}
 
- 
-\subsubsection{NEED TO PUT THIS SOMEWHERE}
+\subsubsection{Generating from nonstandard normal distributions}\label{sec:gennonstand}
+ Construct $A^*=(D^*)^{1/2}$ and $((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})^{1/2} $ as described in section \ref{sec:sqrtmat}. 
 
-
-Recall that $D$ is a diagonal with dimension $q$. $D$ has $q_1$ entries being $\nu_1$, $q_2$ entries being $\nu_2$, ..., and $q_T$ entries being $\nu_T$. Since the distribution of $u_k=A \breve{u}_k$ is $N(0,D)$, we write its pdf as:
+Let $\breve{u}_k,k=m_1+1\ldots,m$ be vectors of random effects that are drawn from the standard normal distribution. Then we center and scale $\breve{u}_k$ as follows:
 \begin{align}
-f(u_k|\nu)=f(A\breve{u}_k|\nu)&= (2 \pi)^{q/2} |D|^{-1/2} \exp(-0.5 (A \breve{u}_k)' D^{-1} (A \breve{u}_k))\\
-&=(2 \pi)^{q/2} |A|^{-1} \exp(-0.5 \breve{u}_k' A D^{-1} A \breve{u}_k)\\
-&=(2 \pi)^{q/2} |A|^{-1} \exp(-0.5 \breve{u}_k' \breve{u}_k)
+u_k&= u^*+A^* \, \breve{u}_k, k=m_1+1,\ldots,m_1+m_2\\
+u_k&= u^*+ ((Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})^{1/2} \,  \breve{u}_k, k=m_1+m_2+1,\ldots,m.
 \end{align}
-So that 
+ The result or centering and scaling is that
 \begin{align}
-\log f(A \breve{u}_k|\nu) &\propto - \log |A| -\dfrac{1}{2} \breve{u}_k' \breve{u}_k\\
-&\propto -\dfrac{q_1}{2} \log \nu_1 +\ldots + -\dfrac{q_T}{2} \log \nu_T -\dfrac{1}{2} \breve{u}_k' \breve{u}_k
-\end{align}
-Then 
-\begin{align}
-\dfrac{\partial}{\partial \nu_t} \log f(A \breve{u}_k|\nu) = \dfrac{-q_t}{2 \nu_t}\\
-\dfrac{\partial^2}{\partial \nu_t^2} \log f(A \breve{u}_k|\nu) = \dfrac{q_t}{2 \nu_t^2}
+ &u_k \sim N(u^*,D^*), \, k=m_1+1,\ldots,m_1+m_2\\
+& u_k \sim N(u^*,(Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1}), \, k=m_1+m2+1,\ldots,m .
 \end{align}
 
-
-
-
+% 
+%\subsubsection{NEED TO PUT THIS SOMEWHERE}
 %
-%%%distribution of the random effects%%
-%\subsection{Distribution of the random effects }\label{sec:distRandsec}
-%This will be hidden from the user.  This section provides equations for evaluating the log of a normal distribution with a specified mean and variance. When necessary to emphasize and clarify the choice of mean $\mu$ and variance $\Sigma$ , I use the notation $ f(u|\mu,\Sigma)$ rather than $f_\theta(u)$.
 %
-%This section is useful for calculating $\tilde{f}(u_k)$.  This section also provides two derivatives in some cases, which is useful for evaluating $f_\theta(u_k)$ and two derivatives. These are needed for the calculation in \eqref{eq:MCLA}.
+%Recall that $D$ is a diagonal with dimension $q$. $D$ has $q_1$ entries being $\nu_1$, $q_2$ entries being $\nu_2$, ..., and $q_T$ entries being $\nu_T$. Since the distribution of $u_k=A \breve{u}_k$ is $N(0,D)$, we write its pdf as:
+%\begin{align}
+%f(u_k|\nu)=f(A\breve{u}_k|\nu)&= (2 \pi)^{q/2} |D|^{-1/2} \exp(-0.5 (A \breve{u}_k)' D^{-1} (A \breve{u}_k))\\
+%&=(2 \pi)^{q/2} |A|^{-1} \exp(-0.5 \breve{u}_k' A D^{-1} A \breve{u}_k)\\
+%&=(2 \pi)^{q/2} |A|^{-1} \exp(-0.5 \breve{u}_k' \breve{u}_k)
+%\end{align}
+%So that 
+%\begin{align}
+%\log f(A \breve{u}_k|\nu) &\propto - \log |A| -\dfrac{1}{2} \breve{u}_k' \breve{u}_k\\
+%&\propto -\dfrac{q_1}{2} \log \nu_1 +\ldots + -\dfrac{q_T}{2} \log \nu_T -\dfrac{1}{2} \breve{u}_k' \breve{u}_k
+%\end{align}
+%Then 
+%\begin{align}
+%\dfrac{\partial}{\partial \nu_t} \log f(A \breve{u}_k|\nu) = \dfrac{-q_t}{2 \nu_t}\\
+%\dfrac{\partial^2}{\partial \nu_t^2} \log f(A \breve{u}_k|\nu) = \dfrac{q_t}{2 \nu_t^2}
+%\end{align}
 %
-%Section \ref{sec:tee} contains details that are not currently implemented, but could be. In this version, all random effects are assumed to be normally distributed and all simulated random effects are generated from a normal distribution.
+%Because only the first component of the mixture distribution contains any parameters,
+%\begin{align}
+%\dfrac{\partial}{\partial \nu} \log \tilde{f}(u) = \dfrac{p_1  \dfrac{\partial}{\partial \nu} N(u \, | \, 0, D)}{ p_1  N(u \, | \, 0, D)+p_2  N(u \, | \, u^*, D^*)+p_3  N(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})}.
+%\end{align}
+%and 
+%\begin{align}
+%\nabla  \log \tilde{f}(u) = \left(0   \; \; \; \; \; \; \dfrac{\partial}{\partial \nu} \log \tilde{f}(u) \right)
+%\end{align}
+%These are used in equations \ref{eq:MCLAgr} and \ref{eq:MCLAh}. The second derivatives, which are needed in equation \ref{eq:MCLAh}, are
+%\begin{align}
+%\dfrac{\partial^2}{\partial \nu^2} \log \tilde{f}(u) &= \dfrac{p_1  \dfrac{\partial^2}{\partial \nu^2} N(u \, | \, 0, D)}{ p_1  N(u \, | \, 0, D)+p_2  N(u \, | \, u^*, D^*)+p_3  N(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})} \\ \nonumber
+%&- \dfrac{p_1^2 \left( \dfrac{\partial}{\partial \nu} N(u \, | \, 0, D)\right) \left( \dfrac{\partial}{\partial \nu} N(u \, | \, 0, D)\right)'}{\left[ p_1  N(u \, | \, 0, D)+p_2  N(u \, | \, u^*, D^*)+p_3  N(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})\right]^2}.
+%\end{align}
+%and
+%\begin{align}
+%\nabla^2 \log \tilde{f}(u_k) = \begin{bmatrix} 0 & 0 \\ 0  & \dfrac{\partial^2}{ \partial \nu^2} \log \tilde{f} (u_k)  \end{bmatrix} 
+%\end{align}
+%
+%
+
+%%
+%%This section is useful for calculating $\tilde{f}(u_k)$.  This section also provides two derivatives in some cases, which is useful for evaluating $f_\theta(u_k)$ and two derivatives. These are needed for the calculation in \eqref{eq:MCLA}.
+%%
+%%Section \ref{sec:tee} contains details that are not currently implemented, but could be. In this version, all random effects are assumed to be normally distributed and all simulated random effects are generated from a normal distribution.
 
 
-\subsection{Distribution of random effects (\texttt{distRand})}\label{sec:distRand}
+\subsection{Evaluating the distribution of random effects (\texttt{distRand})}\label{sec:distRand}
+This section discusses evaluating the distribution of the random effects, the gradient of the random effects, and the Hessian of the random effects. That is, the equations in this section provide  $\log f_\theta(u)$, $\nabla \log f_\theta(u)$, and $\nabla^2 \log f_\theta(u)$  for equation \ref{eq:MCLA}.
 
-
-In this subsection, I discuss both the assumed distribution of the unobserved random effects $N(0,D)$ and the importance sampling distribution used to generate the simulated random effects.  The equations in this section provide  $\log f_\theta(u)$, $\nabla \log f_\theta(u)$,  $\nabla^2 \log f_\theta(u)$, $\tilde{f}(u)$, $ \nabla \tilde{f}(u)$, and $\nabla^2 \tilde{f}(u)$  for equation \ref{eq:MCLA}. 
-
-Consider $N(\mu, \Sigma)$.  This is written with $\mu$ not necessarily $0$ so that the function can be used for $\tilde{f}(u)$ as well.  We can  write the distribution  as:
+ We can  express the log unnormalized pdf of $N(0, D)$  as:
 \begin{align}
-\log f (u| \mu, \Sigma) = (-1/2) \log |\Sigma| - (1/2) (u-\mu)' \Sigma^{-1} (u-\mu)
+\log f_\theta(u)= \log f (u| 0, D) = (-1/2) \log |D| - (1/2) u' D^{-1} u
 \end{align}
 
-Since the first version of the package assumes $D$ is diagonal, formulas involving $D$ are found in section \ref{sec:Ddiag}.  
-Since random effects are also generated from a normal with nondiagonal variance matrix, we also need to evaluate $f(u|\mu,\Sigma)$ for general covariance matrix $\Sigma$. Information on this calculation for general covariance matrix $\Sigma$ are in \ref{sec:Dgeneral}).
+ To find derivatives of this, we are going to use the diagonal form of $D$. Recall that for every $\nu_t$, we can construct a matrix $E_t$ (with dimensions the same as matrix $D$) that has 1s on the diagonal elements corresponding to the elements of D that contain $\nu_t$ and 0s  elsewhere.  
 
-\subsubsection{$\Sigma=D$ Diagonal}\label{sec:Ddiag}
-This section provides the equations for $\log f_\theta(u)$ and  $\log \tilde{f}(u)$ and their first two derivatives.
-
- Recall that for every $\nu_t$, we can construct a matrix $E_t$ (with dimensions the same as matrix $D$) that has 1s on the diagonal elements corresponding to the elements of D that contain $\nu_t$ and 0s  elsewhere.  
-
-We can partition the random effects according to their variance components: $u=(U_1',...,U_T')'$.  Let $D_t$ be the variance matrix for $U_t$. $D_t$ has $q_t$ rows (and also columns). Thus $D$ can be expressed as:
+We can partition the random effects according to their variance components: $u=(U_1',...,U_T')'$.  Let $D_t$ be the variance matrix for $U_t$. $D_t$ has $q_t$ rows  and $q_t$ columns. Thus $D$ can be expressed as:
 \begin{align}
 D = \begin{bmatrix} D_1 & \cdots & 0 \\ \vdots & \ddots & \vdots \\ 0 & \cdots & D_T \end{bmatrix}
 \end{align}
@@ -373,29 +396,19 @@ Since $D$ is diagonal, it follows that $D^{-1}$ is also diagonal with diagonal e
 
  Taking these two pieces of information into account allows us to write the log density for $U$ as follows:
 \begin{align}
-\log f_\theta(u) &= (-1/2) \log |D| - (1/2) (U-\mu)' D^{-1} (U-\mu)\\
-&= -\dfrac{1}{2} \left[  \sum_{t=1}^T q_t \log \nu_t   \right]  -\dfrac{1}{2} \sum_{t=1}^T \left[ \dfrac{1}{\nu_t} (U_t-\mu_t)'(U_t-\mu_t)   \right]
+\log f_\theta(u) &= -\dfrac{1}{2} \log |D| -\dfrac{1}{2} u' D^{-1} u\\
+&= -\dfrac{1}{2} \left[  \sum_{t=1}^T q_t \log \nu_t   \right]  -\dfrac{1}{2} \sum_{t=1}^T \left[ \dfrac{1}{\nu_t} U_t'U_t   \right]
 \end{align}
 
 
-
-
-
-%Letting $I_{q_t}$ be the identity matrix with $q_t$ rows (and columns), we can write this as a sum as follows:
-%\begin{align}
-%\log f_\theta(u)&= \sum_{t=1}^T \log f_\theta(u_t)\\
-%&=\sum_{t=1}^T - \dfrac{1}{2} \log |D_t| - \dfrac{1}{2} (U_t-\mu_t)' D_t^{-1} (U_t-\mu_t) \\ 
-%&=\sum_{t=1}^T - \dfrac{1}{2} \log |\nu_t^{q_t}| - \dfrac{1}{2 \nu_t} (U_t-\mu_t)' I_{q_t} (U_t-\mu_t) \\ 
-%&=\sum_{t=1}^T - \dfrac{q_t}{2} \log \nu_t - \dfrac{1}{2 \nu_t}(U_t-\mu_t) '(U_t-\mu_t)
-%\end{align}
 
 The first and second derivatives of each summand with respect to its associated $\nu_t$ are:
 \begin{align}
-\dfrac{\partial}{\partial \nu_t} \log f_\theta(u_t) = - \dfrac{q_t}{2 \nu_t} + \dfrac{1}{2 \nu_t^2}(U_t-\mu_t)'(U_t-\mu_t)
+\dfrac{\partial}{\partial \nu_t} \log f_\theta(u_t) = - \dfrac{q_t}{2 \nu_t} + \dfrac{1}{2 \nu_t^2}U_t'U_t
 \end{align}
 and 
 \begin{align}
-\dfrac{\partial^2}{\partial \nu_t^2} \log f_\theta(u_t) = \dfrac{q_t}{2 \nu_t^2}- \dfrac{1}{\nu_t^3} (U_t-\mu_t)'(U_t-\mu_t).
+\dfrac{\partial^2}{\partial \nu_t^2} \log f_\theta(u_t) = \dfrac{q_t}{2 \nu_t^2}- \dfrac{1}{\nu_t^3} U_t'U_t.
 \end{align}
 Any other derivative is equal to 0. That is, for all $t_1 \neq t_2$,
 \begin{align}
@@ -407,7 +420,7 @@ Also,
 \end{align}
 Thus, if $\nu = (\nu_1,...,\nu_T)$, the gradient of the random effects distribution is the following vector of length $T$:
 \begin{align}
-\dfrac{\partial}{\partial \nu}  \log f_\theta(u) = \begin{bmatrix} - \dfrac{q_1}{2 \nu_1} + \dfrac{1}{2 \nu_1^2} (U_1-\mu_1) ' (U_1-\mu_1) & ... & - \dfrac{q_T}{2 \nu_T} + \dfrac{1}{2 \nu_T^2} (U_T-\mu_T) '(U_T-\mu_T)   \end{bmatrix} 
+\dfrac{\partial}{\partial \nu}  \log f_\theta(u) = \begin{bmatrix} - \dfrac{q_1}{2 \nu_1} + \dfrac{1}{2 \nu_1^2} U_1'U_1 & ... & - \dfrac{q_T}{2 \nu_T} + \dfrac{1}{2 \nu_T^2} U_T'U_T   \end{bmatrix} 
 \end{align}
 
 The Hessian matrix is the following diagonal matrix:
@@ -420,29 +433,23 @@ To calculate the value, gradient, and Hessian, we need to provide  $\nu$, $u$, a
 
 
 
-The last thing we need to discuss is how to split $U$ into $U_1,...,U_T$ and $\mu$ into $\mu_1,...,\mu_T$. The same process should work for both, so let's just look at how we'd do it for $U$.  We know that the first $q_1$ items of U are $U_1$, the next $q_2$ items are $U_2$, etc.  In other words, entries 1 through $q_1$ are $U_1$. Items $q_1+1$ through $q_1+q_2$ are $U_2$, etc. In R pseudo code, this means 
-\begin{verbatim}
-nrand<-lapply(z,ncol) #get the number of columns from each matrix in list z
-unlist(nrand) #chance the list into a vector, since each entry in the list is just a scalar
-
-U1<- U[1 through nrand[1]] #first rule is use 1:nrand[1]
-Ut<-U[sum(nrand[1:t-1]+1 through sum(nrand[1:t])]
-\end{verbatim} 
-
-Note that we don't need to actually calculate either A or D. We work only through $\nu$.
-
-\subsubsection{Newer version of $\Sigma=D$ Diagonal}
-The newer version of \texttt{distRand} (called \texttt{distRand3}) uses the same equations as those listed in \ref{sec:Ddiag}. The only difference is that the newer version is more efficient. Rather than having each call to \texttt{distRand3} recalculate which elements of $U$ belong to each $t$, this is done ahead of time in the objective function. This information is contained in vector \texttt{meow}. This is then an argument in \texttt{distRand3}.
+The last thing we need to discuss is how to split $U$ into $U_1,...,U_T$. We know that the first $q_1$ items of U are $U_1$, the next $q_2$ items are $U_2$, etc.  In other words, entries 1 through $q_1$ are $U_1$. Items $q_1+1$ through $q_1+q_2$ are $U_2$, etc. We find these numbers ($q_1$, $q_2$, etc) from the number of columns of the items in the list \texttt{z}. This information of how to split $u$ up is contained in vector \texttt{meow} and used by function \texttt{distRand3}. This is faster than recalculating \texttt{meow} for every call of \texttt{distRand3}. 
 
 Rewritten in C, this function takes the following as pointers: the double array \texttt{nu} that contains the variance components, the int \texttt{T} to specify the length of \texttt{nu}, the double array \texttt{mu} that contains the means of the random effects, the int array \texttt{nrandom} of length \texttt{T} that contains the number random effects from that variance component, the double array \texttt{Uvec} that contains one vector of generated random effects,  the int array \texttt{meow} that specifies how to split \texttt{u} up based on the variance components, the double array \texttt{drgradient} that  contains the resulting gradient, and the double array \texttt{drhessian} that  contains the resulting hessian.
 
-The result of invoking the C function is  the calculation of the gradient and hessian for the distribution of the random effects. The value is  evaluated by the C function in \ref{sec:Dgeneral}.
+The result of invoking the C function \texttt{distRand3} is  the calculation of the gradient and hessian for the distribution of the random effects. The value is  evaluated by the C function \texttt{distRandGeneral}, described in section \ref{sec:Dgeneral}.
+
+
+
+\subsection{Evaluating the importance sampling distribution}
+This section discusses evaluating the importance sampling distribution shown in \ref{eq:ftwiddle}. Section \ref{sec:Dgeneral} describes how to evaluate the pdf for the normal components of $\tilde{f}(u)$. Section \ref{sec:tstuff} describes how to evaluate the pdf for the t component of $\tilde{f}(u)$. 
+The  $\tilde{f}(u)$ calculation is used in equation \ref{eq:MCLA}. 
 
 %%distRandGeneral
-\subsubsection{$\Sigma$ in general (\texttt{distRandGeneral})}\label{sec:Dgeneral}
- Recall the general form for a normal distribution with mean $\mu$ and variance $\Sigma$ is:
+\subsubsection{Normal distribution for general variance matrix $\Sigma$ (\texttt{distRandGeneral})}\label{sec:Dgeneral}
+Let $\Sigma$ be a variance matrix and let $\mu$ be a mean vector. Consider $N(\mu, \Sigma)$.   We can  write the log pdf of this distribution  as:
 \begin{align}
-\log f(u \,| \,\mu, \Sigma) = (1/2) \log |\Sigma^{-1}| - (1/2) (u-\mu)' \Sigma^{-1} (u-\mu)
+\log f (u| \mu, \Sigma) = (1/2) \log |\Sigma^{-1}| - (1/2) (u-\mu)' \Sigma^{-1} (u-\mu)
 \end{align}
  The only part of this to discuss is $|\Sigma^{-1}|$. We can use eigendecomposition to make $\Sigma^{-1}=O \Lambda O'$ where $O$ is orthogonal and $\Lambda$ is the diagonal matrix with eigenvalues. Since orthogonal matrices have determinant $\pm 1$, then $|O||O'|=1$. Thus  
 \begin{align}
@@ -450,9 +457,25 @@ The result of invoking the C function is  the calculation of the gradient and he
 &= |O'| \; |O| \; |\Lambda| \\
 &=|\Lambda|,
 \end{align}
-which is just the product of the eigenvalues. The log of the determinant is calculated beforehand to save time, since this function is called $3m$ times each optimization iteration, where $m$ is again the Monte Carlo sample size.
+which is just the product of the eigenvalues. The log of the determinant is calculated beforehand to save time, since this function is called $3m$ times throughout each trust optimization iteration, where $m$ is again the Monte Carlo sample size.
 
 This function is also rewritten in C with the following  passed in as pointers: double \texttt{Sigma.inv} $\Sigma^{-1}$, double \texttt{logdet} $\log |\Sigma^{-1}|$, int \texttt{nrow}, double \texttt{uvec} a vector of random effects, double {mu} $\mu$, and double \texttt{distRandGenVal}.
+
+
+
+
+
+
+
+\subsubsection{t distribution}\label{sec:tstuff}
+
+Consider $t_\zeta$. We can write the log unnormalized pdf of this distribution as:
+\begin{align}
+\log \grave{f}(u)= \left[ 1+u'u/\zeta  \right]^{-(\zeta+q)/2}
+\end{align}
+
+
+
 
 %\subsection{$\tilde{f}(u_k)$}
 %I need to evaluate $\log \tilde{f}(u_k)$ in the objective function of trust. I can make a function using the general form for a normal distribution's density as described in the previous subsection, then use that function for the three distributions that I sampled from. Since I generated the random effects from the three distributions in proportions $p_1,p_2,p_3$, I can write 
@@ -484,33 +507,6 @@ This function is also rewritten in C with the following  passed in as pointers: 
 %\begin{align}
 %\dfrac{\partial^2}{\partial \nu_t^2} \log f(U |\theta) &= \dfrac{q_t}{2 \nu_t^2} - \dfrac{\gamma+q}{2} \left[ \dfrac{\dfrac{1}{\nu_t^2 \gamma}(U_t-\mu_t)'(U_t-\mu_t)}{1+ \sum_{t=1}^T \dfrac{1}{\nu_t \gamma }(U_t-\mu_t)'(U_t-\mu_t) }  \right]^2 - \dfrac{\gamma+q}{2}  \left[ \dfrac{\dfrac{2}{\nu_t^3 \gamma}(U_t-\mu_t)'(U_t-\mu_t)}{1+ \sum_{t=1}^T \dfrac{1}{\nu_t \gamma}(U_t-\mu_t)'(U_t-\mu_t) }  \right]
 %\end{align}
-
-\subsection{Importance sampling distribution $\tilde{f}(u_k)$}\label{sec:ftwiddle}
-Recall that the importance sampling distribution, first stated explicitly in equation \ref{eq:ftwiddle}, is:
-\begin{align}
- \tilde{f}(u) = p_1  N(u \, | \, 0, D)+p_2  N(u \, | \, u^*, D^*)+p_3  N(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1}) 
-\end{align}
-Then
-\begin{align}
- \log \tilde{f}(u) = \log \left( p_1  N(u \, | \, 0, D)+p_2  N(u \, | \, u^*, D^*)+p_3  N(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1}) \right)
-\end{align}
-Because only the first component of the mixture distribution contains any parameters,
-\begin{align}
-\dfrac{\partial}{\partial \nu} \log \tilde{f}(u) = \dfrac{p_1  \dfrac{\partial}{\partial \nu} N(u \, | \, 0, D)}{ p_1  N(u \, | \, 0, D)+p_2  N(u \, | \, u^*, D^*)+p_3  N(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})}.
-\end{align}
-and 
-\begin{align}
-\nabla  \log \tilde{f}(u) = \left(0   \; \; \; \; \; \; \dfrac{\partial}{\partial \nu} \log \tilde{f}(u) \right)
-\end{align}
-These are used in equations \ref{eq:MCLAgr} and \ref{eq:MCLAh}. The second derivatives, which are needed in equation \ref{eq:MCLAh}, are
-\begin{align}
-\dfrac{\partial^2}{\partial \nu^2} \log \tilde{f}(u) &= \dfrac{p_1  \dfrac{\partial^2}{\partial \nu^2} N(u \, | \, 0, D)}{ p_1  N(u \, | \, 0, D)+p_2  N(u \, | \, u^*, D^*)+p_3  N(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})} \\ \nonumber
-&- \dfrac{p_1^2 \left( \dfrac{\partial}{\partial \nu} N(u \, | \, 0, D)\right) \left( \dfrac{\partial}{\partial \nu} N(u \, | \, 0, D)\right)'}{\left[ p_1  N(u \, | \, 0, D)+p_2  N(u \, | \, u^*, D^*)+p_3  N(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})\right]^2}.
-\end{align}
-and
-\begin{align}
-\nabla^2 \log \tilde{f}(u_k) = \begin{bmatrix} 0 & 0 \\ 0  & \dfrac{\partial^2}{ \partial \nu^2} \log \tilde{f} (u_k)  \end{bmatrix} 
-\end{align}
 
 
 
@@ -990,6 +986,34 @@ l_{m}(\theta) &=\log \dfrac{1}{m} \sum_{k=1}^mf_\theta(y|u_k)  \dfrac{ f_\theta(
 \end{align}
 The gradient vector and Hessian matrix calculations depend on whether $\tilde{f}(u_k)$ contains $\theta$. The calculations in \ref{sec:calcs} are for $\tilde{f}(u_k)$ containing $\theta$ and the calculations in \ref{sec:calcsindep} are for $\tilde{f}(u_k)$ not containing $\theta$.
 
+\subsection{MCLA derivatives when $\tilde{f}$ independent of $\theta$}\label{sec:calcsindep}
+
+When $\tilde{f}$ is independent of $\theta$, the gradient vector of the MCLA with respect to $\theta$ is
+\begin{align}
+\nabla l_m(\theta)= \dfrac{\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y)  \dfrac{f_\theta(u_k,y)   }{\tilde{f}(u_k)}\right) }{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) } 
+\end{align}
+and the Hessian matrix of the MCLA is
+\begin{align}
+\nabla^2 l_m(\theta)&= \dfrac{\sum_{k=1}^m    \left( \nabla^2 \log f_\theta(u_k,y)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right)}{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }- \nabla l_m(\theta) (\nabla l_m(\theta) )'  \\
+&+\dfrac{\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y) (\nabla \log f_\theta(u_k,y))'   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right)}{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }.
+\end{align}
+To reduce the risk of catastrophic cancellation, we can combine the last two terms of the Hessian:
+\begin{align}
+\nabla^2 l_m(\theta)&= \dfrac{   \sum_{k=1}^m  \nabla^2 \log f_\theta(y,u_k)       \dfrac{ f_\theta(y,u_k)}{\tilde{f}(u_k)}  }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}\\
+&+ \dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(y,u_k)   - \nabla l_m(\theta)   \right] \left[ \nabla \log f_\theta(y,u_k)  - \nabla l_m(\theta)  \right]'  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}   }{\sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}}
+\end{align}
+We are able to combine the last two terms because $\nabla l_m(\theta)$ is a weighted mean of $\nabla \log f_\theta (y,u_k)- \nabla \log \tilde{f}(u_k)$. Letting
+\begin{align}
+Z&=\nabla \log f_\theta (y,u_k)
+\end{align}
+ we can use the following equality:
+\begin{align}
+E(ZZ')-E(Z)E(Z)' = \left[ E(Z-EZ)  \right]\left[ E(Z-EZ)  \right]'.
+\end{align}
+
+
+
+
 \subsection{MCLA derivatives when $\tilde{f}$ depends on $\theta$} \label{sec:calcs}
 When $\tilde{f}$ contains $\theta$, the gradient of the MCLA is
 \begin{align}
@@ -1045,17 +1069,7 @@ E(ZZ')-E(Z)E(Z)' = \left[ E(Z-EZ)  \right]\left[ E(Z-EZ)  \right]'.
 
 
 
-\subsection{MCLA derivatives when $\tilde{f}$ independent of $\theta$}\label{sec:calcsindep}
 
-When $\tilde{f}$ is independent of $\theta$, the gradient vector of the MCLA with respect to $\theta$ is
-\begin{align}
-\nabla l_m(\theta)= \dfrac{\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y)  \dfrac{f_\theta(u_k,y)   }{\tilde{f}(u_k)}\right) }{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) } 
-\end{align}
-and the Hessian matrix of the MCLA is
-\begin{align}
-\nabla^2 l_m(\theta)&= \dfrac{\sum_{k=1}^m    \left( \nabla^2 \log f_\theta(u_k,y)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right)}{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }- \nabla l_m(\theta) (\nabla l_m(\theta) )'  \\
-&+\dfrac{\sum_{k=1}^m    \left( \nabla \log f_\theta(u_k,y) (\nabla \log f_\theta(u_k,y))'   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right)}{\sum_{k=1}^m \left( \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} \right) }.
-\end{align}
 
 
 \section{Central Limit Theorem for MCLA}\label{sec:CLT}
