@@ -47,12 +47,12 @@
 \maketitle{}
 
 \begin{abstract}
-This design document describes the process of performing Monte Carlo maximum likelihood (MCML) for generalized linear mixed models.  First, penalized quasi-likelihood (PQL) estimates are calculated, which help generate simulated random effects. Then, the Monte Carlo likelihood approximation (MCLA)  is calculated using the simulated random effects. Next, the MCLA is maximized to find Monte Carlo maximum likelihood estimates, the corresponding Fisher Information, and other statistics. Additional inference is then possible, including confidence intervals for the parameters and likelihood ratio tests for comparing nested models.
+This design document describes the process of performing Monte Carlo maximum likelihood (MCML) for generalized linear mixed models.  First, penalized quasi-likelihood (PQL) estimates are calculated, which help generate simulated random effects. Then, the Monte Carlo likelihood approximation (MCLA)  is calculated using the simulated random effects. Next, the MCLA is maximized to find Monte Carlo maximum likelihood estimates, the corresponding Fisher Information, and other statistics. Additional inference is then possible, including confidence intervals for the parameters.
 \end{abstract}
 
 \section{Theory}
 
-Let $y=(y_1, \ldots, y_n)'$ be a vector of observed data. Let $u=(u_1,\ldots,u_q)'$ be a vector of unobserved random effects centered at 0 with variance matrix $D$. Let $\beta$ be a vector of $p$ fixed effect parameters and let $\nu$ be a vector of $T$ variance components for the random effects so that $D$ depends on $\nu$. Let $\theta=(\beta ,  \nu)'$ be a vector containing all unknown parameters. Then the data $y$ are distributed conditionally on the random effects according to $f_\theta(y|u)$ and the random effects are distributed according to $f_\theta(u)$. Although $f_\theta(u)$ does not actually depend on $\beta$ and $f_\theta(y|u)$ does not depend on $\nu$, we write both densities with $\theta$ to keep notation simple in future equations.
+Let $y=(y_1, \ldots, y_n)'$ be a vector of observed data. Let $u=(u_1,\ldots,u_q)'$ be a vector of unobserved, normally-distributed random effects centered at 0 with variance matrix $D$. Let $\beta$ be a vector of $p$ fixed effect parameters and let $\nu$ be a vector of $T$ variance components for the random effects so that $D$ depends on $\nu$. Let $\theta=(\beta ,  \nu)'$ be a vector containing all unknown parameters. Then the data $y$ are distributed conditionally on the random effects according to $f_\theta(y|u)$ and the random effects are distributed according to $f_\theta(u)$. Although $f_\theta(u)$ does not actually depend on $\beta$ and $f_\theta(y|u)$ does not depend on $\nu$, we write both densities with $\theta$ to keep notation simple in future equations.
 
 Since $u$ is unobservable, the log likelihood must be expressed by integrating out the random effects:
 \begin{align}
@@ -270,9 +270,9 @@ u^*&=A^*s^*.
 \end{align}
 
 
-Let $p_1,p_2,p_3$ be the proportions of the mixture distribution such that  $p_1+p_2+p_3=1$.  Let $f(u|\mu,\Sigma)$ denote the pdf for $u \sim N(\mu,\Sigma)$.  Let $\grave{f}(u)$ denote the pdf for $u \sim t_\zeta$, a $q$-dimensional multivariate standard $t$ with $\zeta$ degrees of freedom. Then the importance sampling distribution is:
+Let $p_1,p_2,p_3$ be the proportions of the mixture distribution such that  $p_1+p_2+p_3=1$.  Let $f(u|\mu,\Sigma)$ denote the pdf for $u \sim N(\mu,\Sigma)$.  Let $\grave{f}(u|0,D^*)$ denote the pdf for $u \sim t_\zeta$, a $q$-dimensional multivariate  $t$ with mean $0$, scale matrix $D^*$, and $\zeta$ degrees of freedom. Then the importance sampling distribution is:
 \begin{align}
- \tilde{f}(u) = p_1  \grave{f}(u)+p_2  f(u \, | \, u^*, D^*)+p_3  f(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1}). \label{eq:ftwiddle}
+ \tilde{f}(u) = p_1  \grave{f}(u|0,D^*)+p_2  f(u \, | \, u^*, D^*)+p_3  f(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1}). \label{eq:ftwiddle}
 \end{align}
 
 
@@ -469,10 +469,12 @@ This function is also rewritten in C with the following  passed in as pointers: 
 
 Consider $t_\zeta$. We can write the log unnormalized pdf of this distribution as:
 \begin{align}
-\log \grave{f}(u)= \left[ 1+u'u/\zeta  \right]^{-(\zeta+q)/2}
+\log \grave{f}(u)&=\log \left[ 1+u'D^* u/\zeta  \right]^{-(\zeta+q)/2}\\
+&=-\left[ \dfrac{\zeta+q}{2} \right] \log (1+u'D^*u/\zeta)\\
+&= -\left[ \dfrac{\zeta+q}{2} \right] \log \left(1+\sum_{t=1}^T \dfrac{u_t'u_t}{\zeta \nu_t}\right)
 \end{align}
 
-Rewritten in C, we need to pass in \texttt{u} as a pointer, \texttt{zeta} as an int, \texttt{myq} as an int, and \texttt{logft} as a pointer.
+Rewritten in C, we need to pass in \texttt{u} as a pointer, \texttt{zeta} as an int, \texttt{myq} as an int array, \texttt{meow} as an int array, and \texttt{logft} as a pointer.
 
 
 
@@ -1170,16 +1172,16 @@ We see:
 \begin{align}
 \int \dfrac{f_\theta(u,y)^2}{\tilde{f}(u)} du &=\int \dfrac{f_\theta(y|u)^2 f_\theta(u)^2}{\tilde{f}(u)} du\\
 &\leq \int \dfrac{f_\theta(y|u)^2 f_\theta(u)^2}{p_1 \grave{f}(u)} du\\
-&\propto \dfrac{1}{p_1} \int \dfrac{\exp(-u'D^{-1}u) \, f_\theta(y|u)^2  }{\left[ 1+u'u/\zeta  \right]^{-(\zeta+q)/2}} du
+&\propto \dfrac{1}{p_1} \int \dfrac{\exp(-u'D^{-1}u) \, f_\theta(y|u)^2  }{\left[ 1+u'D^*u/\zeta  \right]^{-(\zeta+q)/2}} du
 \end{align}
 Since
 \begin{align}
 f_\theta(y|u)^2=\left( e^{y'\eta-c(\eta)} \right)^2 = e^{2y'\eta-2c(\eta)} ,
 \end{align}
 \begin{align}
-\int \dfrac{f_\theta(u,y)^2}{\tilde{f}(u)} du &\propto \dfrac{1}{p_1} \int \dfrac{\exp(-u'D^{-1}u) \, \exp(2y'\eta)  }{\left[ 1+u'u/\zeta  \right]^{-(\zeta+q)/2} \,  \exp(2c(\eta))  } du\\
-&=\dfrac{1}{p_1} \int \dfrac{ \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} \, \exp(2y'\eta)  }{\exp(u'D^{-1}u)   \,  \exp(2c(\eta))  } du \\
-&=\dfrac{1}{p_1} \int \dfrac{ \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} \, \exp(2y'Zu)  }{\exp(u'D^{-1}u)   \,  \exp(2c(\eta))  } du 
+\int \dfrac{f_\theta(u,y)^2}{\tilde{f}(u)} du &\propto \dfrac{1}{p_1} \int \dfrac{\exp(-u'D^{-1}u) \, \exp(2y'\eta)  }{\left[ 1+u'D^*u/\zeta  \right]^{-(\zeta+q)/2} \,  \exp(2c(\eta))  } du\\
+&=\dfrac{1}{p_1} \int \dfrac{ \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} \, \exp(2y'\eta)  }{\exp(u'D^{-1}u)   \,  \exp(2c(\eta))  } du \\
+&=\dfrac{1}{p_1} \int \dfrac{ \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} \, \exp(2y'Zu)  }{\exp(u'D^{-1}u)   \,  \exp(2c(\eta))  } du 
 \end{align}
 When $y|u\sim$ Bernoulli, then
 \begin{align}
@@ -1189,7 +1191,7 @@ c(\eta)=\log(1+e^\eta) \Rightarrow \exp(2c(\eta))&= \exp( 2 \log(1+e^\eta)  )\\
 \end{align}
 and
 \begin{align}
-\int \dfrac{f_\theta(u,y)^2}{\tilde{f}(u)} du &\propto \dfrac{1}{p_1} \int \dfrac{ \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} \, \exp(2y'Zu)  }{\exp(u'D^{-1}u)   \,  (1+e^\eta) ^2  } du,
+\int \dfrac{f_\theta(u,y)^2}{\tilde{f}(u)} du &\propto \dfrac{1}{p_1} \int \dfrac{ \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} \, \exp(2y'Zu)  }{\exp(u'D^{-1}u)   \,  (1+e^\eta) ^2  } du,
 \end{align}
 which converges since $\exp(u'D^{-1}u$ grows faster than any term in the numerator of the integrand.
 
@@ -1199,7 +1201,7 @@ c(\eta)=\exp(\eta) \Rightarrow \exp(2 c(\eta)) = (\exp(\exp(\eta)))^2
 \end{align}
 and
 \begin{align}
-\int \dfrac{f_\theta(u,y)^2}{\tilde{f}(u)} du &\propto \dfrac{1}{p_1} \int \dfrac{ \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} \, \exp(2y'Zu)  }{\exp(u'D^{-1}u)   \,   (\exp(\exp(\eta)))^2  } du,
+\int \dfrac{f_\theta(u,y)^2}{\tilde{f}(u)} du &\propto \dfrac{1}{p_1} \int \dfrac{ \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} \, \exp(2y'Zu)  }{\exp(u'D^{-1}u)   \,   (\exp(\exp(\eta)))^2  } du,
 \end{align}
 which converges since  $(\exp(\exp(\eta)))^2$ grows faster than any term in the numerator of the integrand.  
 
@@ -1232,14 +1234,14 @@ First, we start with \eqref{eq:first}:
 \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(u,y)\right]^2}{\tilde{f}(u)} du 
 &=\int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{\tilde{f}(u)} du \\
 &\leq \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{p_1\grave{f}(u)} du \\
-&\propto \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(y|u)\right]^2 \exp(-u'D^{-1}u)}{p_1\left[ 1+u'u/\zeta  \right]^{-(\zeta+q)/2}} du \\
-&= \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(y|u)\right]^2 \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \exp(u'D^{-1}u)} du \\
-&= \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \, \exp(2y'(X \beta+Zu)) \,  \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{ p_1 \, \exp(2 c(\eta)) \,\exp(u'D^{-1}u)} du \label{eq:soon}
+&\propto \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(y|u)\right]^2 \exp(-u'D^{-1}u)}{p_1\left[ 1+u'D^*u/\zeta  \right]^{-(\zeta+q)/2}} du \\
+&= \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(y|u)\right]^2 \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \exp(u'D^{-1}u)} du \\
+&= \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \, \exp(2y'(X \beta+Zu)) \,  \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{ p_1 \, \exp(2 c(\eta)) \,\exp(u'D^{-1}u)} du \label{eq:soon}
 \end{align}
 By the Cauchy-Schwartz inequality, the integral in \eqref{eq:soon} exists if
 \begin{align}
- & \int \dfrac{ \left[\dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]^2 \, \exp(2y'(X \beta+Zu)) \,  \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{ p_1 \, \exp(2 c(\eta)) \,\exp(u'D^{-1}u)} du \nonumber \\
-&\propto  \int \dfrac{ \left[X' c'(\eta) \right]^2 \, \exp(2y'(X \beta+Zu)) \,  \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{ p_1 \, \exp(2 c(\eta)) \,\exp(u'D^{-1}u)} du \label{eq:soon2}
+ & \int \dfrac{ \left[\dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]^2 \, \exp(2y'(X \beta+Zu)) \,  \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{ p_1 \, \exp(2 c(\eta)) \,\exp(u'D^{-1}u)} du \nonumber \\
+&\propto  \int \dfrac{ \left[X' c'(\eta) \right]^2 \, \exp(2y'(X \beta+Zu)) \,  \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{ p_1 \, \exp(2 c(\eta)) \,\exp(u'D^{-1}u)} du \label{eq:soon2}
 \end{align}
 exists, where $c'(\eta)$ is a vector with components $c'(\eta_i)$.  This will converge as long as no term in the numerator of the integrand grows more quickly than $\exp(u'D^{-1}u$. The second and third terms grow less quickly than $\exp(u'D^{-1}u$, so $\left[ c'(\eta)\right]^2$ is the only term to check.  If $y|u \sim$ Bernoulli, then 
 \begin{align}
@@ -1269,8 +1271,8 @@ for every $t=1,\ldots, T$. We see
 \begin{align}
 &\int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t} \log f_\theta (u) \right]^2 \left[ f_\theta(y|u)\right]^2  \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u)} du \\
 &= \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t} \log f_\theta (u) \right]^2 \exp(2y'(X\beta+Zu)   )  \left[ f_\theta(u)\right]^2}{p_1 \exp(2c(\eta))    \grave{f}(u)} du \\
-&\propto \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t} \log f_\theta (u) \right]^2 \exp(2y'(X\beta+Zu)   ) \,   \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \exp(2c(\eta)) \, \exp(u'D^{-1}u)  } du\\
-&= \int \dfrac{ \left[  -\dfrac{q_t}{2 \nu_t} + \dfrac{u_t'u_t}{2 \nu_t^2}   \right]^2 \exp(2y'(X\beta+Zu)   ) \,   \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \exp(2c(\eta)) \, \exp(u'D^{-1}u)  } du
+&\propto \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t} \log f_\theta (u) \right]^2 \exp(2y'(X\beta+Zu)   ) \,   \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \exp(2c(\eta)) \, \exp(u'D^{-1}u)  } du\\
+&= \int \dfrac{ \left[  -\dfrac{q_t}{2 \nu_t} + \dfrac{u_t'u_t}{2 \nu_t^2}   \right]^2 \exp(2y'(X\beta+Zu)   ) \,   \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \exp(2c(\eta)) \, \exp(u'D^{-1}u)  } du
 \end{align}
 Because every term in the numerator of the integrand grows less quickly than $\exp(u'D^{-1}u)$, the integral exists.  Therefore, \eqref{eq:second} exists and 
 \begin{align}
@@ -1292,9 +1294,9 @@ exists, then \eqref{eq:this1} also exists. Continuing, we see
 \begin{align}
 & \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t}  \log f_\theta (u) \right] \left[  \dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]   \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u)} du\\
  &\propto \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t}  \log f_\theta (u) \right] \left[  \dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]   \left[ f_\theta(y|u)\right]^2 }{p_1 \, \exp(u'D^{-1}u) \, \grave{f}(u)} du\\
- &\propto \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t}  \log f_\theta (u) \right] \left[  \dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]   \left[ f_\theta(y|u)\right]^2 \, \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \, \exp(u'D^{-1}u) } du\\
-&\propto \int \dfrac{ \left[      -\dfrac{q_t}{2 \nu_t} + \dfrac{u_t'u_t}{2 \nu_t^2}        \right] \left[  X'(y-c'(\eta)) \right]   \left[ f_\theta(y|u)\right]^2 \, \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \, \exp(u'D^{-1}u) } du\\
-&= \int \dfrac{ \left[      -\dfrac{q_t}{2 \nu_t} + \dfrac{u_t'u_t}{2 \nu_t^2}        \right] \left[  X'(y-c'(\eta)) \right]   \, \exp(2y'(X\beta+Zu)) \, \left[ 1+u'u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \, \exp(u'D^{-1}u) \, \exp(2 c(\eta)) } du. \label{eq:this2}
+ &\propto \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t}  \log f_\theta (u) \right] \left[  \dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]   \left[ f_\theta(y|u)\right]^2 \, \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \, \exp(u'D^{-1}u) } du\\
+&\propto \int \dfrac{ \left[      -\dfrac{q_t}{2 \nu_t} + \dfrac{u_t'u_t}{2 \nu_t^2}        \right] \left[  X'(y-c'(\eta)) \right]   \left[ f_\theta(y|u)\right]^2 \, \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \, \exp(u'D^{-1}u) } du\\
+&= \int \dfrac{ \left[      -\dfrac{q_t}{2 \nu_t} + \dfrac{u_t'u_t}{2 \nu_t^2}        \right] \left[  X'(y-c'(\eta)) \right]   \, \exp(2y'(X\beta+Zu)) \, \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \, \exp(u'D^{-1}u) \, \exp(2 c(\eta)) } du. \label{eq:this2}
 \end{align}
 We have already shown that $-c'(\eta)$ does not grow more quickly than $\exp(u'D^{-1}u)$. The other terms in the numerator of the integrand shown in \eqref{eq:this2} also grow more slowly than $\exp(u'D^{-1}u)$. We conclude that \eqref{eq:this2} exists, which implies that \eqref{eq:third} exists and
 \begin{align}
