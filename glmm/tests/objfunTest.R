@@ -1,4 +1,3 @@
-
 #check objfun using finite differences
 library(glmm)
 data(BoothHobert)

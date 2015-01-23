@@ -52,12 +52,12 @@ all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
 #want to check distRand when we use a normal distribution to get our random effects
 #check written for BH
 distRandCheck<-function(nu,uvec,muvec){
-ukmuk<-sum((uvec-muvec)^2)
-value<--5*log(nu)-ukmuk/(2*nu)
-gradient<- -5/nu +ukmuk/(2*nu^2)
-hessian<- 5/(nu^2)-ukmuk/(nu^3)
-hessian<-as.matrix(hessian)
-list(value=value,gradient=gradient,hessian=hessian)
+	ukmuk<-sum((uvec-muvec)^2)
+	value<--length(uvec)*.5*log(2*pi)-5*log(nu)-ukmuk/(2*nu)
+	gradient<- -5/nu +ukmuk/(2*nu^2)
+	hessian<- 5/(nu^2)-ukmuk/(nu^3)
+	hessian<-as.matrix(hessian)
+	list(value=value,gradient=gradient,hessian=hessian)
 }
 
 #function written originally in R
@@ -95,7 +95,7 @@ function(nu,U,z.list,mu){
 		you<-as.vector(U.list[[t]])
 		mew<-as.vector(mu.list[[t]])
 		Umu<-(you-mew)%*%(you-mew)
-		val[t]<- as.numeric(-.5*nrandom[t]*log(nu[t])-Umu/(2*nu[t]))
+		val[t]<--length(you)*.5*log(2*pi)+ as.numeric(-.5*nrandom[t]*log(nu[t])-Umu/(2*nu[t]))
 		
 		gradient[t]<- -nrandom[t]/(2*nu[t])+Umu/(2*(nu[t])^2)
 		
@@ -116,6 +116,13 @@ this<-distRandCheck(2,you,u.pql)
 that<-distRand(2,you,mod.mcml$z,u.pql)
 
 all.equal(this,that)
+
+#use finite diffs to make sure distRandCheck (and distRand) have correct derivs
+del<-.0001
+thisdel<-distRandCheck(2+del,you,u.pql)
+firstthing<-thisdel$value-this$value
+secondthing<-as.vector(this$gradient%*%del)
+all.equal(firstthing,secondthing,tol=10^-5)
 
 #compare the gradient and hessian of the C functions by using these functions
 #(the value is checked in distRandGeneral)
@@ -138,8 +145,12 @@ distRandGeneral<-function(uvec,mu,Sigma.inv){
 	logDetSigmaInv<-sum(log(eigen(Sigma.inv,symmetric=TRUE)$values))
 	umu<-uvec-mu
 	piece2<-t(umu)%*%Sigma.inv%*%umu
-	as.vector(.5*(logDetSigmaInv-piece2))
+	out<-as.vector(.5*(logDetSigmaInv-piece2))
+	const<-length(uvec)*.5*log(2*pi)
+	out<-out-const
+	out
 }
+
 D.star<-2*diag(10)
 D.star.inv<-.5*diag(10)
 A.star<-sqrt(2)*diag(10)

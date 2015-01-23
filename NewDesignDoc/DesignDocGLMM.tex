@@ -486,14 +486,13 @@ This function is also rewritten in C with the following  passed in as pointers: 
 
 Consider $t_\zeta$. We can write the log unnormalized pdf of this distribution as:
 \begin{align}
-\log \grave{f}(u|0,D^*)&=  \log \left( \Gamma \left( \dfrac{\zeta+q}{2}  \right)   \right)-\log \left( \Gamma \left( \dfrac{\zeta}{2}  \right)   \right)  - \dfrac{q}{2} \log(\nu \pi)\\
-&- \dfrac{1}{2} \log |D^*|     -\left[ \dfrac{\zeta+q}{2} \right] \log (1+u'D^*u/\zeta)\\
-&=  \log \left( \Gamma \left( \dfrac{\zeta+q}{2}  \right)   \right)-\log \left( \Gamma \left( \dfrac{\zeta}{2}  \right)   \right)  - \dfrac{q}{2} \log(\nu \pi)\\
-&- \dfrac{1}{2} \log |D^*|   -\left[ \dfrac{\zeta+q}{2} \right] \log \left(1+\sum_{t=1}^T \dfrac{u_t'u_t}{\zeta \nu_t^*}\right)
+\log \grave{f}(u|0,D^*)&=  \log \left( \Gamma \left( \dfrac{\zeta+q}{2}  \right)   \right)-\log \left( \Gamma \left( \dfrac{\zeta}{2}  \right)   \right)  - \dfrac{q}{2} \log(\zeta \pi)\\
+&- \dfrac{1}{2} \log |D^*|     -\left[ \dfrac{\zeta+q}{2} \right] \log \left(1+\dfrac{u'D^{* -1}u}{\zeta} \right)\\
 \end{align}
 
-Rewritten in C, we need to pass in the first four terms \texttt{tconstants} as a double, \texttt{u} as an array of doubles, \texttt{zeta} as an int, \texttt{myq} as an array of ints, \texttt{meow} as an array of ints, \texttt{nut} as an array of doubles,  and \texttt{logft} as a double. The final calculation will be written into \texttt{logft}.
+The first four terms are constant with respect to $u$ and can be calculated ahead of time. Rewritten in C, we need to pass in  \texttt{tconstants} (the sum of the first four terms) as a double, \texttt{u} as an array of doubles, \texttt{zeta} as an int, \texttt{myq} as an int, the diagonal of \texttt{Dstarinv} as an array of doubles,  and \texttt{logft} as a double. The final calculation will be written into \texttt{logft}.
 
+I have another function (written in R) that calculates the constants for the t distribution. The arguments of this function are \texttt{zeta}, the diagonal of $D^*$ \texttt{Dstardiag}, and the length of $u$ \texttt{myq}.
 
 
 %\subsection{$\tilde{f}(u_k)$}

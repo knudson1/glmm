@@ -16,6 +16,6 @@ void distRandGenC(double *SigmaInv, double *logdet, int *nrow, double *uvec, dou
 
 	Free(blah);
 	Free(umu);
-	*distRandGenVal=.5*((*logdet)-(*blah2));
+	*distRandGenVal=.5*((-*nrow)*log(2*PI)+ (*logdet)-(*blah2));
 	Free(blah2);
 }
