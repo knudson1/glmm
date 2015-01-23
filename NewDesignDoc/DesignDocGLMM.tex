@@ -377,7 +377,7 @@ This section discusses evaluating the distribution of the random effects, the gr
 
  We can  express the log unnormalized pdf of $N(0, D)$  as:
 \begin{align}
-\log f_\theta(u)= \log f (u| 0, D) = (-1/2) \log |D| - (1/2) u' D^{-1} u
+\log f_\theta(u)= \log f (u| 0, D) = - q/2 \log (2 \pi) -1/2 \log |D| - (1/2) u' D^{-1} u
 \end{align}
 
  To find derivatives of this, we are going to use the diagonal form of $D$. Recall that for every $\nu_t$, we can construct a matrix $E_t$ (with dimensions the same as matrix $D$) that has 1s on the diagonal elements corresponding to the elements of D that contain $\nu_t$ and 0s  elsewhere.  
@@ -440,14 +440,31 @@ The result of invoking the C function \texttt{distRand3} is  the calculation of 
 
 
 \subsection{Evaluating the importance sampling distribution}
-This section discusses evaluating the importance sampling distribution shown in \ref{eq:ftwiddle}. Section \ref{sec:Dgeneral} describes how to evaluate the pdf for the normal components of $\tilde{f}(u)$. Section \ref{sec:tstuff} describes how to evaluate the pdf for the t component of $\tilde{f}(u)$. 
-The  $\tilde{f}(u)$ calculation is used in equation \ref{eq:MCLA}. 
+This section discusses evaluating the importance sampling distribution shown in \ref{eq:ftwiddle}. The  $\tilde{f}(u)$ calculation is used in equation \ref{eq:MCLA}.  Section \ref{sec:Dgeneral} describes how to evaluate the pdf for the normal components of $\tilde{f}(u)$. Section \ref{sec:tstuff} describes how to evaluate the pdf for the t component of $\tilde{f}(u)$. 
+
+To be computationally stable, we need to be careful  with the addition of the terms in \ref{eq:ftwiddle} to prevent overflow. We know that
+\begin{align}
+ \tilde{f}(u) &= p_1  \grave{f}(u|0,D^*)+p_2  f(u \, | \, u^*, D^*)+p_3  f(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1}) \\
+&= p_1 \exp( \log  \grave{f}(u|0,D^*) ))+p_2 \exp( \log(  f(u \, | \, u^*, D^*) ))+ \nonumber\\
+&+ p_3 \exp( \log( f(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1}) )).
+\end{align}
+Set
+\begin{align}
+\tilde{a}= \max \left\{ \log  \grave{f}(u|0,D^*) ), \log  f(u \, | \, u^*, D^*) ), \log f(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})  \right\}
+\end{align}
+Then
+\begin{align}
+ \tilde{f}(u) 
+&= p_1 \exp\left( \log  \grave{f}(u|0,D^*)  -\tilde{a}\right)+p_2 \exp \left( \log  f(u \, | \, u^*, D^* )-\tilde{a} \right)+ \nonumber\\
+&+ p_3 \exp\left[ \log f \left(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1} \right)  -\tilde{a} \right].
+\end{align}
+is more stable computationally.
 
 %%distRandGeneral
 \subsubsection{Normal distribution for general variance matrix $\Sigma$ (\texttt{distRandGeneral})}\label{sec:Dgeneral}
 Let $\Sigma$ be a variance matrix and let $\mu$ be a mean vector. Consider $N(\mu, \Sigma)$.   We can  write the log pdf of this distribution  as:
 \begin{align}
-\log f (u| \mu, \Sigma) = (1/2) \log |\Sigma^{-1}| - (1/2) (u-\mu)' \Sigma^{-1} (u-\mu)
+\log f (u| \mu, \Sigma) = -\dfrac{q}{2} \log (2 \pi) + \dfrac{1}{2} \log |\Sigma^{-1}| - \dfrac{1}{2} (u-\mu)' \Sigma^{-1} (u-\mu)
 \end{align}
  The only part of this to discuss is $|\Sigma^{-1}|$. We can use eigendecomposition to make $\Sigma^{-1}=O \Lambda O'$ where $O$ is orthogonal and $\Lambda$ is the diagonal matrix with eigenvalues. Since orthogonal matrices have determinant $\pm 1$, then $|O||O'|=1$. Thus  
 \begin{align}
@@ -469,12 +486,13 @@ This function is also rewritten in C with the following  passed in as pointers: 
 
 Consider $t_\zeta$. We can write the log unnormalized pdf of this distribution as:
 \begin{align}
-\log \grave{f}(u)&=\log \left[ 1+u'D^* u/\zeta  \right]^{-(\zeta+q)/2}\\
-&=-\left[ \dfrac{\zeta+q}{2} \right] \log (1+u'D^*u/\zeta)\\
-&= -\left[ \dfrac{\zeta+q}{2} \right] \log \left(1+\sum_{t=1}^T \dfrac{u_t'u_t}{\zeta \nu_t}\right)
+\log \grave{f}(u|0,D^*)&=  \log \left( \Gamma \left( \dfrac{\zeta+q}{2}  \right)   \right)-\log \left( \Gamma \left( \dfrac{\zeta}{2}  \right)   \right)  - \dfrac{q}{2} \log(\nu \pi)\\
+&- \dfrac{1}{2} \log |D^*|     -\left[ \dfrac{\zeta+q}{2} \right] \log (1+u'D^*u/\zeta)\\
+&=  \log \left( \Gamma \left( \dfrac{\zeta+q}{2}  \right)   \right)-\log \left( \Gamma \left( \dfrac{\zeta}{2}  \right)   \right)  - \dfrac{q}{2} \log(\nu \pi)\\
+&- \dfrac{1}{2} \log |D^*|   -\left[ \dfrac{\zeta+q}{2} \right] \log \left(1+\sum_{t=1}^T \dfrac{u_t'u_t}{\zeta \nu_t^*}\right)
 \end{align}
 
-Rewritten in C, we need to pass in \texttt{u} as a pointer, \texttt{zeta} as an int, \texttt{myq} as an int array, \texttt{meow} as an int array, and \texttt{logft} as a pointer.
+Rewritten in C, we need to pass in the first four terms \texttt{tconstants} as a double, \texttt{u} as an array of doubles, \texttt{zeta} as an int, \texttt{myq} as an array of ints, \texttt{meow} as an array of ints, \texttt{nut} as an array of doubles,  and \texttt{logft} as a double. The final calculation will be written into \texttt{logft}.
 
 
 
@@ -1171,7 +1189,7 @@ has finite variance. This is true if and only if
 We see:
 \begin{align}
 \int \dfrac{f_\theta(u,y)^2}{\tilde{f}(u)} du &=\int \dfrac{f_\theta(y|u)^2 f_\theta(u)^2}{\tilde{f}(u)} du\\
-&\leq \int \dfrac{f_\theta(y|u)^2 f_\theta(u)^2}{p_1 \grave{f}(u)} du\\
+&\leq \int \dfrac{f_\theta(y|u)^2 f_\theta(u)^2}{p_1 \grave{f}(u|0,D^*)} du\\
 &\propto \dfrac{1}{p_1} \int \dfrac{\exp(-u'D^{-1}u) \, f_\theta(y|u)^2  }{\left[ 1+u'D^*u/\zeta  \right]^{-(\zeta+q)/2}} du
 \end{align}
 Since
@@ -1233,7 +1251,7 @@ First, we start with \eqref{eq:first}:
 \begin{align}
 \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(u,y)\right]^2}{\tilde{f}(u)} du 
 &=\int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{\tilde{f}(u)} du \\
-&\leq \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{p_1\grave{f}(u)} du \\
+&\leq \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{p_1\grave{f}(u|0,D^*)} du \\
 &\propto \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(y|u)\right]^2 \exp(-u'D^{-1}u)}{p_1\left[ 1+u'D^*u/\zeta  \right]^{-(\zeta+q)/2}} du \\
 &= \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \left[ f_\theta(y|u)\right]^2 \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \exp(u'D^{-1}u)} du \\
 &= \int \dfrac{ \left[ \nabla \log f_\theta (y|u) \right]^2 \, \exp(2y'(X \beta+Zu)) \,  \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{ p_1 \, \exp(2 c(\eta)) \,\exp(u'D^{-1}u)} du \label{eq:soon}
@@ -1261,16 +1279,16 @@ Next, we move on to showing the existence of \eqref{eq:second}.
 \begin{align}
 \int \dfrac{ \left[ \nabla \log f_\theta (u) \right]^2 \left[ f_\theta(u,y)\right]^2}{\tilde{f}(u)} du &= 
 \int \dfrac{ \left[ \nabla \log f_\theta (u) \right]^2 \left[ f_\theta(y|u)\right]^2  \left[ f_\theta(u)\right]^2}{\tilde{f}(u)} du\\
-&\leq \int \dfrac{ \left[ \nabla \log f_\theta (u) \right]^2 \left[ f_\theta(y|u)\right]^2  \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u)} du
+&\leq \int \dfrac{ \left[ \nabla \log f_\theta (u) \right]^2 \left[ f_\theta(y|u)\right]^2  \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u|0,D^*)} du
 \end{align}
 By the Cauchy-Schwartz inequality, the above integral exists as long as  
 \begin{align}
-\int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t} \log f_\theta (u) \right]^2 \left[ f_\theta(y|u)\right]^2  \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u)} du < \infty
+\int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t} \log f_\theta (u) \right]^2 \left[ f_\theta(y|u)\right]^2  \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u|0,D^*)} du < \infty
 \end{align}
 for every $t=1,\ldots, T$. We see
 \begin{align}
-&\int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t} \log f_\theta (u) \right]^2 \left[ f_\theta(y|u)\right]^2  \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u)} du \\
-&= \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t} \log f_\theta (u) \right]^2 \exp(2y'(X\beta+Zu)   )  \left[ f_\theta(u)\right]^2}{p_1 \exp(2c(\eta))    \grave{f}(u)} du \\
+&\int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t} \log f_\theta (u) \right]^2 \left[ f_\theta(y|u)\right]^2  \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u|0,D^*)} du \\
+&= \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t} \log f_\theta (u) \right]^2 \exp(2y'(X\beta+Zu)   )  \left[ f_\theta(u)\right]^2}{p_1 \exp(2c(\eta))    \grave{f}(u|0,D^*)} du \\
 &\propto \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t} \log f_\theta (u) \right]^2 \exp(2y'(X\beta+Zu)   ) \,   \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \exp(2c(\eta)) \, \exp(u'D^{-1}u)  } du\\
 &= \int \dfrac{ \left[  -\dfrac{q_t}{2 \nu_t} + \dfrac{u_t'u_t}{2 \nu_t^2}   \right]^2 \exp(2y'(X\beta+Zu)   ) \,   \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \exp(2c(\eta)) \, \exp(u'D^{-1}u)  } du
 \end{align}
@@ -1284,16 +1302,16 @@ Lastly, we want to show the existence of \eqref{eq:third}. We see
 \int \dfrac{  \nabla \log f_\theta (u)\,  \nabla \log f_\theta (y|u) \, \left[ f_\theta(u,y)\right]^2}{\tilde{f}(u)} du &=
 \int \dfrac{  \nabla \log f_\theta (u) \, \nabla \log f_\theta (y|u) \, \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{\tilde{f}(u)} du \\
 &\leq
-\int \dfrac{  \nabla \log f_\theta (u) \,  \nabla \log f_\theta (y|u)\,  \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u)} du \label{eq:this1}
+\int \dfrac{  \nabla \log f_\theta (u) \,  \nabla \log f_\theta (y|u)\,  \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u|0,D^*)} du \label{eq:this1}
 \end{align}
 Again, we use the Cauchy-Schwartz inequality to check the existence of \eqref{eq:this1}. If, for every $t=1,\ldots,T$,
 \begin{align}
-\int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t}  \log f_\theta (u) \right] \left[  \dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]   \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u)} du \label{eq:this1}
+\int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t}  \log f_\theta (u) \right] \left[  \dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]   \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u|0,D^*)} du \label{eq:this1}
 \end{align}
 exists, then \eqref{eq:this1} also exists. Continuing, we see
 \begin{align}
-& \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t}  \log f_\theta (u) \right] \left[  \dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]   \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u)} du\\
- &\propto \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t}  \log f_\theta (u) \right] \left[  \dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]   \left[ f_\theta(y|u)\right]^2 }{p_1 \, \exp(u'D^{-1}u) \, \grave{f}(u)} du\\
+& \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t}  \log f_\theta (u) \right] \left[  \dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]   \left[ f_\theta(y|u)\right]^2 \left[ f_\theta(u)\right]^2}{p_1 \grave{f}(u|0,D^*)} du\\
+ &\propto \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t}  \log f_\theta (u) \right] \left[  \dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]   \left[ f_\theta(y|u)\right]^2 }{p_1 \, \exp(u'D^{-1}u) \, \grave{f}(u|0,D^*)} du\\
  &\propto \int \dfrac{ \left[ \dfrac{\partial}{\partial \nu_t}  \log f_\theta (u) \right] \left[  \dfrac{\partial}{\partial \beta} \log f_\theta (y|u) \right]   \left[ f_\theta(y|u)\right]^2 \, \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \, \exp(u'D^{-1}u) } du\\
 &\propto \int \dfrac{ \left[      -\dfrac{q_t}{2 \nu_t} + \dfrac{u_t'u_t}{2 \nu_t^2}        \right] \left[  X'(y-c'(\eta)) \right]   \left[ f_\theta(y|u)\right]^2 \, \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \, \exp(u'D^{-1}u) } du\\
 &= \int \dfrac{ \left[      -\dfrac{q_t}{2 \nu_t} + \dfrac{u_t'u_t}{2 \nu_t^2}        \right] \left[  X'(y-c'(\eta)) \right]   \, \exp(2y'(X\beta+Zu)) \, \left[ 1+u'D^*u/\zeta  \right]^{(\zeta+q)/2} }{p_1 \, \exp(u'D^{-1}u) \, \exp(2 c(\eta)) } du. \label{eq:this2}
