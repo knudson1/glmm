@@ -15,11 +15,11 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> 
 > #check objfun using finite differences
 > library(glmm)
 Loading required package: trust
 Loading required package: mvtnorm
+Loading required package: Matrix
 > data(BoothHobert)
 > set.seed(1234)
 > out<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
@@ -277,4 +277,4 @@ Loading required package: mvtnorm
 > 
 > proc.time()
    user  system elapsed 
-  0.414   0.022   0.416 
+  3.643   0.051   3.681 

@@ -18,6 +18,7 @@ Type 'q()' to quit R.
 > library(glmm)
 Loading required package: trust
 Loading required package: mvtnorm
+Loading required package: Matrix
 > data(BoothHobert)
 > set.seed(1234)
 > mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE)
@@ -77,12 +78,12 @@ Loading required package: mvtnorm
 > #want to check distRand when we use a normal distribution to get our random effects
 > #check written for BH
 > distRandCheck<-function(nu,uvec,muvec){
-+ ukmuk<-sum((uvec-muvec)^2)
-+ value<--5*log(nu)-ukmuk/(2*nu)
-+ gradient<- -5/nu +ukmuk/(2*nu^2)
-+ hessian<- 5/(nu^2)-ukmuk/(nu^3)
-+ hessian<-as.matrix(hessian)
-+ list(value=value,gradient=gradient,hessian=hessian)
++ 	ukmuk<-sum((uvec-muvec)^2)
++ 	value<--length(uvec)*.5*log(2*pi)-5*log(nu)-ukmuk/(2*nu)
++ 	gradient<- -5/nu +ukmuk/(2*nu^2)
++ 	hessian<- 5/(nu^2)-ukmuk/(nu^3)
++ 	hessian<-as.matrix(hessian)
++ 	list(value=value,gradient=gradient,hessian=hessian)
 + }
 > 
 > #function written originally in R
@@ -120,7 +121,7 @@ Loading required package: mvtnorm
 + 		you<-as.vector(U.list[[t]])
 + 		mew<-as.vector(mu.list[[t]])
 + 		Umu<-(you-mew)%*%(you-mew)
-+ 		val[t]<- as.numeric(-.5*nrandom[t]*log(nu[t])-Umu/(2*nu[t]))
++ 		val[t]<--length(you)*.5*log(2*pi)+ as.numeric(-.5*nrandom[t]*log(nu[t])-Umu/(2*nu[t]))
 + 		
 + 		gradient[t]<- -nrandom[t]/(2*nu[t])+Umu/(2*(nu[t])^2)
 + 		
@@ -141,6 +142,14 @@ Loading required package: mvtnorm
 > that<-distRand(2,you,mod.mcml$z,u.pql)
 > 
 > all.equal(this,that)
+[1] TRUE
+> 
+> #use finite diffs to make sure distRandCheck (and distRand) have correct derivs
+> del<-.0001
+> thisdel<-distRandCheck(2+del,you,u.pql)
+> firstthing<-thisdel$value-this$value
+> secondthing<-as.vector(this$gradient%*%del)
+> all.equal(firstthing,secondthing,tol=10^-5)
 [1] TRUE
 > 
 > #compare the gradient and hessian of the C functions by using these functions
@@ -166,8 +175,12 @@ Loading required package: mvtnorm
 + 	logDetSigmaInv<-sum(log(eigen(Sigma.inv,symmetric=TRUE)$values))
 + 	umu<-uvec-mu
 + 	piece2<-t(umu)%*%Sigma.inv%*%umu
-+ 	as.vector(.5*(logDetSigmaInv-piece2))
++ 	out<-as.vector(.5*(logDetSigmaInv-piece2))
++ 	const<-length(uvec)*.5*log(2*pi)
++ 	out<-out-const
++ 	out
 + }
+> 
 > D.star<-2*diag(10)
 > D.star.inv<-.5*diag(10)
 > A.star<-sqrt(2)*diag(10)
@@ -248,4 +261,4 @@ Loading required package: mvtnorm
 > 
 > proc.time()
    user  system elapsed 
-  1.604   0.023   1.615 
+  3.154   0.053   3.194 

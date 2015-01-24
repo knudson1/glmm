@@ -185,7 +185,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 
 	umat<-rbind(genData,genData2,genData3)
 
-
+#	tconst<-tconstant(zeta,myq,Dstarinvdiag)
 
 
 	#use trust to max the objfun (monte carlo likelihood)
