@@ -1,5 +1,5 @@
 /* tested in tests/testpiecesBH.R and tests/objfunTest.R 
-DstarInv is (D^*)^{-1}
+DstarInv is matrix (D^*)^{-1}
 myq is q, length of u
 uvec is vector or random effects
 zeta is the df of t
@@ -26,6 +26,4 @@ void tdist(double *DstarInv,  int *myq, double *uvec, int *zeta, double *tconst,
 	double outer=log(inner);
 	double thing=  *zeta/2.0+*myq/2.0;
 	*logft=*tconst-outer*thing;
-/*	*logft= *tconst - ((*zeta+*myq)/2)*outer;*/
-
 }

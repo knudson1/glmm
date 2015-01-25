@@ -1,5 +1,5 @@
 objfun <-
-function(par,nbeta,nu.pql,umat,u.star,mod.mcml,family.glmm,cache,p1,p2,p3,m1,D.star,Sigmuh){
+function(par,nbeta,nu.pql,umat,u.star,mod.mcml,family.glmm,cache,p1,p2,p3,m1,D.star, Sigmuh, Sigmuh.inv, zeta){
 
 	beta<-par[1:nbeta]
 	nu<-par[-(1:nbeta)]
@@ -22,11 +22,14 @@ function(par,nbeta,nu.pql,umat,u.star,mod.mcml,family.glmm,cache,p1,p2,p3,m1,D.s
 	if(family.glmm$family.glmm=="bernoulli.glmm"){family_glmm=1}	
 	if(family.glmm$family.glmm=="poisson.glmm"){family_glmm=2}	
 
-	D.star.inv<-solve(D.star)
-	Sigmuh.inv<-solve(Sigmuh)
+	Dstarinvdiag<-1/diag(D.star)
+	D.star.inv<-diag(Dstarinvdiag)
+
 	logdet.D.star.inv<-	-sum(log(diag(D.star)))
 	logdet.Sigmuh.inv<-sum(log(eigen(Sigmuh.inv,symmetric=TRUE)$values))
  	myq<-nrow(D.star.inv)
+
+	tconst<-tconstant(zeta,myq,Dstarinvdiag)
 
 	#for the particular value of nu we're interested in, need to prep for distRandGenC
 	eek<-getEk(mod.mcml$z)
@@ -43,17 +46,17 @@ function(par,nbeta,nu.pql,umat,u.star,mod.mcml,family.glmm,cache,p1,p2,p3,m1,D.s
 	pea<-c(p1,p2,p3)
 	n<-nrow(mod.mcml$x)
 
-#need to scale first m1 vectors of generated random effects by multiplying by A
+##need to scale first m1 vectors of generated random effects by multiplying by A
 
-	preAfornu<-Map("*",eek,sqrt(nu))
-	Afornu<-addVecs(preAfornu)
+#	preAfornu<-Map("*",eek,sqrt(nu))
+#	Afornu<-addVecs(preAfornu)
 
-	for(k in 1:m1){
-		u.swoop<-umat[k,]
-		umat[k,]<-u.swoop*Afornu
-		}
+#	for(k in 1:m1){
+#		u.swoop<-umat[k,]
+#		umat[k,]<-u.swoop*Afornu
+#		}
 
-	stuff<-.C("objfunc", as.double(mod.mcml$y),as.double(t(umat)), as.integer(myq), as.integer(m), as.double(mod.mcml$x), as.integer(n), as.integer(nbeta), as.double(beta), as.double(Z), as.double(Dinvfornu), as.double(logdetDinvfornu),as.integer(family_glmm), as.double(D.star.inv), as.double(logdet.D.star.inv), as.double(u.star), as.double(Sigmuh.inv), as.double(logdet.Sigmuh.inv), pea=as.double(pea), nps=as.integer(length(pea)), T=as.integer(T), nrandom=as.integer(nrandom), meow=as.integer(meow),nu=as.double(nu), v=double(m),value=double(1),gradient=double(length(par)),hessian=double((length(par))^2),PACKAGE="glmm")
+	stuff<-.C("objfunc", as.double(mod.mcml$y),as.double(t(umat)), as.integer(myq), as.integer(m), as.double(mod.mcml$x), as.integer(n), as.integer(nbeta), as.double(beta), as.double(Z), as.double(Dinvfornu), as.double(logdetDinvfornu),as.integer(family_glmm), as.double(D.star.inv), as.double(logdet.D.star.inv), as.double(u.star), as.double(Sigmuh.inv), as.double(logdet.Sigmuh.inv), pea=as.double(pea), nps=as.integer(length(pea)), T=as.integer(T), nrandom=as.integer(nrandom), meow=as.integer(meow),nu=as.double(nu), zeta=as.integer(zeta),tconst=as.double(tconst), v=double(m),value=double(1),gradient=double(length(par)),hessian=double((length(par))^2),PACKAGE="glmm")
 
 
 	if (!missing(cache)) cache$weights<-stuff$v		

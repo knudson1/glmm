@@ -1,5 +1,5 @@
 glmm <-
-function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000,par.init=NULL){
+function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000,par.init=NULL,zeta=5){
 	if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
 	if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
 	if(missing(varcomps.equal)){
@@ -139,7 +139,9 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	A.star<-addVecs(Aks) #at this point still a vector
 	D.star<-A.star*A.star #still a vector
 	u.star<-A.star*s.pql 
-	D.star.inv<-Diagonal(length(u.star),1/D.star)
+	Dstarinvdiag<-1/D.star
+	Dstarnotsparse<-diag(D.star)
+	D.star.inv<-Diagonal(length(u.star),Dstarinvdiag)
 	D.star<-Diagonal(length(u.star),D.star)
 
 	#now D.star.inv and D.star are both diagonal matrices
@@ -152,12 +154,17 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	m2<-sum(foo<p1+p2)-m1	
 	m3<-m-m1-m2
 
-	#generate m1 from N(0,I) and will be scaled to N(0,D) later
-	zeros<-rep(0,length(u.star))
-	ones<-rep(1,length(u.star))
-	ident<-Diagonal(length(u.star),ones)
-	genData<-genRand(zeros,ident,m1)
-	
+#	#generate m1 from N(0,I) and will be scaled to N(0,D) later
+#	zeros<-rep(0,length(u.star))
+#	ones<-rep(1,length(u.star))
+#	ident<-Diagonal(length(u.star),ones)
+#	genData<-genRand(zeros,ident,m1)
+#	
+
+	#generate m1 from t(0,D*)
+	if(m1>0) genData<-rmvt(m1,sigma=Dstarnotsparse,df=zeta,type=c("shifted"))
+	if(m1==0) genData<-NULL		
+
 	#generate m2 from N(u*,D*)
 	if(m2>0) genData2<-genRand(u.star,D.star,m2)
 	if(m2==0) genData2<-NULL
@@ -185,12 +192,9 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 
 	umat<-rbind(genData,genData2,genData3)
 
-#	tconst<-tconstant(zeta,myq,Dstarinvdiag)
-
-
 	#use trust to max the objfun (monte carlo likelihood)
 	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug, nbeta=length(beta.pql), nu.pql=nu.pql, 
-umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star,  cache=cache,  p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star,Sigmuh=Sigmuh)
+umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star,  cache=cache,  p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star,Sigmuh=Sigmuh,Sigmuh.inv=Sigmuh.inv,zeta=zeta)
 
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]

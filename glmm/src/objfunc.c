@@ -6,7 +6,7 @@ z is n by myq matrix
 pee is the vector of sampling proportions (usually 1/3, 1/3, 1/3)
 nps is the length of pee (3 for now, maybe more if imp sampling distrib changes)
 */
-void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, double *v, double *value, double *gradient, double *hessian)
+void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst, double *v, double *value, double *gradient, double *hessian)
 {
 	double *Uk=Calloc(myq,double);
 	int Uindex=0;
@@ -53,14 +53,19 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 		first calculate value of log f~_theta(u_k) for 3 distribs used 
 		and find largest value as you go */
 		/* distRandGenC(Dinvfornu,logdetDinvfornu, myq, Uk, qzeros, double1);
-		first piece is dist for N(0,D)=log f_theta(uk)*/
-		tempmax=*lfuval;
-		lfutwidpieces[0]=*lfuval; 
+		first piece is dist for t(0,Dstar)*/
+/*		tempmax=*lfuval;*/
+/*		lfutwidpieces[0]=*lfuval; */
+		tdist(Dstarinv, myq, Uk, zeta, tconst, double1);
+		lfutwidpieces[0]=*double1;
+		tempmax=*double1;
 		
+		/*second piece is for N(ustar,Dstar)  */
 		distRandGenC(Dstarinv,logdetDstarinv, myq, Uk, ustar, double1);
 		lfutwidpieces[1]=*double1;
 		if(*double1>tempmax){tempmax=*double1;}
 
+		/*third piece is for N(ustar,complicated var)  */
 		distRandGenC(Sigmuhinv,logdetSigmuhinv, myq, Uk, ustar, double1);
 		lfutwidpieces[2]=*double1;
 		if(*double1>tempmax){tempmax=*double1;}

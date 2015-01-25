@@ -42,8 +42,8 @@ Sigmuh<-solve(Sigmuh.inv)
 p1=p2=p3=1/3
 
 # define a few things that will be used for finite differences
-lth<-objfun(par=par, nbeta=1, nu.pql=nu.gen, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh,D.star=D.star)
-lthdel<-objfun(par=par+del, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh,D.star=D.star)
+lth<-objfun(par=par, nbeta=1, nu.pql=nu.gen, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh, D.star=D.star, Sigmuh.inv= Sigmuh.inv, zeta=5)
+lthdel<-objfun(par=par+del, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh, D.star=D.star, Sigmuh.inv=Sigmuh.inv, zeta=5)
 
 all.equal(as.vector(lth$gradient%*%del),lthdel$value-lth$value)
 all.equal(as.vector(lth$hessian%*%del),lthdel$gradient-lth$gradient)
