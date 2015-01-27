@@ -19,6 +19,11 @@ tconst<-tconstant(zeta,myq,Dstarinvdiag)
 Dstarinv<-diag(Dstarinvdiag)
 tR<-tdist2(tconst,u,Dstarinv,zeta,myq)
 
-
+#compare version in R to version in C
 tC<-.C("tdist",as.double(Dstarinv),  as.integer(myq), as.double(u), as.integer(zeta), as.double(tconst), double(1))
 all.equal(tC[[6]],tR)
+
+#compare my version to the mvtnorm version
+Dstar<-diag(10)/1.1
+theirs<-dmvt(u,sigma=Dstar,df=zeta)
+theirs==tR

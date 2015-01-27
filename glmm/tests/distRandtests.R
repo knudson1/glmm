@@ -21,6 +21,7 @@ mu<-rep(0,8)
 #third version of distRand used in objfun
 #calculates only gradient and hessian 
 #value is done in distRandGenC
+#distRandGenC is tested in testpiecesBH.R
 distRand3 <-
 function(nu,U,mu,T,nrandom,meow){
 	# T=number variance components

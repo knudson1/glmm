@@ -18,6 +18,7 @@ Type 'q()' to quit R.
 > library(glmm)
 Loading required package: trust
 Loading required package: mvtnorm
+Loading required package: Matrix
 > 
 > nrandom<-c(4,2,2)
 > T<-length(nrandom)
@@ -40,6 +41,7 @@ Loading required package: mvtnorm
 > #third version of distRand used in objfun
 > #calculates only gradient and hessian 
 > #value is done in distRandGenC
+> #distRandGenC is tested in testpiecesBH.R
 > distRand3 <-
 + function(nu,U,mu,T,nrandom,meow){
 + 	# T=number variance components
@@ -130,4 +132,4 @@ Loading required package: mvtnorm
 > 
 > proc.time()
    user  system elapsed 
-  0.197   0.025   0.197 
+  2.663   0.077   2.714 

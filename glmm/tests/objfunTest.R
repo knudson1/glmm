@@ -8,7 +8,6 @@ mod.mcml<-out$mod.mcml
 debug<-out$debug
 nu.pql<-debug$nu.pql
 nu.pql
-nu.gen<-debug$nu.gen
 beta.pql<-debug$beta.pql
 beta.pql
 family.glmm<-out$family.glmm
@@ -17,7 +16,7 @@ u.pql<-debug$u.star
 m1<-debug$m1
 
 par<-c(6,1.5)
-del<-rep(.00000000001,2)
+del<-rep(10^-8,2)
 
 objfun<-glmm:::objfun
 getEk<-glmm:::getEk
@@ -40,17 +39,29 @@ Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
 Sigmuh<-solve(Sigmuh.inv)
 
 p1=p2=p3=1/3
+zeta=5
 
 # define a few things that will be used for finite differences
-lth<-objfun(par=par, nbeta=1, nu.pql=nu.gen, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh, D.star=D.star, Sigmuh.inv= Sigmuh.inv, zeta=5)
-lthdel<-objfun(par=par+del, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh, D.star=D.star, Sigmuh.inv=Sigmuh.inv, zeta=5)
+lth<-objfun(par=par, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh, D.star=D.star, Sigmuh.inv= Sigmuh.inv, zeta=zeta)
+lthdel<-objfun(par=par+del, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh, D.star=D.star, Sigmuh.inv=Sigmuh.inv, zeta=zeta)
 
 all.equal(as.vector(lth$gradient%*%del),lthdel$value-lth$value)
 all.equal(as.vector(lth$hessian%*%del),lthdel$gradient-lth$gradient)
 
+#see exactly how big the difference is
+as.vector(lth$gradient%*%del)-(lthdel$value-lth$value)
+as.vector(lth$hessian%*%del)-(lthdel$gradient-lth$gradient)
+
+#we know these differences are small when we compare it to the actual values
+lthdel$value-lth$value
+as.vector(lth$gradient%*%del)
+as.vector(lth$hessian%*%del)
+lthdel$gradient-lth$gradient
+
+##########################################
 ##### to make sure that the objfun function is correct, compare it against the version without any C code. here is objfun without c:
 objfunNOC <-
-function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,gamm,p1,p2,p3,D.star,Sigmuh){
+function(par,nbeta, nu.pql,umat, u.star=u.star, mod.mcml,family.glmm, cache,gamm,p1,p2,p3, D.star, Sigmuh, zeta){
 
 	#print(par)
 	beta<-par[1:nbeta]
@@ -58,12 +69,6 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,gamm,p1,
 	D<-nu*diag(10)
 	D.inv<-(1/nu)*diag(10)
 	m<-nrow(umat)
-
-
-	for(k in 1:m1){
-		u.swoop<-umat[k,]
-		umat[k,]<-u.swoop*sqrt(nu)
-	}
 
 	if (!missing(cache)) stopifnot(is.environment(cache))
 	if(missing(cache)) cache<-new.env(parent = emptyenv())
@@ -81,12 +86,12 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,gamm,p1,
 
 	D.star.inv<-solve(D.star)
 	Sigmuh.inv<-solve(Sigmuh)
+	Dstinvdiag<-diag(D.star.inv)
+	tconst<-tconstant(zeta,nrow(D.star.inv),Dstinvdiag)
 	
 	#for each simulated random effect vector
 	for(k in 1:m){
 		Uk<-umat[k,]  #use the simulated vector as our random effect vec
-		#cat("dimensionf of Z are", dim(Z),"\n")
-		#cat("length of Uk is",length(Uk),"\n")		
 		eta<-mod.mcml$x%*%beta+Z%*%Uk # calculate eta using it
 		zeros<-rep(0,length(Uk))
 
@@ -97,18 +102,14 @@ function(par,nbeta,nu.pql,umat,u.star=u.star,mod.mcml,family.glmm,cache,gamm,p1,
 		lfyu[[k]]<-elR(mod.mcml$y,mod.mcml$x,eta,family.glmm) 
 
 		#log f~_theta(u_k)
-#		if(distrib=="normal"){
-			lfu.twid[k,1]<-lfu[[k]][[1]] #distRandGeneral(Uk,zeros,D.inv)
-#}
-#		if(distrib=="tee") {
-#			lfu.twid[k,1]<-tdist(nu.pql,Uk,mod.mcml$z,u.star,gamm)}
+		lfu.twid[k,1]<-tdist2(tconst,Uk,D.star.inv,zeta=zeta,myq=nrow(D.star.inv))
 		lfu.twid[k,2]<-distRandGeneral(Uk,u.star,D.star.inv)
 		lfu.twid[k,3]<-distRandGeneral(Uk,u.star,Sigmuh.inv)
 		
 		tempmax<-max(lfu.twid[k,1:3])
 		blah<-exp(lfu.twid[k,1:3]-tempmax)
-		pee<-c(p1,p2,p3)
-		qux<-pee%*%blah
+		pea<-c(p1,p2,p3)
+		qux<-pea%*%blah
 		lfu.twid[k,4]<-tempmax+log(qux)
 		
 		b[k]<-as.numeric(lfu[[k]]$value)+as.numeric(lfyu[[k]]$value)-lfu.twid[k,4]
@@ -189,12 +190,23 @@ function(Y,X,eta,family.mcml){
 #here are some other functions we'll need to compare objfun and objfunNOC
 getFamily<-glmm:::getFamily
 addMats<-glmm:::addMats
+tdist2<-function(tconst,u, Dstarinv,zeta,myq){
+	inside<-1+t(u)%*%Dstarinv%*%u/zeta
+	logft<-tconst - ((zeta+myq)/2)*log(inside)
+	as.vector(logft)
+}
+
+tconstant<-glmm:::tconstant
 distRandGeneral<-function(uvec,mu,Sigma.inv){
 	logDetSigmaInv<-sum(log(eigen(Sigma.inv,symmetric=TRUE)$values))
 	umu<-uvec-mu
 	piece2<-t(umu)%*%Sigma.inv%*%umu
-	as.vector(.5*(logDetSigmaInv-piece2))
+	out<-as.vector(.5*(logDetSigmaInv-piece2))
+	const<-length(uvec)*.5*log(2*pi)
+	out<-out-const
+	out
 }
+
 
 distRand <-
 function(nu,U,z.list,mu){
@@ -230,7 +242,7 @@ function(nu,U,z.list,mu){
 		you<-as.vector(U.list[[t]])
 		mew<-as.vector(mu.list[[t]])
 		Umu<-(you-mew)%*%(you-mew)
-		val[t]<- as.numeric(-.5*nrandom[t]*log(nu[t])-Umu/(2*nu[t]))
+		val[t]<- -length(U)*log(2*pi)/2+as.numeric(-.5*nrandom[t]*log(nu[t])-Umu/(2*nu[t]))
 		
 		gradient[t]<- -nrandom[t]/(2*nu[t])+Umu/(2*(nu[t])^2)
 		
@@ -247,5 +259,5 @@ function(nu,U,z.list,mu){
 
 #finally, compare objfun and objfunNOC for B+H example
 
-that<-objfunNOC(par=par, nbeta=1, nu.pql=nu.gen, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3, Sigmuh=Sigmuh,D.star=D.star)
+that<-objfunNOC(par=par, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3, Sigmuh=Sigmuh,D.star=D.star, zeta=zeta)
 all.equal(that,lth)
