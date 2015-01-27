@@ -53,7 +53,7 @@ all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
 #check written for BH
 distRandCheck<-function(nu,uvec,muvec){
 	ukmuk<-sum((uvec-muvec)^2)
-	value<--length(uvec)*.5*log(2*pi)-5*log(nu)-ukmuk/(2*nu)
+	value<- -length(uvec)*.5*log(2*pi)-5*log(nu)-ukmuk/(2*nu)
 	gradient<- -5/nu +ukmuk/(2*nu^2)
 	hessian<- 5/(nu^2)-ukmuk/(nu^3)
 	hessian<-as.matrix(hessian)
@@ -118,11 +118,14 @@ that<-distRand(2,you,mod.mcml$z,u.pql)
 all.equal(this,that)
 
 #use finite diffs to make sure distRandCheck (and distRand) have correct derivs
-del<-.0001
+del<-10^(-8)
 thisdel<-distRandCheck(2+del,you,u.pql)
 firstthing<-thisdel$value-this$value
 secondthing<-as.vector(this$gradient%*%del)
-all.equal(firstthing,secondthing,tol=10^-5)
+all.equal(firstthing,secondthing)
+firstthing
+secondthing
+firstthing-secondthing
 
 #compare the gradient and hessian of the C functions by using these functions
 #(the value is checked in distRandGeneral)
@@ -188,12 +191,16 @@ cache<-new.env(parent = emptyenv())
 objfun<-glmm:::objfun
 that<-objfun(c(beta,nu), nbeta=1, nu.pql=nu.pql, u.star=u.star, mod.mcml=mod.mcml, family.glmm=bernoulli.glmm,cache=cache,umat=umat, p1=1/3, p2=1/3, p3=1/3, m1=m1, D.star=D.star, Sigmuh=Sigmuh, Sigmuh.inv=Sigmuh.inv, zeta=5)
 
+#get t stuff ready
+tconstant<-glmm:::tconstant
+zeta<-5
+tconst<-tconstant(zeta,10,diag(D.star.inv))
+tdist2<-function(tconst,u, Dstarinv,zeta,myq){
+	inside<-1+t(u)%*%Dstarinv%*%u/zeta
+	logft<-tconst - ((zeta+myq)/2)*log(inside)
+	as.vector(logft)
+}
 
-#need to scale first m1 vectors of generated random effects by multiplying by A
-for(k in 1:m1){
-	u.swoop<-umat[k,]
-	umat[k,]<-u.swoop%*%A
-	}
 
 #now go through row by row of umat 
 #ie go through each vector of gen rand eff
@@ -204,8 +211,7 @@ for(k in 1:m){
 	piece1<- logfyuk(eta,x,y)$value	
 	piece2<- distRandCheck(nu,uvec,rep(0,10))$value
 	
-	piece3[1]<-piece2
-	#piece3[1]<- distRandGeneral(uvec, rep(0,10),D.inv)
+	piece3[1]<-tdist2(tconst,uvec,D.star.inv,zeta,10)
 	piece3[2]<- distRandGeneral(uvec, u.star, D.star.inv)
 	piece3[3]<-distRandGeneral(uvec,u.star,Sigmuh.inv)
 
