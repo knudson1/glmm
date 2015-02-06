@@ -14,7 +14,7 @@ varcomps.equal, doPQL = TRUE,debug=FALSE, p1=1/3,p2=1/3, p3=1/3,rmax,iterlim, pa
   \item{family.glmm}{The name of the family. Must be class glmm.family.}
   \item{m}{The desired Monte Carlo sample size.}
   \item{varcomps.equal}{An optional vector with elements 1 through the number of distinct variance components. Denotes variance components are to be set equal by assigning them the same integer. The length of varcomps.equal must be equal to the length of the list of random effects formulas. If omitted, varcomps.equal assumes no variance component should be set equal.}
-  \item{doPQL}{logical. If \code{TRUE}, PQL estimates are used for the importance sampling distribution. If FALSE, the importance sampling distribution is standard normal.}
+  \item{doPQL}{logical. If \code{TRUE}, PQL estimates are used in the importance sampling distribution. If FALSE, the importance sampling distribution will use 0 for the fixed effects and 1 for the variance components.}
   \item{debug}{logical. If \code{TRUE}, extra output useful for testing will be provided.}
 \item{p1}{A probability for mixing the random effects generated from three distributions. \code{p1} is the proportion of random effects from the first distribution specified in the design document.}
 \item{p2}{A probability for mixing the random effects generated from three distributions. \code{p2} is the proportion of random effects from the second distribution specified in the design document.}
@@ -45,19 +45,19 @@ To see the summary of the model, use summary().
 \value{
 
 \code{glmm} returns an object of class "glmm" is a list containing at least the following components: 
-\item{beta }{A vector of the Monte Carlo maximum likelihood estimates for the fixed effects.}
+\item{beta }{A vector of the Monte Carlo maximum likelihood estimates (MCMLEs) for the fixed effects.}
  \item{nu }{A vector of the Monte Carlo maximum likelihood estimates for the variance components.}
- \item{likelihood.value}{The Monte Carlo maximum likelihood evaluated at the MCMLEs beta and nu.}
- \item{likelihood.gradient}{The Monte Carlo maximum likelihood vector at the MCMLEs beta and nu.}
- \item{likelihood.hessian}{The Monte Carlo maximum likelihood hessian matrix at the MCMLEs beta and nu.}
+ \item{likelihood.value}{The Monte Carlo maximum likelihood evaluated at the MCMLEs \code{beta} and \code{nu}.}
+ \item{likelihood.gradient}{The Monte Carlo maximum likelihood gradient vector at the MCMLEs \code{beta} and \code{nu}.}
+ \item{likelihood.hessian}{The Monte Carlo maximum likelihood Hessian matrix at the MCMLEs \code{beta} and \code{nu}.}
 \item{mod.mcml}{A list containing the fixed effect design matrix, the list of random effect design matrices, and the response.}
 \item{fixedcall}{The fixed effects call.}
-\item{fixedcall}{The random effects call.}
+\item{randcall}{The random effects call.}
 \item{x}{The design matrix for the fixed effects.}
 \item{y}{The response vector.}
 \item{z}{The design matrix for the random effects.}
 \item{family.glmm}{The name of the family. Must be class glmm.family.}
-\item{call}{The call}
+\item{call}{The call.}
 \item{varcomps.names}{The vector of names for the distinct variance components.}
 \item{varcomps.equal}{The vector denoting equal variance components.}
   \item{debug}{If \code{TRUE} extra output useful for testing.}

@@ -1162,11 +1162,11 @@ Then, by Slutsky's theorem,
 \end{align}
 In addition to a law of large numbers, we would like a Central Limit Theorem for $\nabla l_m(\theta)$. In other words, the quantity
 \begin{align}
-&\sqrt{m} \left[  \dfrac{\dfrac{1}{m}\sum_{k=1}^m    \nabla \log f_\theta(u_k,y)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\dfrac{1}{m} \sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}  }- l(\theta)  \right] \\
+&\sqrt{m} \left[  \dfrac{\dfrac{1}{m}\sum_{k=1}^m    \nabla \log f_\theta(u_k,y)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\dfrac{1}{m} \sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}  }- \nabla l(\theta)  \right] \\
 &=
-\dfrac{\dfrac{1}{\sqrt{m}}\sum_{k=1}^m     \nabla \log f_\theta(u_k,y)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\dfrac{1}{m} \sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }- \sqrt{m}\;  l(\theta)  \\
+\dfrac{\dfrac{1}{\sqrt{m}}\sum_{k=1}^m     \nabla \log f_\theta(u_k,y)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\dfrac{1}{m} \sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }- \sqrt{m}\; \nabla  l(\theta)  \\
 &=\dfrac{\dfrac{1}{\sqrt{m}}\sum_{k=1}^m     \nabla \log f_\theta(u_k,y)   \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} 
- - l(\theta) \dfrac{1}{\sqrt{m}}\sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\dfrac{1}{m} \sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }   
+ -\nabla l(\theta) \dfrac{1}{\sqrt{m}}\sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\dfrac{1}{m} \sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }   
 \end{align}
 will have a normal distribution if and only if the variances of
 \begin{align}
