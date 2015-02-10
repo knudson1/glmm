@@ -25,10 +25,13 @@
 }
 \examples{
 library(glmm)
-data(cbpp2)
 set.seed(1234)
-herd.glmm1<-glmm(Y~period,list(~0+herd), varcomps.names=c("herd"),data=cbpp2, family.glmm=bernoulli.glmm,  m=10^2 )
-varcomps(herd.glmm1)
+data(salamander)
+#To get more accurate answers for this model, use m=10^4 or 10^5.
+m<-10^3
+sal<-glmm(Mate~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),
+data=salamander,family.glmm=bernoulli.glmm,m=m,debug=TRUE)
+varcomps(sal)
 
 
 }

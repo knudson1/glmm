@@ -12,7 +12,7 @@
 \arguments{
   \item{object}{An object of class \code{glmm} usually created using \code{\link{glmm}}.}
   \item{parm}{A specification of which parametesr are to be given confidence intervals, either a vector of numbers or a vector of names. If missing, all parameters are considered.}
-  \item{level}{The confidence level required}
+  \item{level}{The confidence level required.}
   \item{\dots}{Additional arguments passed to or from other methods.}
 }
 
@@ -28,7 +28,8 @@
 library(glmm)
 data(BoothHobert)
 set.seed(123)
-mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,family.glmm=bernoulli.glmm,m=10,doPQL=TRUE)
+mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), 
+data=BoothHobert,family.glmm=bernoulli.glmm,m=10,doPQL=TRUE)
 confint(mod.mcml1)
 
 }

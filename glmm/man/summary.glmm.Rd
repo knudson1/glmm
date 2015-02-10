@@ -11,9 +11,9 @@
       signif.stars = getOption("show.signif.stars"), \dots)
 }
 \arguments{
-  \item{object}{an object of class \code{"glmm"}, usually, resulting from a
+  \item{object}{an object of class \code{glmm}, usually, resulting from a
     call to \code{\link{glmm}}.}
-  \item{x}{an object of class \code{"summary.glmm"}, usually, a result of a
+  \item{x}{an object of class \code{summary.glmm}, usually, a result of a
     call to \code{summary.glmm}.}
  \item{digits}{the number of significant digits to use when printing.}
   \item{signif.stars}{logical. If \code{TRUE}, \dQuote{significance stars}
@@ -34,7 +34,6 @@ The function \code{summary.glmm} computes and returns a list of summary statisti
 \item{randcall}{the call for the random effects.}
 \item{family.mcml}{the family used to fit the model.}
 \item{call}{the call to \code{\link{glmm}}.}
-\item{nucoefmat}{the estimated variance components.}
 }
 
 \author{Christina Knudson}
