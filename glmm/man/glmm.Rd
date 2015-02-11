@@ -112,12 +112,13 @@ summary(mod.mcml3)
 
 #Now, a model with crossed random effects. There are two distinct
 #variance components. To get more accurate answers for this model,
-#use a larger Monte Carlo sample size, such as m=10^4 or 10^5.
+#use a larger Monte Carlo sample size, such as m=10^4 or 10^5
+#and doPQL=TRUE.
 set.seed(1234)
 data(salamander)
-m<-10^3
+m<-10
 sal<-glmm(Mate~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),
-data=salamander,family.glmm=bernoulli.glmm,m=m,debug=TRUE)
+data=salamander,family.glmm=bernoulli.glmm,m=m,debug=TRUE,doPQL=FALSE)
 summary(sal)
 
 }
