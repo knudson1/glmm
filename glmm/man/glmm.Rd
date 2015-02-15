@@ -4,7 +4,7 @@
 \description{This function fits generalized linear mixed models (GLMMs) by approximating the likelihood with ordinary Monte Carlo, then maximizing the approximated likelihood. }
 \usage{glmm(fixed, random, varcomps.names, data, family.glmm, m, 
 varcomps.equal, doPQL = TRUE,debug=FALSE, p1=1/3,p2=1/3, p3=1/3,
-rmax,iterlim, par.init, zeta=5)}
+rmax=1000,iterlim=1000, par.init, zeta=5)}
 
 
 \arguments{

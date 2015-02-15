@@ -1,0 +1,212 @@
+%% How to compile by hand, not in vignette: 
+% R --vanilla
+% library(knitr)
+% knit("salamDemo.Rnw")
+%knit2pdf("salamDemo.Rnw")
+%do not ever type .tex!!!!
+
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Using glmm}
+%\VignettePackage{glmm}
+%\VignetteKeywords{glmm, maximum likelihood, mle, Monte Carlo, likelihood approximation, likelihood based inference}
+
+\documentclass[11pt]{article}
+\usepackage{pdfpages}               
+\usepackage[fleqn]{amsmath}    % need for subequations
+\usepackage{graphicx}   % need for figures
+\usepackage{verbatim}   % useful for program listings
+\usepackage{color}      % use if color is used in text
+\usepackage{subfigure}  % use for side-by-side figures
+\usepackage{hyperref}   % use for hypertext links, including those to external documents and URLs
+\usepackage[normalem]{ulem}
+\usepackage{amsfonts}
+\usepackage{fullpage}     
+\usepackage[small,compact]{titlesec} 
+\title{A Vignette for the R package \texttt{glmm} }
+\author{Christina Knudson}
+\begin{document}
+
+\maketitle
+\setlength\parindent{0pt}
+
+\section{Introduction}
+The R package \texttt{glmm} approximates the entire likelihood function for generalized linear mixed models (GLMMs) with a canonical link. After calculating the Monte Carlo likelihood approximation (MCLA), \texttt{glmm} maximizes it to find Monte Carlo maximum likelihood estimates (MCMLEs) for the fixed effects and variance components. Additionally, the value, gradient vector, and Hessian matrix of the MCLA is returned at the MCMLEs. The Hessian of the MCLA is used to calculate the standard errors for the MCMLEs. \\
+
+The basis of \texttt{glmm} is Monte Carlo likelihood approximation, which was first proposed by Geyer and Thompson (1992).   The greatest strength of MCLA is its solid theoretical basis established by Geyer (1994). In particular, the only approximation in this package is the likelihood is approximated by Monte Carlo. This approximation can be made as accurate as you wish by increasing the Monte Carlo sample size ($m$). As the Monte Carlo sample size increases, the MCLA converges to the likelihood. As the MCLA converges, all likelihood-based inference converges as well. For example, the MCMLEs converge to the MLEs.\\
+
+This vignette demonstrates how to format the data in section \ref{sec:format}, fit the model \ref{sec:fitmod}, access the model summary \ref{sec:summary}, calculate confidence intervals \ref{sec:ci}, extract fixed effect estimates and variance estimates \ref{sec:coefs}, and access additional output \ref{sec:otherstuff}. \\
+
+<<noname,echo=FALSE>>=
+#opts_chunk$set(comment=NA)
+@
+
+
+\section {Formatting the Data}\label{sec:format}
+
+ In order to use the \texttt{glmm} package, your data frame must have the following:
+\begin{enumerate}
+\item a response vector. If your response is Poisson, then the entries in the response vector must be natural numbers. If your response is Bernoulli, then the entries in the response vector must be $0$ and $1$.
+\item at least one vector that will be used for defining the fixed effects. This vector can be a factor or numeric.
+\item at least one vector that will be used for defining the random effects. For this version of \texttt{glmm}, the vector(s) should be class ``factor.''
+\end{enumerate}
+
+We use the \texttt{salamander} dataset as an example in this vignette. For your convenience, it is already included in the \texttt{glmm} package. The data are from an experiment conducted at the University of Chicago in 1986 and first presented by McCullagh and Nelder in 1989. Scientists paired female and male salamanders of two types (Rough Butt and White Side) and collected data on whether or not they mated. \\
+
+The variable \texttt{Mate} tells us whether the pair of salamanders mated. The value is $1$ if they successfully mated and $0$ if they did not. The variable \texttt{Cross} describes the type of female and male salamander. For example, \texttt{Cross = W/R} indicates a White Side female was crossed with a Rough Butt male. The variable \texttt{Female} contains the identification number of the female salamander, and the variable \texttt{Male} contains the identification number of the male salamander.\\ 
+
+The first R  command shown below gives us access to the \texttt{glmm} package and and all of its commands. The second line of code gives us access to the \texttt{salamander} data frame.  The next three commands help us begin to understand the data. We have four variables: \texttt{Mate}, \texttt{Cross}, \texttt{Female}, and \texttt{Male}. The summary shows us \texttt{Mate} is numeric, \texttt{Cross} is a factor with four levels, \texttt{Female} is a factor, and \texttt{Male} is a factor. \\
+
+<<dataexplore,eval=TRUE,echo=TRUE>>=
+library(glmm)
+data(salamander)
+names(salamander)
+head(salamander)
+summary(salamander)
+@
+
+\section{Fitting the Model}\label{sec:fitmod}
+
+We would like to fit a model using \texttt{Mate} as the response, \texttt{Cross} as the fixed effect variable, and \texttt{Female} and \texttt{Male} as the random effect variables. That is, we would like to fit a generalized linear mixed model (glmm) with a logit link (because the data are Bernoulli). We will have four fixed effect parameters ($\beta_{R/R}, \beta_{R/W},\beta_{W/R},\beta_{W/W}$). There is likely to be variability among the females and variability among the males. That is, some females will be more likely to mate than other females, and we would like the model to reflect the tendences of the individual salamanders. We incorporate this into the model by including a random effect for each female salamander and a random effect for each male salamander. We believe the female salamanders' random effects are i.i.d. draws from $N(0, \nu_F)$. Similarly, we believe the male salamanders' random effects are i.i.d. draws from $N(0,\nu_M)$. Finally, we believe the female and male random effects are independent of one another. \\
+
+
+
+
+In the following code, we  fit the model using the \texttt{glmm} command and save the model under the name  \texttt{sal}. Because \texttt{Mate} is our response, it is on the left of the $\sim$. We want to have a fixed effect for each of the four levels of \texttt{Cross}, so we type \texttt{Mate $\sim$ 0 + Cross}. Because \texttt{Cross} is a factor, typing \texttt{Mate $\sim$ Cross} would fit an equivalent model. \\ 
+
+Next, the \texttt{random} list defines the random effects. We want two random effects for each cross: one from the female salamander and one from the male salamander. Note that we type \texttt{$\sim$ 0 + Female} and \texttt{$\sim$ 0 + Male}. We do this because we want our random effects to be centered at 0. Almost always, you will want your random effects to have mean 0.  Next, the argument \texttt{varcomps.names} allows us to name the list of variance components. In the salamander model, we have placed the females first in the list defining the random effects. Therefore, the order of the variance components names are first ``F'' and then ``M.''  \\
+
+ Next, we specify the name of our data set. This is an optional argument. If the data set is not specified, \texttt{glmm} looks to the parent environment for the variables you have referenced. \\
+
+Next, we need to specify the type of the response. In the salamander mating example, the response is binary: the salamanders either mated or they did not. Therefore, the family is \texttt{bernoulli.glmm}. If your response is a count, then the family is \texttt{poisson.glmm}.\\
+
+Next, we specify our Monte Carlo sample size $m$. The general rule is the larger the Monte Carlo sample size, the more accurate the Monte Carlo likelihood approximation (MCLA) will be, and the more accurate the resulting Monte Carlo maximum likelihood estimates (MCMLEs) will be. Ideally, you want the largest $m$ that time allows. To see whether your MCMLEs are stable, you can fit the model several times starting from different seeds. More research needs to be done on this subject before I can give you more concrete suggestions on satisfactory Monte Carlo sample sizes. For this vignette, I have chosen a Monte Carlo sample size that allows for quick computation. If you are interested in accuracy in the resulting estimates for the salamander model,I suggest a larger Monte Carlo sample size.  \\
+
+Finally, we can decide whether we would like additional output (see details in section \ref{sec:otherstuff}. If we would like to see the additional output, we type \texttt{debug = TRUE}. The default is \texttt{debug = FALSE}.\\
+
+We put this all together in the follow commands. Note that we set the seed so that we can have reproducible results. In other words, if you set your seed to the same number and type the exact command listed below, your results should be identical to those listed here.\\
+
+<<themodel,cache=TRUE>>=
+set.seed(1234) 
+sal<-glmm(Mate~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),
+data=salamander,family.glmm=bernoulli.glmm,m=10^4,debug=TRUE)
+@
+
+\subsection{Adding Optional Arguments}
+Additional arguments may be added for more control over the model fit.\\
+\subsubsection{Setting Variance Components Equal}
+By default \texttt{glmm} assumes each variance component should be distinct. Suppose we want to set $\nu_F = \nu_M.$ Then we would add the argument \texttt{varcomps.equal} to indicate the equality. Since the list of random effects has two entries and we want those entries to share a variance component, we would set \texttt{varcomps.equal = c(1,1)}. In this scenario, we would only have one variance component, so we only need one entry in \texttt{varcomps.names}. Thus, the new command to fit this updated model with one variance component could be the following: \\
+
+<<othermodel,eval=FALSE>>=
+sal<-glmm(Mate~0+Cross, random=list(~0+Female,~0+Male), varcomps.equal=c(1,1),
+varcomps.names=c("Only Varcomp"), data=salamander,
+family.glmm=bernoulli.glmm, m=10^4, debug=TRUE)
+@
+As another example, suppose the list \texttt{random} has three entries, indicating three variance components $\nu_1, \nu_2, \nu_3$. To set $\nu_1= \nu_3$, we write \texttt{varcomps.equal = c(1,2,1)}. Thus, the shared variance component would be listed first in any output, and $\nu_2$ would be listed second. Note that the entries in the \texttt{varcomps.equal} vector must start at 1, then continue through the integers.\\
+
+
+
+
+\subsubsection{Altering the Importance Sampling Distribution}
+The following default arguments can be adapted to alter the importance sampling distribution: \texttt{doPQL}, \texttt{p1}, \texttt{p2}, \texttt{p3}, and \texttt{zeta}.\\
+
+By default, penalized quasi-likelihood estimates are used to form the importance sampling distribution for the generated random effects.  To skip PQL, add the argument \texttt{doPQL=FALSE}. If PQL is skipped, then the importance sampling distribution uses arbitrary estimates of $0$ for the random effects, $0$ for the fixed effects, and $1$ for the variance components. Sometimes the examples in the \texttt{glmm} documentation  skip the PQL step so that the package can load more quickly. Most of the time, the model will fit more accurately and efficiently if PQL estimates are used in the importance sampling distribution.\\
+
+The importance sampling distribution is a mixture of three distribution. By default, the mixture is evenly weighted, with each component's contribution set at $1/3$. If you wish to change the mixture, you can alter \texttt{p1}, \texttt{p2}, and \texttt{p3} from the default of  \texttt{p1 = 1/3}, \texttt{p2 = 1/3}, and \texttt{p3 = 1/3}. The only restrictions are that the three probabilities must sum to $1$ and \texttt{p1} must be positive.\\
+
+ The first component of the importance sampling distribution is a scaled multivariate t-distribution with \texttt{zeta} degrees of freedom. Therefore, another way to alter the importance sampling distribution is by changing \texttt{zeta} from its default of $5$.\\
+
+\subsubsection{Adjusting Optimization Arguments}
+It may be useful to adjust the \texttt{trust} arguments \texttt{rmax} and \texttt{iterlim}. The argument \texttt{rmax} is the maximum allowed trust region radius. By \texttt{glmm} default, this is set to the arbitrary, somewhat large number of $1000$. If this is set to a small number, then the optimization will move more slowly.\\
+
+The argument \texttt{iterlim} must be a positive integer that limits the length of the optimization. If \texttt{iterlim} is too small, then the \texttt{trust} optimization will end before the MCMLEs have been identified.\\
+
+\section{Reading the Model Summary}\label{sec:summary}
+
+The \texttt{summary} command displays
+\begin{itemize}
+\item the function call (to remind you of the model you fit)
+\item the fixed effect estimates, their standard errors (calculated using observed Fisher information), their z-value test statistics (testing whether the coefficients are significantly different from zero), the test p-values, and the R-standard significance stars.
+\item the variance component estimates, their standard errors (calculated using observed Fisher information), their z-value test statistics (testing whether the coefficients are significantly different from zero), the test p-values, and the R-standard significance stars.
+\end{itemize}
+
+
+
+Note that the p-value for the fixed effects is calculated using a two-sided alternative hypothesis ($H_A: \beta \neq 0$) while the p-value for the variance components is calculated using a one-sided alternative hypothesis ($H_A: \nu >0$) because variance components must be nonnegative.\\
+
+To view the model summary, we use the \texttt{summary} command.\\
+<<summary>>=
+summary(sal)
+@
+
+Looking at our output, we can see that the type of cross significantly affects the salamanders' odds of mating. Additionally, both the variance components are significantly different from zero and should be retained in the model.\\
+
+\section{Calculating Confidence Intervals}\label{sec:ci}
+We can calculate confidence intervals for parameters using the \texttt{confint} command. (Note that prediction is not yet possible in this version of the package).  If we wish to calculate $95\%$ confidence intervals for all of our parameters, the only argument is the model name. \\
+<<confintall>>=
+confint(sal)
+@
+The output is a matrix. Each row represents one parameter. The first column is the lower bound of the confidence interval, and the second column is the upper bound of the confidence interval. \\
+
+If we wish to change the level of confidence from the default of $95\%$ to $90\%$ or $99\%$, we type the following:\\
+<<confintLevels>>=
+confint(sal,level=.9)
+confint(sal,level=.99)
+@
+
+We can calculate $90\%$ confidence intervals for the first and third fixed effects through indexing or by listing the names of the fixed effects:\\
+<<confintFixed>>=
+confint(sal,level=.9,c(1,3))
+confint(sal,level=.9,c("CrossR/R","CrossW/R"))
+@
+
+To calculate a $93\%$ confidence interval for the variance component for the female salamanders, we can again either use indexing or list the name. Note that there are four fixed effects so $\nu_F$ is the fifth parameter in this model. (Similarly, $\nu_M$ is the sixth parameter in this model).\\
+<<confintFem>>=
+confint(sal,level=.93,c(5))
+confint(sal,level=.93,c("F"))
+@
+
+Note that all confidence intervals are calculated using the observed Fisher information from the Monte Carlo likelihood approximation. As the Monte Carlo sample size increases, the Monte Carlo likelihood approximation converges to the likelihood.\\
+
+\section{Isolating the Parameter Estimates}\label{sec:coefs}
+If we wish to extract the estimates for the fixed effect coefficients or the variance components, we use the commands \texttt{coef} and \texttt{varcomps}, respectively. These commands isolate the estimates that are shown in the summary (as displayed in section \ref{sec:summary}).\\
+
+ To extract the fixed effect coefficients, the only argument needed is the model. The commands \texttt{coef} and \texttt{coefficients} are interchangeable. We can type either of the following:
+<<coefall>>=
+coef(sal)
+coefficients(sal)
+@
+
+To extract the variance components, the only argument needed is the model. \\
+<<vars>>=
+varcomps(sal)
+@
+
+\section{Accessing Additional Output}\label{sec:otherstuff}
+The model produced by \texttt{glmm} has information that is not displayed by the \texttt{summary} command. The \texttt{names} command helps us see what we can access.\\
+<<morestuff>>=
+names(sal)
+@
+The first two items are \texttt{beta} and \texttt{nu}. These are the MCMLEs for the fixed effects and variance components. \\
+
+The third item is \texttt{likelihood.value}, the value of the MCLA evaluated at the MCMLEs. The fourth item is  \texttt{likelihood.gradient}, the gradient vector of the MCLA evaluated at the MCMLEs.  The fifth item is  \texttt{likelihood.hessian}, the Hessian matrix of the MCLA evaluated at the MCMLEs.\\
+
+Next is \texttt{trust.converged}, which tell us whether the \texttt{trust} function in the \texttt{trust} package was able to converge to the optimizer of the MCLA.\\
+
+Items 7 through 16 relate to the original function call. \texttt{mod.mcml} contains the model matrix for the fixed effects, a list of model matrices for the random effects, and the response vector. These are also displayed in \texttt{x}, \texttt{z}, and \texttt{y}, respectively. Then, the call (the original formula representations of the fixed and random effects) are contained in \texttt{fixedcall}, \texttt{randcall}, and \texttt{call}.\\
+
+The last argument is \texttt{debug}. If the model was fit with the default \texttt{debug = FALSE}, then this argument is just \texttt{FALSE}. If the model was fit with \texttt{debug = TRUE}, then \texttt{debug} contains a list of more output. We now look at the \texttt{debug} output.\\
+<<debugout>>=
+out<-sal$debug
+names(out)
+@
+First, we have the PQL estimates \texttt{beta.pql}, \texttt{nu.pql}, and \texttt{u.star}, which were used to create the importance sampling distribution. \\
+
+Next, we have output from \texttt{trust}. The \texttt{trust} output can be understood by reading the \texttt{trust} documentation. All \texttt{trust} output begins with \texttt{trust.} and ends with the name given by \texttt{trust}. For example, \texttt{trust.argpath} is the \texttt{trust} output named \texttt{argpath}.\\
+
+The next  output is  \texttt{umat}, a matrix of the random effects generated from the importance sampling distribution. The matrix has $m$ rows. The number of columns is equal to the total number of random effects in the model.\\
+
+The next three arguments relate to the importance sampling weights. \texttt{weights} are the importance sampling weights, \texttt{wtsnumer} is the numerator of the weights, and \texttt{wtsdenom} is the denominator of the weights.\\
+
+Finally, the next three arguments are \texttt{m1}, \texttt{m2}, and \texttt{m3}.  The importance sampling distribution is a mixture of three distributions.   \texttt{m1}, \texttt{m2}, and \texttt{m3} represent the number of draws taken from each of the components of the importance sampling distribution. More information on the importance sampling distribution can be found in the ``Details'' section of the \texttt{glmm} documentation.\\
+
+\end{document}
