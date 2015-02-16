@@ -29,6 +29,9 @@ glmm(fixed = y ~ 0 + x1, random = list(y ~ 0 + z1), varcomps.names = c("z1"),
     data = BoothHobert, family.glmm = bernoulli.glmm, m = 1000, 
     doPQL = TRUE)
 
+
+Link is: "logit (log odds)"
+
 Fixed Effects:
    Estimate Std. Error z value Pr(>|z|)    
 x1    6.044      1.388   4.354 1.34e-05 ***
@@ -43,4 +46,4 @@ z1    1.559      1.376   1.133      0.129
 > 
 > proc.time()
    user  system elapsed 
-  3.258   0.070   3.313 
+  4.725   0.067   4.780 

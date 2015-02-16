@@ -34,9 +34,11 @@ function(object,...){
 	nucoefmat<-cbind(nu,nu.se,nuzval,pnorm(abs(nuzval),lower.tail=F))
 	colnames(nucoefmat)<-c("Estimate","Std. Error", "z value", "Pr(>|z|)/2")
 	rownames(nucoefmat)<-mod.mcml$varcomps.names
+	link<-mod.mcml$family.glmm$link
+
 	
 	return(structure(list(x=x,y=y, z=z, coefmat=coefmat, fixedcall=fixedcall, randcall=randcall, coefficients=coefficients,
-family.mcml=mod.mcml$family.mcml,call=call,nucoefmat=nucoefmat),class="summary.glmm"))
+family.mcml = mod.mcml$family.mcml, call = call, nucoefmat = nucoefmat, link=link),class="summary.glmm"))
 }
 
 print.summary.glmm <-
@@ -47,6 +49,8 @@ print.summary.glmm <-
     stopifnot(inherits(summ, "summary.glmm"))
 
     cat("\nCall:\n", paste(deparse(summ$call), sep = "\n", collapse = "\n"), "\n\n", sep = "")
+
+ cat("\nLink is: ", paste(deparse(summ$link)),"\n\n",sep="")
    
 cat("Fixed Effects:")
    cat("\n")

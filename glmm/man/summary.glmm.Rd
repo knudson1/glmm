@@ -34,6 +34,7 @@ The function \code{summary.glmm} computes and returns a list of summary statisti
 \item{randcall}{the call for the random effects.}
 \item{family.mcml}{the family used to fit the model.}
 \item{call}{the call to \code{\link{glmm}}.}
+\item{link}{the canonical link function.}
 }
 
 \author{Christina Knudson}

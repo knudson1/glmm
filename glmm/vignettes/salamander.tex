@@ -1,12 +1,9 @@
-%% How to compile by hand, not in vignette: 
+%% How to compile by hand, not in package: 
 % R --vanilla
 % library(knitr)
 % knit("salamDemo.Rnw")
 %knit2pdf("salamDemo.Rnw")
 %do not ever type .tex!!!!
-
-%\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{}
 
 \documentclass[11pt]{article}\usepackage[]{graphicx}\usepackage[]{color}
 %% maxwidth is the original width if it is less than linewidth
@@ -58,6 +55,16 @@
 \newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
 
 \usepackage{alltt}
+
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Using glmm}
+%\VignettePackage{glmm}
+%\VignetteKeywords{glmm, maximum likelihood, mle, Monte Carlo, likelihood approximation, likelihood based inference, Monte Carlo likelihood approximation, salamander, generalized linear mixed model}
+
+\usepackage[round]{natbib}
+\bibliographystyle{apalike}
+
+
 \usepackage{pdfpages}               
 \usepackage[fleqn]{amsmath}    % need for subequations
 \usepackage{graphicx}   % need for figures
@@ -80,9 +87,9 @@
 \section{Introduction}
 The R package \texttt{glmm} approximates the entire likelihood function for generalized linear mixed models (GLMMs) with a canonical link. After calculating the Monte Carlo likelihood approximation (MCLA), \texttt{glmm} maximizes it to find Monte Carlo maximum likelihood estimates (MCMLEs) for the fixed effects and variance components. Additionally, the value, gradient vector, and Hessian matrix of the MCLA is returned at the MCMLEs. The Hessian of the MCLA is used to calculate the standard errors for the MCMLEs. \\
 
-The basis of \texttt{glmm} is Monte Carlo likelihood approximation, which was first proposed by Geyer and Thompson (1992).   The greatest strength of MCLA is its solid theoretical basis established by Geyer (1994). In particular, the only approximation in this package is the likelihood is approximated by Monte Carlo. This approximation can be made as accurate as you wish by increasing the Monte Carlo sample size ($m$). As the Monte Carlo sample size increases, the MCLA converges to the likelihood. As the MCLA converges, all likelihood-based inference converges as well. For example, the MCMLEs converge to the MLEs.\\
+The basis of \texttt{glmm} is Monte Carlo likelihood approximation, a method proposed by \cite{geyer:thom:1992}.   The greatest strength of MCLA is its solid theoretical basis established by \cite{geyer:1994}. In particular, the only approximation in this package is done through Monte Carlo, so this approximation can be made as accurate as you wish by increasing the Monte Carlo sample size. As the Monte Carlo sample size increases, the MCLA converges to the likelihood. As the MCLA converges, all likelihood-based inference converges as well. For example, the MCMLEs converge to the MLEs.\\
 
-This vignette demonstrates how to format the data in section \ref{sec:format}, fit the model \ref{sec:fitmod}, access the model summary \ref{sec:summary}, calculate confidence intervals \ref{sec:ci}, extract fixed effect estimates and variance estimates \ref{sec:coefs}, and access additional output \ref{sec:otherstuff}. \\
+This vignette demonstrates how to format the data in Section \ref{sec:format}, fit the model in Section \ref{sec:fitmod}, access the model summary in Section \ref{sec:summary}, extract fixed effect estimates and variance estimates in Section \ref{sec:coefs}, calculate confidence intervals in Section \ref{sec:ci},  and access additional output in Section \ref{sec:otherstuff}. 
 
 
 
@@ -91,16 +98,16 @@ This vignette demonstrates how to format the data in section \ref{sec:format}, f
 
  In order to use the \texttt{glmm} package, your data frame must have the following:
 \begin{enumerate}
-\item a response vector. If your response is Poisson, then the entries in the response vector must be natural numbers. If your response is Bernoulli, then the entries in the response vector must be $0$ and $1$.
-\item at least one vector that will be used for defining the fixed effects. This vector can be a factor or numeric.
-\item at least one vector that will be used for defining the random effects. For this version of \texttt{glmm}, the vector(s) should be class ``factor.''
+\item a response vector. If your response is Poisson, then the entries in the response vector must be natural numbers. If your response is Bernoulli, then the entries in the response vector must be $0$ and $1$. (For this version of \texttt{glmm}, these are the only two response types possible. If you need to fit a model with a different response, contact me.)
+\item at least one vector that will be used for defining the fixed effects. The vector(s) can be of class \texttt{factor} or \texttt{numeric}.
+\item at least one vector that will be used for defining the random effects. For this version of \texttt{glmm}, the vector(s) should be class \texttt{factor}.
 \end{enumerate}
 
-We use the \texttt{salamander} dataset as an example in this vignette. For your convenience, it is already included in the \texttt{glmm} package. The data are from an experiment conducted at the University of Chicago in 1986 and first presented by McCullagh and Nelder in 1989. Scientists paired female and male salamanders of two types (Rough Butt and White Side) and collected data on whether or not they mated. \\
+We use the \texttt{salamander} dataset as an example in this vignette. For your convenience, it is already included in the \texttt{glmm} package. The data are from an experiment conducted at the University of Chicago in 1986 and first presented by \cite{mcc:nelder:1989}. Scientists paired female and male salamanders of two types (Rough Butt and White Side) and collected data on whether or not they mated. \\
 
 The variable \texttt{Mate} tells us whether the pair of salamanders mated. The value is $1$ if they successfully mated and $0$ if they did not. The variable \texttt{Cross} describes the type of female and male salamander. For example, \texttt{Cross = W/R} indicates a White Side female was crossed with a Rough Butt male. The variable \texttt{Female} contains the identification number of the female salamander, and the variable \texttt{Male} contains the identification number of the male salamander.\\ 
 
-The first R  command shown below gives us access to the \texttt{glmm} package and and all of its commands. The second line of code gives us access to the \texttt{salamander} data frame.  The next three commands help us begin to understand the data. We have four variables: \texttt{Mate}, \texttt{Cross}, \texttt{Female}, and \texttt{Male}. The summary shows us \texttt{Mate} is numeric, \texttt{Cross} is a factor with four levels, \texttt{Female} is a factor, and \texttt{Male} is a factor. \\
+The first R  command shown below gives us access to the \texttt{glmm} package and and all of its commands. The second line of code gives us access to the \texttt{salamander} data frame.  The next three commands help us begin to understand the data. We have four variables: \texttt{Mate}, \texttt{Cross}, \texttt{Female}, and \texttt{Male}. The summary shows us \texttt{Mate} is numeric, \texttt{Cross} is a factor with four levels, \texttt{Female} is a factor, and \texttt{Male} is a factor. 
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -142,7 +149,7 @@ The first R  command shown below gives us access to the \texttt{glmm} package an
 
 \section{Fitting the Model}\label{sec:fitmod}
 
-We would like to fit a model using \texttt{Mate} as the response, \texttt{Cross} as the fixed effect variable, and \texttt{Female} and \texttt{Male} as the random effect variables. That is, we would like to fit a generalized linear mixed model (glmm) with a logit link (because the data are Bernoulli). We will have four fixed effect parameters ($\beta_{R/R}, \beta_{R/W},\beta_{W/R},\beta_{W/W}$). There is likely to be variability among the females and variability among the males. That is, some females will be more likely to mate than other females, and we would like the model to reflect the tendences of the individual salamanders. We incorporate this into the model by including a random effect for each female salamander and a random effect for each male salamander. We believe the female salamanders' random effects are i.i.d. draws from $N(0, \nu_F)$. Similarly, we believe the male salamanders' random effects are i.i.d. draws from $N(0,\nu_M)$. Finally, we believe the female and male random effects are independent of one another. \\
+We would like to fit a model using \texttt{Mate} as the response, \texttt{Cross} as the fixed effect variable, and \texttt{Female} and \texttt{Male} as the random effect variables. That is, we would like to fit a generalized linear mixed model (glmm) with a logit link (because the response is Bernoulli). We will have four fixed effect parameters ($\beta_{R/R}, \beta_{R/W},\beta_{W/R},\beta_{W/W}$). There is likely to be variability among the females and variability among the males. That is, some females will be more likely to mate than other females, and we would like the model to reflect the tendencies of the individual salamanders. We incorporate this into the model by including a random effect for each female salamander and a random effect for each male salamander. We believe the female salamanders' random effects are i.i.d. draws from $N(0, \nu_F)$. Similarly, we believe the male salamanders' random effects are i.i.d. draws from $N(0,\nu_M)$. Finally, we believe the female and male random effects are independent of one another. \\
 
 
 
@@ -151,41 +158,48 @@ In the following code, we  fit the model using the \texttt{glmm} command and sav
 
 Next, the \texttt{random} list defines the random effects. We want two random effects for each cross: one from the female salamander and one from the male salamander. Note that we type \texttt{$\sim$ 0 + Female} and \texttt{$\sim$ 0 + Male}. We do this because we want our random effects to be centered at 0. Almost always, you will want your random effects to have mean 0.  Next, the argument \texttt{varcomps.names} allows us to name the list of variance components. In the salamander model, we have placed the females first in the list defining the random effects. Therefore, the order of the variance components names are first ``F'' and then ``M.''  \\
 
- Next, we specify the name of our data set. This is an optional argument. If the data set is not specified, \texttt{glmm} looks to the parent environment for the variables you have referenced. \\
+ Following the \texttt{random} list, we specify the name of our data set. This is an optional argument. If the data set is not specified, \texttt{glmm} looks to the parent environment for the variables you have referenced. \\
 
-Next, we need to specify the type of the response. In the salamander mating example, the response is binary: the salamanders either mated or they did not. Therefore, the family is \texttt{bernoulli.glmm}. If your response is a count, then the family is \texttt{poisson.glmm}.\\
+After the name of the data set, we need to specify the type of the response. In the salamander mating example, the response is binary: the salamanders either mated or they did not. Therefore, the family is \texttt{bernoulli.glmm}. If your response is a count, then the family is \texttt{poisson.glmm}.\\
 
-Next, we specify our Monte Carlo sample size $m$. The general rule is the larger the Monte Carlo sample size, the more accurate the Monte Carlo likelihood approximation (MCLA) will be, and the more accurate the resulting Monte Carlo maximum likelihood estimates (MCMLEs) will be. Ideally, you want the largest $m$ that time allows. To see whether your MCMLEs are stable, you can fit the model several times starting from different seeds. More research needs to be done on this subject before I can give you more concrete suggestions on satisfactory Monte Carlo sample sizes. For this vignette, I have chosen a Monte Carlo sample size that allows for quick computation. If you are interested in accuracy in the resulting estimates for the salamander model,I suggest a larger Monte Carlo sample size.  \\
+Next, we specify our Monte Carlo sample size \texttt{m}. The general rule is the larger the Monte Carlo sample size, the more accurate the Monte Carlo likelihood approximation (MCLA) will be, and the more accurate the resulting Monte Carlo maximum likelihood estimates (MCMLEs) will be. Ideally, you want the largest \texttt{m} that time allows. To see whether your MCMLEs are stable, you can fit the model several times starting from different seeds. More research needs to be done on this subject before we can give you more concrete suggestions on satisfactory Monte Carlo sample sizes. For this vignette, we have chosen a Monte Carlo sample size that allows for quick computation. If you are interested in accuracy in the resulting estimates for the salamander model, we suggest a larger Monte Carlo sample size.  \\
 
-Finally, we can decide whether we would like additional output (see details in section \ref{sec:otherstuff}. If we would like to see the additional output, we type \texttt{debug = TRUE}. The default is \texttt{debug = FALSE}.\\
+Finally, we can decide whether we would like additional output (see details in section \ref{sec:otherstuff}). If we would like the additional output, we type \texttt{debug = TRUE}. The default is \texttt{debug = FALSE}.\\
 
-We put this all together in the follow commands. Note that we set the seed so that we can have reproducible results. In other words, if you set your seed to the same number and type the exact command listed below, your results should be identical to those listed here.\\
+We put this all together in the following commands. Note that we set the seed so that we can have reproducible results. In other words, if you set your seed to the same number and type the exact command listed below, your results should be identical to those listed here. Additionally, the \texttt{proc.time} commands have been used to give you an idea of how quickly the model can be fit. The times shown here are from fitting a model on an ultrabook that cost 500 USD in 2013. 
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{set.seed}\hlstd{(}\hlnum{1234}\hlstd{)}
-\hlstd{sal}\hlkwb{<-}\hlkwd{glmm}\hlstd{(Mate}\hlopt{~}\hlnum{0}\hlopt{+}\hlstd{Cross,}\hlkwc{random}\hlstd{=}\hlkwd{list}\hlstd{(}\hlopt{~}\hlnum{0}\hlopt{+}\hlstd{Female,}\hlopt{~}\hlnum{0}\hlopt{+}\hlstd{Male),}\hlkwc{varcomps.names}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"F"}\hlstd{,}\hlstr{"M"}\hlstd{),}
-\hlkwc{data}\hlstd{=salamander,}\hlkwc{family.glmm}\hlstd{=bernoulli.glmm,}\hlkwc{m}\hlstd{=}\hlnum{10}\hlopt{^}\hlnum{4}\hlstd{,}\hlkwc{debug}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\hlstd{ptm}\hlkwb{<-}\hlkwd{proc.time}\hlstd{()}
+\hlstd{sal} \hlkwb{<-} \hlkwd{glmm}\hlstd{(Mate} \hlopt{~} \hlnum{0} \hlopt{+} \hlstd{Cross,} \hlkwc{random} \hlstd{=} \hlkwd{list}\hlstd{(}\hlopt{~} \hlnum{0} \hlopt{+} \hlstd{Female,} \hlopt{~} \hlnum{0} \hlopt{+} \hlstd{Male),}
+\hlkwc{varcomps.names} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"F"}\hlstd{,} \hlstr{"M"}\hlstd{),} \hlkwc{data} \hlstd{= salamander,} \hlkwc{family.glmm} \hlstd{=}
+ \hlstd{bernoulli.glmm,} \hlkwc{m} \hlstd{=} \hlnum{10}\hlopt{^}\hlnum{4}\hlstd{,} \hlkwc{debug} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlkwd{proc.time}\hlstd{()} \hlopt{-} \hlstd{ptm}
 \end{alltt}
+\begin{verbatim}
+##    user  system elapsed 
+##  68.148   0.040  68.286
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 
 \subsection{Adding Optional Arguments}
 Additional arguments may be added for more control over the model fit.\\
 \subsubsection{Setting Variance Components Equal}
-By default \texttt{glmm} assumes each variance component should be distinct. Suppose we want to set $\nu_F = \nu_M.$ Then we would add the argument \texttt{varcomps.equal} to indicate the equality. Since the list of random effects has two entries and we want those entries to share a variance component, we would set \texttt{varcomps.equal = c(1,1)}. In this scenario, we would only have one variance component, so we only need one entry in \texttt{varcomps.names}. Thus, the new command to fit this updated model with one variance component could be the following: \\
+By default, \texttt{glmm} assumes each variance component should be distinct. Suppose we want to set $\nu_F = \nu_M.$ Then we would add the argument \texttt{varcomps.equal} to indicate the equality. Since the list of random effects has two entries and we want those entries to share a variance component, we would set \texttt{varcomps.equal = c(1,1)}. In this scenario, we would only have one variance component, so we only need one entry in \texttt{varcomps.names}. Thus, the new command to fit this updated model with one variance component could be the following: 
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{sal}\hlkwb{<-}\hlkwd{glmm}\hlstd{(Mate}\hlopt{~}\hlnum{0}\hlopt{+}\hlstd{Cross,} \hlkwc{random}\hlstd{=}\hlkwd{list}\hlstd{(}\hlopt{~}\hlnum{0}\hlopt{+}\hlstd{Female,}\hlopt{~}\hlnum{0}\hlopt{+}\hlstd{Male),} \hlkwc{varcomps.equal}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{1}\hlstd{),}
-\hlkwc{varcomps.names}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"Only Varcomp"}\hlstd{),} \hlkwc{data}\hlstd{=salamander,}
-\hlkwc{family.glmm}\hlstd{=bernoulli.glmm,} \hlkwc{m}\hlstd{=}\hlnum{10}\hlopt{^}\hlnum{4}\hlstd{,} \hlkwc{debug}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\hlstd{sal} \hlkwb{<-} \hlkwd{glmm}\hlstd{(Mate} \hlopt{~} \hlnum{0} \hlopt{+} \hlstd{Cross,} \hlkwc{random} \hlstd{=} \hlkwd{list}\hlstd{(}\hlopt{~} \hlnum{0} \hlopt{+} \hlstd{Female,} \hlopt{~} \hlnum{0} \hlopt{+} \hlstd{Male),}
+ \hlkwc{varcomps.equal} \hlstd{=} \hlkwd{c}\hlstd{(} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{varcomps.names} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Only Varcomp"}\hlstd{),} \hlkwc{data} \hlstd{=}
+\hlstd{salamander,} \hlkwc{family.glmm} \hlstd{= bernoulli.glmm,} \hlkwc{m} \hlstd{=} \hlnum{10}\hlopt{^}\hlnum{4}\hlstd{,} \hlkwc{debug} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-As another example, suppose the list \texttt{random} has three entries, indicating three variance components $\nu_1, \nu_2, \nu_3$. To set $\nu_1= \nu_3$, we write \texttt{varcomps.equal = c(1,2,1)}. Thus, the shared variance component would be listed first in any output, and $\nu_2$ would be listed second. Note that the entries in the \texttt{varcomps.equal} vector must start at 1, then continue through the integers.\\
+As another example, suppose the list \texttt{random} has three entries, indicating three variance components $\nu_1, \nu_2, \nu_3$. To set $\nu_1= \nu_3$, we write \texttt{varcomps.equal = c(1,2,1)}. Thus, the shared variance component would be listed first in any output, and $\nu_2$ would be listed second. Note that the entries in the \texttt{varcomps.equal} vector must start at 1, then continue through the integers. The order of the names of the variance components listed in \texttt{varcomps.names} must correspond to the integers in \texttt{varcomps.equal}. In this problem, the names could be \texttt{varcomps.names = c("shared", "two")}.  \\
 
 
 
@@ -208,16 +222,16 @@ The argument \texttt{iterlim} must be a positive integer that limits the length 
 
 The \texttt{summary} command displays
 \begin{itemize}
-\item the function call (to remind you of the model you fit)
-\item the fixed effect estimates, their standard errors (calculated using observed Fisher information), their z-value test statistics (testing whether the coefficients are significantly different from zero), the test p-values, and the R-standard significance stars.
-\item the variance component estimates, their standard errors (calculated using observed Fisher information), their z-value test statistics (testing whether the coefficients are significantly different from zero), the test p-values, and the R-standard significance stars.
+\item the function call (to remind you of the model you fit).
+\item the fixed effect estimates, their standard errors (calculated using observed Fisher information), their \texttt{z value} test statistics (testing whether the coefficients are significantly different from zero), the test's p-values, and the R-standard significance stars.
+\item the variance component estimates, their standard errors (calculated using observed Fisher information), their \texttt{z value} test statistics (testing whether the coefficients are significantly different from zero), the test's p-values, and the R-standard significance stars.
 \end{itemize}
 
 
 
 Note that the p-value for the fixed effects is calculated using a two-sided alternative hypothesis ($H_A: \beta \neq 0$) while the p-value for the variance components is calculated using a one-sided alternative hypothesis ($H_A: \nu >0$) because variance components must be nonnegative.\\
 
-To view the model summary, we use the \texttt{summary} command.\\
+To view the model summary, we use the \texttt{summary} command.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -252,8 +266,73 @@ To view the model summary, we use the \texttt{summary} command.\\
 
 Looking at our output, we can see that the type of cross significantly affects the salamanders' odds of mating. Additionally, both the variance components are significantly different from zero and should be retained in the model.\\
 
+The summary provides the estimates needed to write our model. First, we establish a little notation. Let $\pi_i$ represent the probability of successful mating for salamander pair $i$. Let $I()$ be an indicator function, so that $I(Cross=R/R)$ is $1$ when the variable \texttt{Cross = R/R} and 0 otherwise. Let $u_i^F$ represent the random effect from the female salamander in the $i$th pair. Let $u_i^M$ represent the random effect from the male salamander in the $i$th pair. Since the response is Bernoulli, the canonical link is the log odds of successful mating. Using this notation, we write the model as follows.\\
+\begin{align*}
+\log \left( \dfrac{\pi_i}{1-\pi_i} \right) &= 0.956 * I(Cross=R/R) + 0.2805 * I(Cross=R/W)\\
+ &+ \ensuremath{-1.8968} * I(Cross=W/R)
++ 0.9723 * I(Cross=W/W) + u_i^F+u_i^M\\
+u_i^F &\overset{i.i.d.}{\sim} N(0,1.288)\\
+u_i^M &\overset{i.i.d.}{\sim} N(0,1.084)\\
+\end{align*}
+
+\section{Isolating the Parameter Estimates}\label{sec:coefs}
+If we wish to extract the estimates for the fixed effect coefficients or the variance components, we use the commands \texttt{coef} and \texttt{varcomps}, respectively. These commands isolate the estimates that are shown in the summary (as displayed in section \ref{sec:summary}).\\
+
+ To extract the fixed effect coefficients, the only argument needed is the model. The commands \texttt{coef} and \texttt{coefficients} are interchangeable. We can type either of the following:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{coef}\hlstd{(sal)}
+\end{alltt}
+\begin{verbatim}
+##   CrossR/R   CrossR/W   CrossW/R   CrossW/W 
+##  0.9560113  0.2804932 -1.8968316  0.9722904
+\end{verbatim}
+\begin{alltt}
+\hlkwd{coefficients}\hlstd{(sal)}
+\end{alltt}
+\begin{verbatim}
+##   CrossR/R   CrossR/W   CrossW/R   CrossW/W 
+##  0.9560113  0.2804932 -1.8968316  0.9722904
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+To extract the variance components, the only argument needed is the model. 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{varcomps}\hlstd{(sal)}
+\end{alltt}
+\begin{verbatim}
+##        F        M 
+## 1.287848 1.083975
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+To further isolate variance components or fixed effects, use indexing. The following demonstrates how to extract the last two fixed effects and the first variance component.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{coef}\hlstd{(sal)[}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{4}\hlstd{)]}
+\end{alltt}
+\begin{verbatim}
+##   CrossW/R   CrossW/W 
+## -1.8968316  0.9722904
+\end{verbatim}
+\begin{alltt}
+\hlkwd{varcomps}\hlstd{(sal)[}\hlnum{1}\hlstd{]}
+\end{alltt}
+\begin{verbatim}
+##        F 
+## 1.287848
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
 \section{Calculating Confidence Intervals}\label{sec:ci}
-We can calculate confidence intervals for parameters using the \texttt{confint} command. (Note that prediction is not yet possible in this version of the package).  If we wish to calculate $95\%$ confidence intervals for all of our parameters, the only argument is the model name. \\
+We can calculate confidence intervals for parameters using the \texttt{confint} command. (Note that prediction is not yet possible in this version of the package).  If we wish to calculate $95\%$ confidence intervals for all of our parameters, the only argument is the model name. 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -272,7 +351,7 @@ We can calculate confidence intervals for parameters using the \texttt{confint} 
 \end{knitrout}
 The output is a matrix. Each row represents one parameter. The first column is the lower bound of the confidence interval, and the second column is the upper bound of the confidence interval. \\
 
-If we wish to change the level of confidence from the default of $95\%$ to $90\%$ or $99\%$, we type the following:\\
+If we wish to change the level of confidence from the default of $95\%$, we use the argument \texttt{level} and specify a number between $0$ and $1$. For example, to $90\%$ confidence intervals and $99\%$ confidence intervals, we type the following:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -302,7 +381,7 @@ If we wish to change the level of confidence from the default of $95\%$ to $90\%
 \end{kframe}
 \end{knitrout}
 
-We can calculate $90\%$ confidence intervals for the first and third fixed effects through indexing or by listing the names of the fixed effects:\\
+We can calculate $90\%$ confidence intervals for the first and third fixed effects through indexing or by listing the names of the fixed effects:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -324,7 +403,7 @@ We can calculate $90\%$ confidence intervals for the first and third fixed effec
 \end{kframe}
 \end{knitrout}
 
-To calculate a $93\%$ confidence interval for the variance component for the female salamanders, we can again either use indexing or list the name. Note that there are four fixed effects so $\nu_F$ is the fifth parameter in this model. (Similarly, $\nu_M$ is the sixth parameter in this model).\\
+To calculate a $93\%$ confidence interval for the variance component for the female salamanders, we can again either use indexing or list the name of the variable. Note that there are four fixed effects so $\nu_F$ is the fifth parameter in this model. (Similarly, $\nu_M$ is the sixth parameter in this model).
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -346,44 +425,9 @@ To calculate a $93\%$ confidence interval for the variance component for the fem
 
 Note that all confidence intervals are calculated using the observed Fisher information from the Monte Carlo likelihood approximation. As the Monte Carlo sample size increases, the Monte Carlo likelihood approximation converges to the likelihood.\\
 
-\section{Isolating the Parameter Estimates}\label{sec:coefs}
-If we wish to extract the estimates for the fixed effect coefficients or the variance components, we use the commands \texttt{coef} and \texttt{varcomps}, respectively. These commands isolate the estimates that are shown in the summary (as displayed in section \ref{sec:summary}).\\
-
- To extract the fixed effect coefficients, the only argument needed is the model. The commands \texttt{coef} and \texttt{coefficients} are interchangeable. We can type either of the following:
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{coef}\hlstd{(sal)}
-\end{alltt}
-\begin{verbatim}
-##   CrossR/R   CrossR/W   CrossW/R   CrossW/W 
-##  0.9560113  0.2804932 -1.8968316  0.9722904
-\end{verbatim}
-\begin{alltt}
-\hlkwd{coefficients}\hlstd{(sal)}
-\end{alltt}
-\begin{verbatim}
-##   CrossR/R   CrossR/W   CrossW/R   CrossW/W 
-##  0.9560113  0.2804932 -1.8968316  0.9722904
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
-
-To extract the variance components, the only argument needed is the model. \\
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{varcomps}\hlstd{(sal)}
-\end{alltt}
-\begin{verbatim}
-##        F        M 
-## 1.287848 1.083975
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
 
 \section{Accessing Additional Output}\label{sec:otherstuff}
-The model produced by \texttt{glmm} has information that is not displayed by the \texttt{summary} command. The \texttt{names} command helps us see what we can access.\\
+The model produced by \texttt{glmm} has information that is not displayed by the \texttt{summary} command. The \texttt{names} command helps us see what we can access.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -407,7 +451,7 @@ Next is \texttt{trust.converged}, which tell us whether the \texttt{trust} funct
 
 Items 7 through 16 relate to the original function call. \texttt{mod.mcml} contains the model matrix for the fixed effects, a list of model matrices for the random effects, and the response vector. These are also displayed in \texttt{x}, \texttt{z}, and \texttt{y}, respectively. Then, the call (the original formula representations of the fixed and random effects) are contained in \texttt{fixedcall}, \texttt{randcall}, and \texttt{call}.\\
 
-The last argument is \texttt{debug}. If the model was fit with the default \texttt{debug = FALSE}, then this argument is just \texttt{FALSE}. If the model was fit with \texttt{debug = TRUE}, then \texttt{debug} contains a list of more output. We now look at the \texttt{debug} output.\\
+The last argument is \texttt{debug}. If the model was fit with the default \texttt{debug = FALSE}, then this argument is just \texttt{FALSE}. If the model was fit with \texttt{debug = TRUE}, then \texttt{debug} contains a list of more output. We now look at the \texttt{debug} output.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -427,10 +471,12 @@ First, we have the PQL estimates \texttt{beta.pql}, \texttt{nu.pql}, and \texttt
 
 Next, we have output from \texttt{trust}. The \texttt{trust} output can be understood by reading the \texttt{trust} documentation. All \texttt{trust} output begins with \texttt{trust.} and ends with the name given by \texttt{trust}. For example, \texttt{trust.argpath} is the \texttt{trust} output named \texttt{argpath}.\\
 
-The next  output is  \texttt{umat}, a matrix of the random effects generated from the importance sampling distribution. The matrix has $m$ rows. The number of columns is equal to the total number of random effects in the model.\\
+The next  output is  \texttt{umat}, a matrix of the random effects generated from the importance sampling distribution. The matrix has \texttt{m} rows. The number of columns is equal to the total number of random effects in the model.\\
 
 The next three arguments relate to the importance sampling weights. \texttt{weights} are the importance sampling weights, \texttt{wtsnumer} is the numerator of the weights, and \texttt{wtsdenom} is the denominator of the weights.\\
 
 Finally, the next three arguments are \texttt{m1}, \texttt{m2}, and \texttt{m3}.  The importance sampling distribution is a mixture of three distributions.   \texttt{m1}, \texttt{m2}, and \texttt{m3} represent the number of draws taken from each of the components of the importance sampling distribution. More information on the importance sampling distribution can be found in the ``Details'' section of the \texttt{glmm} documentation.\\
+
+\bibliography{brref}
 
 \end{document}
