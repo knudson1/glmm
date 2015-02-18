@@ -1,4 +1,16 @@
+ vignettes/salamander.tex
+*.so
+glmm.Rcheck/
+bernor.Rcheck/
+bernor_0.3-8.tar.gz
+DesignDocOLD/
+GSOC/
 *.log
 *.aux
 *.dvi
 *.Rout
+*~
+*.o
+*.blg
+*.out
+*.bbl

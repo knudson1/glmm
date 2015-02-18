@@ -12,34 +12,23 @@
 %\VignettePackage{glmm}
 %\VignetteKeywords{glmm, maximum likelihood, mle, Monte Carlo, likelihood approximation, likelihood based inference, Monte Carlo likelihood approximation, salamander, generalized linear mixed model}
 
-\usepackage[round]{natbib}
-\bibliographystyle{apalike}
-
-
-\usepackage{pdfpages}               
-\usepackage[fleqn]{amsmath}    % need for subequations
-\usepackage{graphicx}   % need for figures
+\usepackage{amsmath}
+\usepackage{natbib}
 \usepackage{verbatim}   % useful for program listings
-\usepackage{color}      % use if color is used in text
-\usepackage{subfigure}  % use for side-by-side figures
-\usepackage{hyperref}   % use for hypertext links, including those to external documents and URLs
-\usepackage[normalem]{ulem}
 \usepackage{amsfonts}
-\usepackage{fullpage}     
 \usepackage[small,compact]{titlesec} 
-\title{A Vignette for the R package \texttt{glmm} }
+\title{An Introduction to Model-Fitting with the R package \texttt{glmm} }
 \author{Christina Knudson}
 \begin{document}
 
 \maketitle
 \setlength\parindent{0pt}
+\tableofcontents
 
 \section{Introduction}
 The R package \texttt{glmm} approximates the entire likelihood function for generalized linear mixed models (GLMMs) with a canonical link. After calculating the Monte Carlo likelihood approximation (MCLA), \texttt{glmm} maximizes it to find Monte Carlo maximum likelihood estimates (MCMLEs) for the fixed effects and variance components. Additionally, the value, gradient vector, and Hessian matrix of the MCLA is returned at the MCMLEs. The Hessian of the MCLA is used to calculate the standard errors for the MCMLEs. \\
 
 The basis of \texttt{glmm} is Monte Carlo likelihood approximation, a method proposed by \cite{geyer:thom:1992}.   The greatest strength of MCLA is its solid theoretical basis established by \cite{geyer:1994}. In particular, the only approximation in this package is done through Monte Carlo, so this approximation can be made as accurate as you wish by increasing the Monte Carlo sample size. As the Monte Carlo sample size increases, the MCLA converges to the likelihood. As the MCLA converges, all likelihood-based inference converges as well. For example, the MCMLEs converge to the MLEs.\\
-
-This vignette demonstrates how to format the data in Section \ref{sec:format}, fit the model in Section \ref{sec:fitmod}, access the model summary in Section \ref{sec:summary}, extract fixed effect estimates and variance estimates in Section \ref{sec:coefs}, calculate confidence intervals in Section \ref{sec:ci},  and access additional output in Section \ref{sec:otherstuff}. 
 
 <<noname,echo=FALSE>>=
 #opts_chunk$set(comment=NA)
@@ -152,9 +141,10 @@ The summary provides the estimates needed to write our model. First, we establis
 \begin{align*}
 \log \left( \dfrac{\pi_i}{1-\pi_i} \right) &= \Sexpr{round(coef(sal)[1],4)} * I(Cross=R/R) + \Sexpr{round(coef(sal)[2],4)} * I(Cross=R/W)\\
  &+ \Sexpr{round(coef(sal)[3],4)} * I(Cross=W/R)
-+ \Sexpr{round(coef(sal)[4],4)} * I(Cross=W/W) + u_i^F+u_i^M\\
-u_i^F &\overset{i.i.d.}{\sim} N(0,\Sexpr{round(varcomps(sal),3)[1]})\\
-u_i^M &\overset{i.i.d.}{\sim} N(0,\Sexpr{round(varcomps(sal),3)[2]})\\
++ \Sexpr{round(coef(sal)[4],4)} * I(Cross=W/W)\\
+ &+ u_i^F+u_i^M\\
+u_i^F \overset{i.i.d.}{\sim} &N(0,\Sexpr{round(varcomps(sal),3)[1]})\\
+u_i^M \overset{i.i.d.}{\sim} &N(0,\Sexpr{round(varcomps(sal),3)[2]})\\
 \end{align*}
 
 \section{Isolating the Parameter Estimates}\label{sec:coefs}
