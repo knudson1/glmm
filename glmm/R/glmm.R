@@ -92,6 +92,8 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 		if(length(par.init)!=nbetaplusT) stop("par.init is not the correct length. It should contain initial values for the fixed effects and variance components.")
 		vcs<-par.init[-(1:nbeta)]
 		if(any(vcs<=10^-9)) stop("Initial values for the variance components in par.init must be positive and sufficiently large (greater than 10^-9).")
+		doPQL<-FALSE
+		#if par.init is given, we want to use those not PQL
 	}
 	
 	#cache will hold some pql estimates and the importance sampling weights that wouldn't otherwise be returned
