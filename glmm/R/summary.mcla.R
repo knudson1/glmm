@@ -49,7 +49,7 @@ print.summary.glmm <-
     summ<-x	
     stopifnot(inherits(summ, "summary.glmm"))
 
-	if(summ$trust.converged==FALSE)  cat("\nWARNING: the optimizer trust has not converged to the MCMLE. The following estimates are not maximum likelihood estimates, but they can be used in the argument par.init when rerunning glmm. ", paste(deparse(summ$link)),"\n\n",sep="")
+	if(summ$trust.converged==FALSE)  cat("\nWARNING: the optimizer trust has not converged to the MCMLE. The following estimates are not maximum likelihood estimates, but they can be used in the argument par.init when rerunning glmm. \n\n",sep="")
 
     cat("\nCall:\n", paste(deparse(summ$call), sep = "\n", collapse = "\n"), "\n\n", sep = "")
 
@@ -81,6 +81,22 @@ function(object,...){
 	coefficients<-mod$beta
 	names(coefficients)<-colnames(mod$x)
 	coefficients
+}
+
+
+vcov.glmm <-
+function(object,...){
+	mod<-object
+   	stopifnot(inherits(mod, "glmm"))
+	vcov <- -solve(mod$likelihood.hessian)
+
+	#get names for vcov matrix
+	rownames(vcov)<-colnames(vcov)<-rep(c("blah"),nrow(vcov))
+	nbeta<-length(mod$beta)
+	rownames(vcov)[1:nbeta] <- colnames(vcov)[1:nbeta] <- colnames(mod$x)
+	rownames(vcov)[-(1:nbeta)] <- colnames(vcov)[-(1:nbeta)] <- mod$varcomps.names
+
+	vcov
 }
 
 varcomps<-function(object,...){

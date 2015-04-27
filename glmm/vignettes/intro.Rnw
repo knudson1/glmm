@@ -50,12 +50,13 @@ The basis of \texttt{glmm} is MCLA, which was first proposed by \citet{geyer:199
 
 \section {Formatting the Data}\label{sec:format}
 
- In order to use the \texttt{glmm} package, you must have the following vectors. These vectors can be contained in a data frame, but they do not need to be.
+The following vectors can be used to fit a generalized linear mixed model using the \texttt{glmm} package. These vectors can be contained in a data frame, but they do not need to be.
 \begin{enumerate}
-\item A response vector. If your response is Poisson, then the entries in the response vector must be natural numbers. If your response is Bernoulli, then the entries in the response vector must be $0$ and $1$. (For this version of \texttt{glmm}, these are the only two response types possible. If you need to fit a model with a different response, contact me.)
-\item At least one vector that will be used for defining the fixed effects' design matrix. The vector(s) can be of class \texttt{factor} or \texttt{numeric}.
+\item A response vector. If your response is Poisson, then the entries in the response vector must be natural numbers. If your response is Bernoulli, then the entries in the response vector must be $0$ and $1$. (For this version of \texttt{glmm}, these are the only two response types possible. If you need to fit a model with a different response, contact me.) 
 \item At least one vector that will be used for defining the random effects' design matrix. For this version of \texttt{glmm}, the vector(s) should be class \texttt{factor}.
+\item Vector(s) that will be used for defining the fixed effects' design matrix. The vector(s) can be of class \texttt{factor} or \texttt{numeric}. 
 \end{enumerate}
+The first two types of vectors described in the list are required. The last type is optional. That is, the minimum requirement to fit a \texttt{glmm} model is the response vector and one vector for defining the random effects' design matrix. \\
 
 
 We use the \texttt{salamander} dataset as an example in this vignette. For your convenience, it is already included in the \texttt{glmm} package. The data arose from an experiment conducted at the University of Chicago in 1986 and were first presented by \citet[section 14.5]{mcc:nelder:1989}. Scientists paired female and male salamanders of two types (Rough Butt and White Side) and collected data on whether or not they mated.  \\
@@ -64,13 +65,18 @@ The variable \texttt{Mate} tells us whether the pair of salamanders mated. The v
 
 The first R  command shown below gives us access to the \texttt{glmm} package and and all of its commands. The second line of code gives us access to the \texttt{salamander} data frame.  The next three commands help us begin to understand the data. We have four variables: \texttt{Mate}, \texttt{Cross}, \texttt{Female}, and \texttt{Male}. The summary shows us \texttt{Mate} is numeric, \texttt{Cross} is a factor with four levels, \texttt{Female} is a factor, and \texttt{Male} is a factor. 
 
-<<dataexplore,eval=TRUE,echo=TRUE>>=
+
+
+
+<<dataexplore>>=
 library(glmm)
 data(salamander)
 names(salamander)
 head(salamander)
 summary(salamander)
 @
+
+
 
 \section{Fitting the Model}\label{sec:fitmod}
 
@@ -95,6 +101,7 @@ Next, we specify our Monte Carlo sample size \texttt{m}. The general rule is the
 
 We put this all together in the following commands. Note that we set the seed so that we can have reproducible results. In other words, if you set your seed to the same number and type the exact command listed below, your results should be identical to those listed here. Additionally, the \texttt{proc.time} commands have been used to give you an idea of how quickly the model can be fit. The times shown here are from fitting a model on an ultrabook that cost 500 USD in 2013. 
 
+
 <<themodel,cache=TRUE>>=
 set.seed(1234) 
 ptm<-proc.time()
@@ -105,7 +112,8 @@ proc.time() - ptm
 @
 
 \subsection{Adding Optional Arguments}
-Additional arguments may be added for more control over the model fit.\\
+Additional arguments may be added for more control over the model fit. If you're an introductory user, go ahead and ignore this section.\\
+
 \subsubsection{Setting Variance Components Equal}
 By default, \texttt{glmm} assumes each variance component should be distinct. Suppose we want to set $\nu_F = \nu_M.$ Then we would add the argument \texttt{varcomps.equal} to indicate the equality. Since the list of random effects has two entries and we want those entries to share a variance component, we would set \texttt{varcomps.equal = c(1,1)}. In this scenario, we would only have one variance component, so we only need one entry in \texttt{varcomps.names}. Thus, the new command to fit this updated model with one variance component could be the following: 
 
@@ -234,6 +242,31 @@ confint(sal,level=.93,c("F"))
 
 Note that all confidence intervals are calculated using the observed Fisher information from the Monte Carlo likelihood approximation.\\
 
+\section{Estimating the Variance-Covariance Matrix}
+The variance-covariance matrix for the parameter estimates can be found using the \texttt{vcov} function. The only input is the model name.\\
+
+<<getvcov,echo=TRUE,eval=FALSE>>=
+vcov(sal)
+@
+
+The variance-covariance matrix can be useful for some hypothesis testing. For example, suppose we want to test the hypotheses:
+\begin{align*}
+H_0: \; &\beta_{RR}-\beta_{WW}=0\\
+H_0: \; &\beta_{RR}-\beta_{WW} \neq 0.\\
+\end{align*}
+The test statistic is
+\begin{align*}
+\dfrac{ \hat{\beta}_{RR} - \hat{\beta}_{WW} - 0}{\sqrt { \text{Var} \left(\hat{\beta}_{RR} - \hat{\beta}_{WW} \right )   }  } \sim N(0,1).
+\end{align*}
+To calculate is the denominator of the test statistic is
+\begin{align*}
+\text{Var} \left(\hat{\beta}_{RR} - \hat{\beta}_{WW} \right ) 
+= \text{Var} \left( \hat{\beta}_{RR}  \right)
++\text{Var} \left( \hat{\beta}_{WW}  \right)
+-2 \; \text{Cov} \left( \hat{\beta}_{RR} , \hat{\beta}_{WW}  \right)
+\end{align*}
+and these variances and covariances are found in the variance-covariance matrix.
+
 
 \section{Accessing Additional Output}\label{sec:otherstuff}
 The model produced by \texttt{glmm} has information that is not displayed by the \texttt{summary} command. The \texttt{names} command helps us see what we can access.
@@ -249,6 +282,9 @@ Next is \texttt{trust.converged}, which tell us whether the \texttt{trust} funct
 Items 7 through 16 relate to the original function call. \texttt{mod.mcml} contains the model matrix for the fixed effects, a list of model matrices for the random effects, and the response vector. These are also displayed in \texttt{x}, \texttt{z}, and \texttt{y}, respectively. Then, the call (the original formula representations of the fixed and random effects) are contained in \texttt{fixedcall}, \texttt{randcall}, and \texttt{call}.\\
 
 The last argument is \texttt{debug}. If the model was fit with the default \texttt{debug = FALSE}, then this argument is just \texttt{FALSE}. If the model was fit with \texttt{debug = TRUE}, then \texttt{debug} contains a list of output for advanced users and programmers.
+
+
+
 % We now look at the \texttt{debug} output.
 %<<debugout>>=
 %out<-sal$debug
