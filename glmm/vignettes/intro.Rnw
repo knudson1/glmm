@@ -17,6 +17,7 @@
 
 %\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{Using glmm}
+  %\usepackage[utf8]{inputenc}
 %\VignettePackage{glmm}
 %\VignetteKeywords{glmm, maximum likelihood, mle, Monte Carlo, likelihood approximation, likelihood based inference, Monte Carlo likelihood approximation, salamander, generalized linear mixed model}
 
@@ -245,8 +246,8 @@ Note that all confidence intervals are calculated using the observed Fisher info
 \section{Estimating the Variance-Covariance Matrix}
 The variance-covariance matrix for the parameter estimates can be found using the \texttt{vcov} function. The only input is the model name.\\
 
-<<getvcov,echo=TRUE,eval=FALSE>>=
-vcov(sal)
+<<getvcov>>=
+(myvcov <- vcov(sal))
 @
 
 The variance-covariance matrix can be useful for some hypothesis testing. For example, suppose we want to test the hypotheses:
@@ -254,19 +255,30 @@ The variance-covariance matrix can be useful for some hypothesis testing. For ex
 H_0: \; &\beta_{RR}-\beta_{WW}=0\\
 H_0: \; &\beta_{RR}-\beta_{WW} \neq 0.\\
 \end{align*}
-The test statistic is
+The Wald test statistic is
 \begin{align*}
 \dfrac{ \hat{\beta}_{RR} - \hat{\beta}_{WW} - 0}{\sqrt { \text{Var} \left(\hat{\beta}_{RR} - \hat{\beta}_{WW} \right )   }  } \sim N(0,1).
 \end{align*}
-To calculate is the denominator of the test statistic is
+To calculate
 \begin{align*}
 \text{Var} \left(\hat{\beta}_{RR} - \hat{\beta}_{WW} \right ) 
 = \text{Var} \left( \hat{\beta}_{RR}  \right)
 +\text{Var} \left( \hat{\beta}_{WW}  \right)
 -2 \; \text{Cov} \left( \hat{\beta}_{RR} , \hat{\beta}_{WW}  \right)
 \end{align*}
-and these variances and covariances are found in the variance-covariance matrix.
+we use the variances and covariances from the variance-covariance matrix:
+<<denomVar>>=
+myvar <- myvcov[1,1] + myvcov[4,4] - 2* myvcov[1,4]
+SE <- sqrt(myvar)
+@
+Then the test statistic and its associated p-value can be calculated:
+<<pval>>=
+test.stat <- (coef(sal)[1] - coef(sal)[4]) / SE
+as.numeric(2 * pnorm(test.stat))
+@
+Therefore, we do not have evidence to reject $H_0: \beta_{RR}=\beta_{WW}$. The probability of two White Side salamanders mating is not significantly different from the probability of two Rough Butt salamanders mating. This makes sense, considering how close $\beta_{RR}$ and $\beta{WW}$ are.\\
 
+Similarly, we could do a Wald-style hypothesis test to find the two variance components $\nu_F$ and $\nu_M$ are not significantly different.
 
 \section{Accessing Additional Output}\label{sec:otherstuff}
 The model produced by \texttt{glmm} has information that is not displayed by the \texttt{summary} command. The \texttt{names} command helps us see what we can access.

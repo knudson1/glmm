@@ -1,5 +1,5 @@
 #include "myheader.h"
-void cp3(double *etain, int *neta, int *typein, double *cpout)
+void cp3(double *etain, int *neta, int *typein, int *ntrials, double *cpout)
 {
     int leneta=neta[0];
     int type = typein[0];

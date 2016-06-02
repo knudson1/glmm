@@ -1,6 +1,6 @@
 
-R version 3.1.1 (2014-07-10) -- "Sock it to Me"
-Copyright (C) 2014 The R Foundation for Statistical Computing
+R version 3.2.4 Revised (2016-03-16 r70336) -- "Very Secure Dishes"
+Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -18,31 +18,32 @@ Type 'q()' to quit R.
 > library(glmm)
 Loading required package: trust
 Loading required package: mvtnorm
+Loading required package: Matrix
 > eta<-1.23
 > neta<-length(eta)
 > delta<-rep(.0000000001,neta)
 > 
 > #check derivatives for bernoulli using finite differences
-> foo<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),cpout=double(neta))$cpout
+> foo<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),cpout=double(neta))$cpout
 > this<-foo*delta
-> that<-.C("cum3",eta=as.double(eta+delta),neta=as.integer(neta),type=as.integer(1),cumout=double(neta))$cumout-.C("cum3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), cumout=double(neta))$cumout
+> that<-.C("cum3",eta=as.double(eta+delta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),cumout=double(neta))$cumout-.C("cum3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cumout=double(neta))$cumout
 > all.equal(this,that)
 [1] TRUE
 > 
-> this<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),cppout=double(neta))$cppout*delta
-> that<-.C("cp3",eta=as.double(eta+delta),neta=as.integer(neta),type=as.integer(1),cpout=double(neta))$cpout-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),cpout=double(neta))$cpout
+> this<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),cppout=double(neta))$cppout*delta
+> that<-.C("cp3",eta=as.double(eta+delta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),cpout=double(neta))$cpout-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),cpout=double(neta))$cpout
 > all.equal(this,that)
 [1] TRUE
 > 
 > #check derivatives for poisson using finite differences
-> foo<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),cpout=double(neta))$cpout
+> foo<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cpout=double(neta))$cpout
 > this<-foo*delta
-> that<-.C("cum3",eta=as.double(eta+delta),neta=as.integer(neta),type=as.integer(2),cumout=double(neta))$cumout-.C("cum3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), cumout=double(neta))$cumout
+> that<-.C("cum3",eta=as.double(eta+delta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cumout=double(neta))$cumout-.C("cum3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1),cumout=double(neta))$cumout
 > all.equal(this,that)
 [1] TRUE
 > 
-> this<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),cppout=double(neta))$cppout*delta
-> that<-.C("cp3",eta=as.double(eta+delta),neta=as.integer(neta),type=as.integer(2),cpout=double(neta))$cpout-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),cpout=double(neta))$cpout
+> this<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cppout=double(neta))$cppout*delta
+> that<-.C("cp3",eta=as.double(eta+delta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cpout=double(neta))$cpout-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cpout=double(neta))$cpout
 > all.equal(this,that)
 [1] TRUE
 > 
@@ -50,4 +51,4 @@ Loading required package: mvtnorm
 > 
 > proc.time()
    user  system elapsed 
-  0.194   0.016   0.199 
+  2.186   0.106   2.274 

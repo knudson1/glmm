@@ -1,6 +1,6 @@
 
-R version 3.1.1 (2014-07-10) -- "Sock it to Me"
-Copyright (C) 2014 The R Foundation for Statistical Computing
+R version 3.2.4 Revised (2016-03-16 r70336) -- "Very Secure Dishes"
+Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -200,14 +200,14 @@ Loading required package: Matrix
 + 	neta<-length(eta)
 + 
 + 	if(family.mcml$family.glmm=="bernoulli.glmm"){
-+ 		foo<-.C("cum3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),cumout=double(1))$cumout
-+ 		mu<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),cpout=double(neta))$cpout
-+ 		cdub<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),cppout=double(neta))$cppout
++ 		foo<-.C("cum3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),cumout=double(1))$cumout
++ 		mu<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),cpout=double(neta))$cpout
++ 		cdub<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),cppout=double(neta))$cppout
 + 	}
 + 	if(family.mcml$family.glmm=="poisson.glmm"){
-+ 		foo<-.C("cum3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),cumout=double(1))$cumout
-+ 		mu<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),cpout=double(neta))$cpout
-+ 		cdub<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),cppout=double(neta))$cppout
++ 		foo<-.C("cum3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cumout=double(1))$cumout
++ 		mu<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cpout=double(neta))$cpout
++ 		cdub<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cppout=double(neta))$cppout
 + 	}
 + 
 + 	value<-as.numeric(Y%*%eta-foo)
@@ -295,4 +295,4 @@ Loading required package: Matrix
 > 
 > proc.time()
    user  system elapsed 
-  3.499   0.075   3.571 
+  3.084   0.077   3.158 

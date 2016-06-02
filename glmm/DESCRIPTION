@@ -2,15 +2,16 @@ Package: glmm
 Type: Package
 Title: Generalized Linear Mixed Models via Monte Carlo Likelihood
         Approximation
-Version: 1.0.3
-Date: 2015-04-26
+Version: 1.1.0
+Date: 2016-06-1
 Author: Christina Knudson
-Maintainer: Christina Knudson <christina@stat.umn.edu>
+Maintainer: Christina Knudson <christina@umn.edu>
 Description: Approximates the likelihood of a generalized linear mixed model using Monte Carlo likelihood approximation. Then maximizes the likelihood approximation to return maximum likelihood estimates, observed Fisher information, and other model information.
 License: GPL-2
 Depends: R (>= 3.1.1), trust, mvtnorm, Matrix
+Imports: stats
 ByteCompile: TRUE
 NeedsCompilation: yes
 VignetteBuilder: knitr
 Suggests: knitr
-Packaged: 2015-02-15 18:56:08 UTC; christina
+Packaged: 2015-07-24 18:56:08 UTC; christina

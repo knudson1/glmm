@@ -11,6 +11,8 @@ import(trust)
 import(mvtnorm)
 import(Matrix)
 
+importFrom(stats, coef, pnorm, qnorm, rnorm, lm, model.matrix, model.response, runif, optim, printCoefmat)
+
 S3method(print, summary.glmm)
 S3method(summary, glmm)
 S3method(coef,glmm)

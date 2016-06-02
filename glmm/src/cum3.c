@@ -3,7 +3,7 @@
 #include "myheader.h"
 
 
-void cum3(double *etain, int *neta, int *typein, double *cumout)
+void cum3(double *etain, int *neta, int *typein, int *ntrials, double *cumout)
 {
     int leneta=neta[0];
     int type = typein[0];

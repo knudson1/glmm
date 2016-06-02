@@ -8,9 +8,9 @@
 #include <R.h>
 #include <R_ext/BLAS.h>
 
-void cum3(double *etain, int *neta, int *typein, double *cumout);
-void cp3(double *etain, int *neta, int *typein, double *cpout);
-void cpp3(double *etain, int *neta, int *typein, double *cppout);
+void cum3(double *etain, int *neta, int *typein, int *ntrials, double *cumout);
+void cp3(double *etain, int *neta, int *typein, int *ntrials, double *cpout);
+void cpp3(double *etain, int *neta, int *typein, int *ntrials, double *cppout);
 
 void matTvecmult(double *a, double *b, int *nrow, int *ncol, double *result);
 void diag(double *invec, int *nrow, double *outmat);

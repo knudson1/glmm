@@ -10,9 +10,12 @@ void elc(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family,
 	memset(cppout,0,*nrowX);
 
 	/*calling cum3, cp3, cpp3 will just change the doubles cumout, cpout, cppout  */
-	cum3(eta,nrowX,family,cumout);
-	cp3(eta,nrowX,family,cpout);
-	cpp3(eta,nrowX,family,cppout);
+    int *ntrials = Calloc(1, int);
+    ntrials[0]=1;
+	cum3(eta,nrowX,family,ntrials, cumout);
+	cp3(eta,nrowX,family, ntrials, cpout);
+	cpp3(eta,nrowX,family,ntrials, cppout);
+    Free(ntrials);
 
 	/*calculate value of el: Y^T eta-c(eta)  */
 	int thing1=1,*ione=&thing1;

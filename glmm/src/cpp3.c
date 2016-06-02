@@ -3,7 +3,7 @@
 #include "myheader.h"
 
 
-void cpp3(double *etain, int *neta, int *typein, double *cppout)
+void cpp3(double *etain, int *neta, int *typein, int *ntrials, double *cppout)
 {
     int leneta=neta[0];
     int type = typein[0];

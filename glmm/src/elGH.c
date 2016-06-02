@@ -5,9 +5,11 @@ void elGH(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family
 	double *cppout=Calloc(*nrowX,double);
 
 	/*calling cp3, cpp3 will just change the doubles cpout, cppout  */
-
-	cp3(eta,nrowX,family,cpout);
-	cpp3(eta,nrowX,family,cppout);
+	int *ntrials = Calloc(1, int);
+    ntrials[0]=1;
+	cp3(eta,nrowX,family,ntrials,cpout);
+	cpp3(eta,nrowX,family,ntrials,cppout);
+	Free(ntrials);
 
 	/*calculate gradient of el: X^T (Y-c'(eta))  
 	first use loop to calculate Y-c'(eta). then turn c''(eta) into -c''(eta)*/
