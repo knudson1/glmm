@@ -199,8 +199,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	umat<-rbind(genData,genData2,genData3)
 
 	#use trust to max the objfun (monte carlo likelihood)
-	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug, nbeta=length(beta.pql), nu.pql=nu.pql, 
-umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star,  cache=cache,  p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star,Sigmuh=Sigmuh,Sigmuh.inv=Sigmuh.inv,zeta=zeta)
+	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug, nbeta=length(beta.pql), nu.pql=nu.pql, umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star,  cache=cache,  p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star,Sigmuh=Sigmuh,Sigmuh.inv=Sigmuh.inv,zeta=zeta)
 
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]

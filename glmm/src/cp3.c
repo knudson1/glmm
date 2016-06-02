@@ -12,11 +12,11 @@ void cp3(double *etain, int *neta, int *typein, int *ntrials, double *cpout)
 	case 1:
 	    cpout[i]= 1/(1+exp(-eta));
 	    break;
-        case 2:
-            cpout[i]= exp(eta);
+    case 2:
+        cpout[i]= exp(eta);
 	    break;
-        default:
-            error("unrecognized type");
+    default:
+        error("unrecognized type");
 	    break;
         }
     }

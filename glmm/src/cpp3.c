@@ -17,11 +17,11 @@ void cpp3(double *etain, int *neta, int *typein, int *ntrials, double *cppout)
 	case 1:
 	    cppout[i]= 1/((1+exp(-eta))*(1+exp(eta)));
 	    break;
-        case 2:
-            cppout[i]= exp(eta);
+    case 2:
+        cppout[i]= exp(eta);
 	    break;
-        default:
-            error("unrecognized type");
+    default:
+        error("unrecognized type");
 	    break;
         }
     }

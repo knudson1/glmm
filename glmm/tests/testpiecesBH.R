@@ -33,18 +33,18 @@ logfyuk<-function(eta,x,y){
 
 #compare elc and logfyuk for a value of eta
 eta<-rep(2,150)
-this<-.C("elc",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1),gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))
+this<-.C("elc",as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 that<-logfyuk(eta,mod.mcml$x,mod.mcml$y)
 all.equal(as.numeric(this$value),as.numeric(that$value))
 all.equal(as.numeric(this$gradient),as.numeric(that$gradient))
 all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
 
 #compare elval to logfyuk
-this<-.C("elval",as.double(mod.mcml$y),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1))
+this<-.C("elval", as.double(mod.mcml$y), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1))
 all.equal(as.numeric(this$value),as.numeric(that$value))
 
 #compare elGH to logfyuk
-this<-.C("elGH",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))
+this<-.C("elGH", as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 all.equal(as.numeric(this$gradient),as.numeric(that$gradient))
 all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
 

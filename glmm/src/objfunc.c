@@ -8,11 +8,13 @@ nps is the length of pee (3 for now, maybe more if imp sampling distrib changes)
 */
 void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst, double *v, double *value, double *gradient, double *hessian)
 {
-	double *Uk = Calloc(*myq,double);
+    int *ntrials = Calloc(1, int);
+	ntrials[0]=1;
+	double *Uk = Calloc(*myq, double);
 	int Uindex = 0;
 
 	double db1 = 0.0;
-	double *double1=&db1; /*temp to hold info that will be put into lfuval*/
+	double *double1 = &db1; /*temp to hold info that will be put into lfuval*/
 
 	/* Calculate xbeta, needed to calculate eta for each Uk=U[k,] in R notation */
 	double *xbeta = Calloc(*n,double);
@@ -38,16 +40,16 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 
 		/* calculate eta for this value of Uk
 		first calculate ZUk*/
-		matvecmult(z,Uk,n,myq,zu);
+		matvecmult(z, Uk, n, myq, zu);
 
 		/* then add xbeta+zu to get current value of eta */
-		addvec(xbeta,zu,n,eta);
+		addvec(xbeta, zu, n, eta);
 
 		/*log f_theta(u_k) goes into lfuval*/
-		distRandGenC(Dinvfornu,logdetDinvfornu,myq,Uk,qzeros,&lfuval); 
+		distRandGenC(Dinvfornu, logdetDinvfornu, myq, Uk, qzeros, &lfuval); 
 
 		/* log f_theta(y|u_k) value goes into lfyuval */
-		elval(y,n,nbeta,eta,family_glmm,&lfyuval);
+		elval(y, n, nbeta, eta, family_glmm, ntrials, &lfyuval);
 
 		/* value of log f~_theta(u_k) 
 		first calculate value of log f~_theta(u_k) for 3 distribs used 
@@ -63,7 +65,7 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 		/*second piece is for N(ustar,Dstar)  */
 		distRandGenC(Dstarinv,logdetDstarinv, myq, Uk, ustar, double1);
 		lfutwidpieces[1] = *double1;
-		if(*double1>tempmax){tempmax=*double1;}
+		if(*double1 > tempmax){tempmax = *double1;}
 
 		/*third piece is for N(ustar,complicated var)  */
 		distRandGenC(Sigmuhinv,logdetSigmuhinv, myq, Uk, ustar, double1);
@@ -147,7 +149,8 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 		distRand3C(nu, qzeros, T, nrandom, meow, Uk, lfugradient, lfuhess);
 
 		/* calculate gradient and hessian log f_theta(y|u_k) */
-		elGH(y, x, n, nbeta, eta, family_glmm, lfyugradient, lfyuhess);
+		elGH(y, x, n, nbeta, eta, family_glmm, ntrials, lfyugradient, lfyuhess);
+		Free(ntrials);
 
 		/* calculate gradient */
 		Gindex=0;

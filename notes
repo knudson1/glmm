@@ -1,7 +1,8 @@
 \rm -f glmm/src/*.{o,so}
-R CMD check glmm
+R CMD build glmm
 R CMD check glmm --as-cran
 R CMD check glmm --use-valgrind
 R CMD check glmm --use-valgrind -00
 
 R -d valgrind --vanilla
+R -d "valgrind --tool=memcheck --track-origins=yes" --vanilla

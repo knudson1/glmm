@@ -1,21 +1,19 @@
 #include "myheader.h"
-void elc(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family, double *elval, double *elgradient, double *elhessian)
+void elc(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family,  int *ntrials, double *elval, double *elgradient, double *elhessian)
 {
 
-	double *cumout=Calloc(1,double);
+	double *cumout=Calloc(1, double);
 	cumout[0]=0.0;
-	double *cpout=Calloc(*nrowX,double);
+	double *cpout=Calloc(*nrowX, double);
 	memset(cpout,0,*nrowX);
-	double *cppout=Calloc(*nrowX,double);
+	double *cppout=Calloc(*nrowX, double);
 	memset(cppout,0,*nrowX);
 
 	/*calling cum3, cp3, cpp3 will just change the doubles cumout, cpout, cppout  */
-    int *ntrials = Calloc(1, int);
-    ntrials[0]=1;
-	cum3(eta,nrowX,family,ntrials, cumout);
-	cp3(eta,nrowX,family, ntrials, cpout);
-	cpp3(eta,nrowX,family,ntrials, cppout);
-    Free(ntrials);
+	cum3(eta, nrowX, family, ntrials, cumout);
+	cp3(eta, nrowX, family, ntrials, cpout);
+	cpp3(eta, nrowX, family, ntrials, cppout);
+
 
 	/*calculate value of el: Y^T eta-c(eta)  */
 	int thing1=1,*ione=&thing1;

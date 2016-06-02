@@ -39,7 +39,7 @@
 
 
 
-\title{Design Document: Monte Carlo Maximum Likelihood for Generalized Linear Mixed Models}
+\title{Design Document for R Package glmm}
 
 \author{Christina Knudson}
 
@@ -168,12 +168,16 @@ c(\eta_i) &= \log(1+e^{\eta_i}) =
 c'(\eta_i)&=\dfrac{ e^{{\eta_{i}}}}{ 1+e^{{\eta_{i}}}} = \dfrac{1}{1+e^{-\eta_i}}\\
 c''(\eta_i)&=   \dfrac{e^{{\eta_{i}}}}{  1+ e^{{\eta_{i}}} }  - \dfrac{e^{2{\eta_{i}}}}{    (  1+ e^{{\eta_{i}}})^2}  = \dfrac{1}{1+e^{-\eta_i}}\cdot \dfrac{1}{1+e^{\eta_i}}
 \end{align}
+
+
  For Poisson, these values (\texttt{cum}, \texttt{cp}, and \texttt{cpp}) are
 \begin{align}
 c(\eta_i)&=e^{\eta_i}\\
 c'(\eta_i)&=e^{{\eta_{i}}}\\
 c''(\eta_i)&= e^{{\eta_{i}}}.
 \end{align}
+
+
 
 Then we use these pieces to create the scalar $c(\eta)$, the vector $c'(\eta)$ and the matrix $c''(\eta)$. We calculate
 
@@ -196,7 +200,7 @@ This section provides details for the log density of the data and two of its der
 \subsection{Equations}
 Recall the log of the data density is
 \begin{align}
-\log f_\theta(y|u) &= y' \eta +c(\eta) \\
+\log f_\theta(y|u) &= y' \eta -c(\eta) \\
 &= \sum_{i} y_{i} {\eta_{i}} - c({\eta_{i}})
 \end{align}
 where
@@ -1005,6 +1009,41 @@ The only potential hangup is when creating confidence intervals for the variance
 
 To illustrate the problem, consider the scenario that the margin of error for $\nu_t$ is greater than the estimate of $\nu_t$ itself. It wouldn't make sense to produce a confidence interval with a negative lower bound. It could make sense to truncate the interval so that the lower bound starts at 0 and the upper bound remains untouched.  
 
+\section{New Additions (Summer 2016)}
+\subsection{New Family: Binomial}
+One year later, I'm adding binomial. For Binomial, the calculations change only in the cumulant function. They rely on one more number: the number of trials. The inputted response is usually a vector, but for binomial (with the exception of Bernoulli) we need 2 vectors cbinded (cbound?) together. The first column is the number of successes and the second is the number of failures. Summing across the row gives us the number of trials. I call this $ntrials$ from here on out.
+
+The cumulant function and its first two derivatives with respect to the canonical parameter $\eta_i$ are below. 
+\begin{align}
+c(\eta_i) &=ntrials_i \, \log(1+e^{\eta_i}) =
+  \begin{cases}
+   ntrials_i \, \log(1+e^{\eta_i}) & \text{if } \eta_i\leq 0,\\
+   ntrials_i \,\left(  \eta_i+\log(e^{-\eta_i}+1) \right) & \text{if } \eta_i >0,
+  \end{cases}\\
+c'(\eta_i)&=\dfrac{ e^{{\eta_{i}}}}{ 1+e^{{\eta_{i}}}} = \dfrac{ntrials_i}{1+e^{-\eta_i}}\\
+c''(\eta_i)&=   \dfrac{e^{{\eta_{i}}}}{  1+ e^{{\eta_{i}}} }  - \dfrac{e^{2{\eta_{i}}}}{    (  1+ e^{{\eta_{i}}})^2}  = \dfrac{ntrials_i}{1+e^{-\eta_i}}\cdot \dfrac{1}{1+e^{\eta_i}}
+\end{align}
+
+I will implement this change in steps. Game plan:
+\begin{enumerate}
+\item Start by writing the binomial cumulant in R. Check to make sure this calculation is identical to that produced by bernoulli for some parameter value $\eta_i$ and for $ntrials=1$. Check for both $\eta$ positive and negative.
+\item Check the three calculations for $ntrials=5$ (or some number other than 1) compared to my by-hand calculation. 
+\item Code it in C and check that the calculation is identical to that produced in R for $ntrials=1$ and for $ntrials \neq 1$.
+\item The second lowest level will then call binomial.glmm rather than bernoulli.glmm as the family. I will work my way up the levels incorporating ntrials. At the top, I will have a variable to set ntrials = 1 (for now). As I do each layer, I will make sure I get all the same answers from my salamanders problem (or some other bernoulli problem).
+\item I will go to the top-most layer, right where the model matrices are being made. The new response vector y will be the first column of the user-provided response. The sum of the two entries in the row will create the vector ntrials. I will check that the salamanders problem gives the same results (when specified as cbind(Mate, 1-Mate)).
+
+\item I will add checks for the model matrix stage.  See below.
+\item I want to allow the response for bernoulli to be a single vector  (rather than two cbinded vectors). Therefore, if the family is binomial.glmm and the length of the dimension of the response is 1 (meaning we just have a vector), then create the ntrials vector to be a vector of 1s. Test this with salamanders or some other problem to make sure it gives the same results.
+
+\end{enumerate}
+
+Checks for the model matrix stage: 
+\begin{enumerate}
+\item  If  the length of the dimension of the response is 2 dimensions (meaning we have both rows and columns), then the family must be binomial.glmm.
+\item If the family is binomial.glmm, then the response must have 2 columns
+\end{enumerate}
+
+These changes will need to be done in both C and R. The checks will be in R. I'll need to add  documentation for binomial. Bernoulli will be retained.
 
 %
 %\section{Prediction intervals}

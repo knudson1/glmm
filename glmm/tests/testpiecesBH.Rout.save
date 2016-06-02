@@ -1,6 +1,6 @@
 
-R version 3.1.1 (2014-07-10) -- "Sock it to Me"
-Copyright (C) 2014 The R Foundation for Statistical Computing
+R version 3.2.4 Revised (2016-03-16 r70336) -- "Very Secure Dishes"
+Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -53,7 +53,7 @@ Loading required package: Matrix
 > 
 > #compare elc and logfyuk for a value of eta
 > eta<-rep(2,150)
-> this<-.C("elc",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1),gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))
+> this<-.C("elc",as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 > that<-logfyuk(eta,mod.mcml$x,mod.mcml$y)
 > all.equal(as.numeric(this$value),as.numeric(that$value))
 [1] TRUE
@@ -63,12 +63,12 @@ Loading required package: Matrix
 [1] TRUE
 > 
 > #compare elval to logfyuk
-> this<-.C("elval",as.double(mod.mcml$y),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),value=double(1))
+> this<-.C("elval", as.double(mod.mcml$y), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1))
 > all.equal(as.numeric(this$value),as.numeric(that$value))
 [1] TRUE
 > 
 > #compare elGH to logfyuk
-> this<-.C("elGH",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1),gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))
+> this<-.C("elGH", as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 > all.equal(as.numeric(this$gradient),as.numeric(that$gradient))
 [1] TRUE
 > all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
@@ -270,4 +270,4 @@ Loading required package: Matrix
 > 
 > proc.time()
    user  system elapsed 
-  4.170   0.094   4.249 
+  2.483   0.073   2.549 
