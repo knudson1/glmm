@@ -7,17 +7,23 @@ void cp3(double *etain, int *neta, int *typein, int *ntrials, double *cpout)
 
     for(i=0;i<leneta;++i)
     {
-	double eta = etain[i];
-	switch (type) {
-	case 1:
-	    cpout[i]= 1/(1+exp(-eta));
-	    break;
-    case 2:
-        cpout[i]= exp(eta);
-	    break;
-    default:
-        error("unrecognized type");
-	    break;
+		double eta = etain[i];
+		switch (type) {
+			case 1:
+			    cpout[i]= 1/(1+exp(-eta));
+			    break;
+
+		    case 2:
+		        cpout[i]= exp(eta);
+			    break;
+
+			case 3:
+			    cpout[i]= ntrials[i]/(1+exp(-eta));
+			    break;
+
+		    default:
+		        error("unrecognized type");
+		   		break;
         }
     }
 }
