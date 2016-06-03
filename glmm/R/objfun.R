@@ -1,3 +1,5 @@
+#ntrials is a vector with length equal to length(y). if Bern or Poisson, ntrials is a vec of 1s
+
 objfun <-
 function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2, p3, m1, D.star, Sigmuh, Sigmuh.inv, zeta, ntrials){
 
