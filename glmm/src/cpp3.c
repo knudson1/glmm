@@ -14,15 +14,15 @@ void cpp3(double *etain, int *neta, int *typein, int *ntrials, double *cppout)
     {
 		double eta = etain[i];
 		switch (type) {
-			case 1:
+			case BERNOULLI:
 		    	cppout[i]= 1/((1+exp(-eta))*(1+exp(eta)));
 			    break;
 
-	    	case 2:
+	    	case POISSON:
 	    	    cppout[i]= exp(eta);
 			    break;
 
-			case 3:
+			case BINOMIAL:
 		    	cppout[i]= ntrials[i]/((1+exp(-eta))*(1+exp(eta)));
 			    break;
 

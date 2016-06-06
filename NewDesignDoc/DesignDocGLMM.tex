@@ -1026,10 +1026,15 @@ c''(\eta_i)&=   \dfrac{e^{{\eta_{i}}}}{  1+ e^{{\eta_{i}}} }  - \dfrac{e^{2{\eta
 
 I will implement this change in steps. Game plan:
 \begin{enumerate}
-\item Start by writing the binomial cumulant in R. Check to make sure this calculation is identical to that produced by bernoulli for some parameter value $\eta_i$ and for $ntrials=1$. Check for both $\eta$ positive and negative.
+\item Without adding binomial yet, add the ntrials argument to all levels of code so that ntrials can be passed to the cumulant functions and their derivatives. At the top, I will have a variable to set ntrials = 1 (for now). As I do each layer, I will make sure I get all the same answers from my salamanders problem (or some other bernoulli problem).
+\item Write the binomial cumulant in R. Do some checks with  both $\eta$ positive and negative.
+\begin{enumerate}
+ \item Check to make sure this calculation is identical to that produced by bernoulli for some parameter value $\eta_i$ and for $ntrials=1$. 
+\item Check  the sum of Bernoulli cumulants equals the binomial cumulant (for ntrials $>1$). 
+\item Check finite differences. 
 \item Check the three calculations for $ntrials=5$ (or some number other than 1) compared to my by-hand calculation. 
+\end{enumerate}
 \item Code it in C and check that the calculation is identical to that produced in R for $ntrials=1$ and for $ntrials \neq 1$.
-\item The second lowest level will then call binomial.glmm rather than bernoulli.glmm as the family. I will work my way up the levels incorporating ntrials. At the top, I will have a variable to set ntrials = 1 (for now). As I do each layer, I will make sure I get all the same answers from my salamanders problem (or some other bernoulli problem).
 \item I will go to the top-most layer, right where the model matrices are being made. The new response vector y will be the first column of the user-provided response. The sum of the two entries in the row will create the vector ntrials. I will check that the salamanders problem gives the same results (when specified as cbind(Mate, 1-Mate)).
 
 \item I will add checks for the model matrix stage.  See below.

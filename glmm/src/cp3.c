@@ -9,15 +9,15 @@ void cp3(double *etain, int *neta, int *typein, int *ntrials, double *cpout)
     {
 		double eta = etain[i];
 		switch (type) {
-			case 1:
+			case BERNOULLI:
 			    cpout[i]= 1/(1+exp(-eta));
 			    break;
 
-		    case 2:
+		    case POISSON:
 		        cpout[i]= exp(eta);
 			    break;
 
-			case 3:
+			case BINOMIAL:
 			    cpout[i]= ntrials[i]/(1+exp(-eta));
 			    break;
 

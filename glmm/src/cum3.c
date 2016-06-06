@@ -13,6 +13,7 @@ void cum3(double *etain, int *neta, int *typein, int *ntrials, double *cumout)
     for(i=0;i<leneta;++i)
     	{
 		double eta = etain[i];
+		int ntr = ntrials[i];
 		switch (type) {
 		case BERNOULLI:
 	 	   if(eta>0)
@@ -33,12 +34,12 @@ void cum3(double *etain, int *neta, int *typein, int *ntrials, double *cumout)
 		case BINOMIAL:
 	 	   if(eta>0)
 				{
-				cumout[0]+= ntrials[i] * (eta+log1p(exp(-eta)));
+				cumout[0]+= ntr*(eta+log1p(exp(-eta)));
 				break;
 				}
    	    	else
 				{
-				cumout[0]+= ntrials[i] * log1p(exp(eta));
+				cumout[0]+= ntr*log1p(exp(eta));
 				break;
 				}
 
