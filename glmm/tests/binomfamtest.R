@@ -208,4 +208,60 @@ all.equal(this, that)
 #no segfault errors and the same answer. Yay!
 
 
+# one last thing to check
+eta<-1
+ntrials<-1
+that <- bernoulli.glmm()$cum(eta)
+this <- binomial.glmm()$cum(eta, ntrials)
+all.equal(this, that)
+that <-  .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+all.equal(this, that)
+
+eta<--2
+ntrials<-1
+that <- bernoulli.glmm()$cum(eta)
+this <- binomial.glmm()$cum(eta, ntrials)
+all.equal(this, that)
+
+eta<--2
+ntrials<-2
+that <- 2*bernoulli.glmm()$cum(eta)
+this <- binomial.glmm()$cum(eta, ntrials)
+all.equal(this, that)
+that <-  .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+all.equal(this, that)
+
+eta<-1
+ntrials<-1
+that <- bernoulli.glmm()$cp(eta)
+this <- binomial.glmm()$cp(eta, ntrials)
+all.equal(this, that)
+
+eta<-1
+ntrials<-3
+that <- 3*bernoulli.glmm()$cp(eta)
+this <- binomial.glmm()$cp(eta, ntrials)
+all.equal(this, that)
+that <-  .C("cp3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+all.equal(this, that)
+
+eta<-1
+ntrials<-1
+that <- bernoulli.glmm()$cpp(eta)
+this <- binomial.glmm()$cpp(eta, ntrials)
+all.equal(this, that)
+
+eta<-1
+ntrials<-3
+that <- 3*bernoulli.glmm()$cpp(eta)
+this <- binomial.glmm()$cpp(eta, ntrials)
+all.equal(this, that)
+that <-  .C("cpp3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+all.equal(this, that)
+
+eta<--1
+ntrials<-1
+that <- bernoulli.glmm()$cpp(eta)
+this <- binomial.glmm()$cpp(eta, ntrials)
+all.equal(this, that)
 
