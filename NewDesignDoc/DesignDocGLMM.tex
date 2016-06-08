@@ -1037,16 +1037,17 @@ I will implement this change in steps. Game plan:
 \item Code it in C and check that the calculation is identical to that produced in R for $ntrials=1$ and for $ntrials \neq 1$.
 \item I will go to the top-most layer, right where the model matrices are being made. The new response vector y will be the first column of the user-provided response. The sum of the two entries in the row will create the vector ntrials. I will check that the salamanders problem gives the same results (when specified as cbind(Mate, 1-Mate)).
 
-\item I will add checks for the model matrix stage.  See below.
-\item I want to allow the response for bernoulli to be a single vector  (rather than two cbinded vectors). Therefore, if the family is binomial.glmm and the length of the dimension of the response is 1 (meaning we just have a vector), then create the ntrials vector to be a vector of 1s. Test this with salamanders or some other problem to make sure it gives the same results.
-
-\end{enumerate}
-
-Checks for the model matrix stage: 
+\item I will add checks for the model matrix stage. 
 \begin{enumerate}
 \item  If  the length of the dimension of the response is 2 dimensions (meaning we have both rows and columns), then the family must be binomial.glmm.
 \item If the family is binomial.glmm, then the response must have 2 columns
 \end{enumerate}
+\item I want to allow the response for bernoulli to be a single vector  (rather than two cbinded vectors). Therefore, if the family is binomial.glmm and the length of the dimension of the response is 1 (meaning we just have a vector), then create the ntrials vector to be a vector of 1s. Test this with salamanders or some other problem to make sure it gives the same results.
+
+\end{enumerate}
+
+
+
 
 These changes will need to be done in both C and R. The checks will be in R. I'll need to add  documentation for binomial. Bernoulli will be retained.
 
