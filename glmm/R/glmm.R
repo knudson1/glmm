@@ -42,6 +42,17 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	}
 	#so now random is a list containing a model matrix for each formula, and some matrices share variance components
 
+	#family stuff
+	family.glmm<-getFamily(family.glmm)
+
+	ntrials <- rep(1, length(y)) #used for Poisson and Bern, essentially untouched
+	if(family.glmm$family.glmm=="binomial.glmm"){
+		# make ntrials a vector with each entry the sum of the entries in the corresponding col of y
+		ntrials <- apply(y, MARGIN=1, FUN=sum)
+		y <- y[,1]
+	}
+	family.glmm$checkData(y)
+
 	if(is.numeric(varcomps.equal)==F) stop("varcomps.equal must be a vector containing numbers to indicate which variance components are equal.")
 	if(length(varcomps.equal)!=length(random)){
 		stop("The length of varcomps.equal must be equal to the length of the random-effects call.")} 
@@ -49,8 +60,9 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 		stop("You must name each unique variance component. Check varcomps.names and varcomps.equal.")} 
 	if(min(varcomps.equal)!=1)stop("The vector varcomps.equal must contain numbers starting at 1 to denote which variance components are equal.")	
 	levs<-ordered(unique(varcomps.equal))
-	family.glmm<-getFamily(family.glmm)
-	family.glmm$checkData(y)
+
+
+
 
 
 	#check p1 p2 p3
@@ -197,8 +209,6 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 #	genData2<-genRand(ones,zeros,mod.mcml$z,m2,distrib="normal",gamm)
 
 	umat<-rbind(genData,genData2,genData3)
-
-	ntrials <- rep(1, length(y))
 
 	#use trust to max the objfun (monte carlo likelihood)
 	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug, nbeta=length(beta.pql), nu.pql=nu.pql, umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star,  cache=cache,  p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star, Sigmuh=Sigmuh, Sigmuh.inv=Sigmuh.inv, zeta=zeta, ntrials = ntrials)
