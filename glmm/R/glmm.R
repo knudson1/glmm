@@ -1,5 +1,6 @@
 glmm <-
-function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000,par.init=NULL,zeta=5){
+function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000,par.init=NULL,zeta=5)
+	{
 	if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
 	if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
 	if(missing(varcomps.equal)){
@@ -17,6 +18,37 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
     }
     x <- model.matrix(fixed, data = barf)
     y <- model.response(barf)
+
+
+	#family stuff
+	family.glmm<-getFamily(family.glmm)
+
+	#check that only binomial has y being matrix
+	if(length(dim(y))==2){
+		if(family.glmm$family.glmm!="binomial.glmm") {
+			stop("For the family you've specified, only a vector is appropriate as the response. Binomial is the only family that allows you to specify the response as a matrix.")
+		}	
+	}
+
+	ntrials <- rep(1, length(y)) #used for Poisson and Bern, essentially untouched
+	if(family.glmm$family.glmm=="binomial.glmm"){
+		#if the response is a vector, then ntrials stays at 1
+		#if the response is a matrix
+		if(length(dim(y))==2){
+			#make sure it has exactly 2 columns
+			if(ncol(y)!=2) stop("Your response must have two columns: the first column reports the number of successes and the second column reports the number of failures.")
+
+			# make ntrials a vector with each entry the sum of the entries in the corresponding col of y
+			ntrials <- apply(y, MARGIN=1, FUN=sum)
+			y <- y[,1] 	#then change y to just be the number of successes
+		}
+
+
+	}
+	#do the check for the specified family
+	family.glmm$checkData(y)
+
+
     
     #then the part for the random effects. 
     #first, if it's not a list, make it a list 
@@ -25,33 +57,55 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
         random <- list(random)
     #put this stuff in a loop and loop along the list
     #for i in 1:length(formula2)
-    for (irandom in seq(along = random)) {
+    for (irandom in seq(along = random)) 
+			{
     		r<-random[[irandom]]
     		stopifnot(inherits(r, "formula"))
     		if (missing(data)) {
-       		 barf2 <- lm(r, method = "model.frame")
-   		} else {
-       		 stopifnot(inherits(data, "data.frame"))
-        	barf2 <- lm(r, data = data, method = "model.frame")
+       			barf2 <- lm(r, method = "model.frame")
+   			} else {
+       			stopifnot(inherits(data, "data.frame"))
+        		barf2 <- lm(r, data = data, method = "model.frame")
     		}
     	random[[irandom]] <- model.matrix(r, data = barf2)
 	#thisgroup<-varcomps.equal[irandom]
 	#names(random)[irandom]<-varcomps.names[thisgroup]
 
-	if(length(y)!=nrow(random[[irandom]])) stop("Fixed and random effect model matrices should have same number of rows")
+	if(length(y)!=nrow(random[[irandom]])) {
+		stop("Fixed and random effect model matrices should have same number of rows. This problem sometimes arises due to NAs (missing data).")
+		}
 	}
 	#so now random is a list containing a model matrix for each formula, and some matrices share variance components
 
-	#family stuff
-	family.glmm<-getFamily(family.glmm)
+#	#family stuff
+#	family.glmm<-getFamily(family.glmm)
 
-	ntrials <- rep(1, length(y)) #used for Poisson and Bern, essentially untouched
-	if(family.glmm$family.glmm=="binomial.glmm"){
-		# make ntrials a vector with each entry the sum of the entries in the corresponding col of y
-		ntrials <- apply(y, MARGIN=1, FUN=sum)
-		y <- y[,1]
-	}
-	family.glmm$checkData(y)
+#	#check that only binomial has y being matrix
+#	if(length(dim(y))==2){
+#		if(family.glmm$family.glmm!="binomial.glmm") {
+#			stop("For the family you've specified, only a vector is appropriate as the response. Binomial is the only family that allows you to specify the response as a matrix.")
+#		}	
+#	}
+
+#	ntrials <- rep(1, length(y)) #used for Poisson and Bern, essentially untouched
+#	if(family.glmm$family.glmm=="binomial.glmm"){
+#		#if the response is a vector, then ntrials stays at 1
+#		#if the response is a matrix
+#		if(length(dim(y))==2){
+#			#make sure it has exactly 2 columns
+#			if(ncol(y)!=2) stop("Your response must have two columns: the first column reports the number of successes and the second column reports the number of failures.")
+
+#			# make ntrials a vector with each entry the sum of the entries in the corresponding col of y
+#			ntrials <- apply(y, MARGIN=1, FUN=sum)
+#			y <- y[,1] 	#then change y to just be the number of successes
+#		}
+
+
+#	}
+#	#do the check for the specified family
+#	family.glmm$checkData(y)
+
+
 
 	if(is.numeric(varcomps.equal)==F) stop("varcomps.equal must be a vector containing numbers to indicate which variance components are equal.")
 	if(length(varcomps.equal)!=length(random)){

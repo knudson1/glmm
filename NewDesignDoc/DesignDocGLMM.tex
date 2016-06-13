@@ -1043,7 +1043,7 @@ I will implement this change in steps. Game plan:
 \item If the family is binomial.glmm, then the response must have 2 columns
 \end{enumerate}
 \item I want to allow the response for bernoulli to be a single vector  (rather than two cbinded vectors). Therefore, if the family is binomial.glmm and the length of the dimension of the response is 1 (meaning we just have a vector), then create the ntrials vector to be a vector of 1s. Test this with salamanders or some other problem to make sure it gives the same results.
-
+\item Change PQL function to do binomial.
 \end{enumerate}
 
 

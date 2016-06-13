@@ -208,7 +208,7 @@ all.equal(this, that)
 #no segfault errors and the same answer. Yay!
 
 
-# one last thing to check
+# one last thing to check about the cumulant calcs
 eta<-1
 ntrials<-1
 that <- bernoulli.glmm()$cum(eta)
@@ -264,4 +264,7 @@ ntrials<-1
 that <- bernoulli.glmm()$cpp(eta)
 this <- binomial.glmm()$cpp(eta, ntrials)
 all.equal(this, that)
+
+
+
 
