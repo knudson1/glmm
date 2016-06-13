@@ -23,6 +23,7 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 	family.glmm<-getFamily(family.glmm)
 	if(family.glmm$family.glmm=="bernoulli.glmm"){family_glmm=1}	
 	if(family.glmm$family.glmm=="poisson.glmm"){family_glmm=2}	
+	if(family.glmm$family.glmm=="binomial.glmm"){family_glmm=3}	
 
 	Dstarinvdiag<-1/diag(D.star)
 	D.star.inv<-diag(Dstarinvdiag)

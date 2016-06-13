@@ -66,12 +66,16 @@ function(par,beta,s,Y,X,Z,eek,family.mcml,cache, ntrials){
 	family.mcml<-getFamily(family.mcml)
 
 	if(family.mcml$family.glmm=="bernoulli.glmm"){
-		piece1<-.C("elc",as.double(Y),as.double(X),as.integer(nrow(X)),as.integer(ncol(X)),as.double(eta.twid),as.integer(1),as.integer(1),value=double(1),gradient=double(ncol(X)),hessian=double((ncol(X)^2)))$value}
+		piece1<-.C("elc", as.double(Y), as.double(X), as.integer(nrow(X)), as.integer(ncol(X)), as.double(eta.twid), as.integer(1), as.integer(ntrials), value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value}
 	if(family.mcml$family.glmm=="poisson.glmm"){
-		piece1<-.C("elc",as.double(Y),as.double(X),as.integer(nrow(X)),as.integer(ncol(X)),as.double(eta.twid),as.integer(2),as.integer(1), value=double(1),gradient=double(ncol(X)),hessian=double((ncol(X)^2)))$value}
+		piece1<-.C("elc", as.double(Y), as.double(X), as.integer(nrow(X)), as.integer(ncol(X)), as.double(eta.twid), as.integer(2), as.integer(ntrials), value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value}
+	if(family.mcml$family.glmm=="binomial.glmm"){
+		piece1<-.C("elc", as.double(Y), as.double(X), as.integer(nrow(X)), as.integer(ncol(X)), as.double(eta.twid), as.integer(3), as.integer(ntrials), value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value}
 	
 	#calculate W = c''(eta.twid)
-	dubya<-family.mcml$cpp(eta.twid)
+	if(family.mcml$family.glmm=="bernoulli.glmm") {dubya<-family.mcml$cpp(eta.twid)}
+	if(family.mcml$family.glmm=="poisson.glmm"){dubya<-family.mcml$cpp(eta.twid)}
+	if(family.mcml$family.glmm=="binomial.glmm"){dubya<-family.mcml$cpp(eta.twid, ntrials)}
 	W<-diag(as.vector(dubya))
 	
 	#calculate thatthing = A t(Z)WZA+I
@@ -99,13 +103,18 @@ function(mypar,Y,X,Z,A,family.mcml,nbeta,cache, ntrials )
 	s<-mypar[-(1:nbeta)]
 	eta<-X%*%beta+Z%*%A%*%s
 	family.mcml<-getFamily(family.mcml)
-	mu<-family.mcml$cp(eta)
+	if(family.mcml$family.glmm=="bernoulli.glmm") {mu<-family.mcml$cp(eta)}
+	if(family.mcml$family.glmm=="poisson.glmm"){mu<-family.mcml$cp(eta)}
+	if(family.mcml$family.glmm=="binomial.glmm"){mu<-family.mcml$cp(eta, ntrials)}
+	
 
 	#value<- ellikelihood(Y,X,eta,family.mcml)$value-.5*s%*%s
 	if(family.mcml$family.glmm=="bernoulli.glmm"){
-		value<-.C("elc", as.double(Y), as.double(X), as.integer(nrow(X)), as.integer(ncol(X)), as.double(eta),as.integer(1),as.integer(1), value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value-.5*s%*%s}
+		value<-.C("elc", as.double(Y), as.double(X), as.integer(nrow(X)), as.integer(ncol(X)), as.double(eta),as.integer(1),as.integer(ntrials), value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value-.5*s%*%s}
 	if(family.mcml$family.glmm=="poisson.glmm"){
-		value<-.C("elc", as.double(Y), as.double(X), as.integer(nrow(X)), as.integer(ncol(X)), as.double(eta), as.integer(2), as.integer(1), value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value-.5*s%*%s}
+		value<-.C("elc", as.double(Y), as.double(X), as.integer(nrow(X)), as.integer(ncol(X)), as.double(eta), as.integer(2), as.integer(ntrials), value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value-.5*s%*%s}
+	if(family.mcml$family.glmm=="binomial.glmm"){
+		value<-.C("elc", as.double(Y), as.double(X), as.integer(nrow(X)), as.integer(ncol(X)), as.double(eta), as.integer(3), as.integer(ntrials), value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value-.5*s%*%s}
 	
 	#gradient calculation
 	db<-t(X)%*%(Y-mu)
@@ -113,7 +122,9 @@ function(mypar,Y,X,Z,A,family.mcml,nbeta,cache, ntrials )
 	gradient<-c(db,ds)
 
 	#hessian calculation
-	cdub<-family.mcml$cpp(eta)
+	if(family.mcml$family.glmm=="bernoulli.glmm") {cdub<-family.mcml$cpp(eta)}
+	if(family.mcml$family.glmm=="poisson.glmm"){cdub<-family.mcml$cpp(eta)}
+	if(family.mcml$family.glmm=="binomial.glmm"){cdub<-family.mcml$cpp(eta, ntrials)}
 	cdub<-as.vector(cdub)
 	cdub<-diag(cdub)
 	kyoo<-nrow(A)

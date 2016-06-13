@@ -246,7 +246,10 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	if(m3>0){
 		Z=do.call(cbind,mod.mcml$z)
 		eta.star<-as.vector(mod.mcml$x%*%beta.pql+Z%*%u.star)
-		cdouble<-family.glmm$cpp(eta.star) #still a vector
+		if(family.glmm$family.glmm=="bernoulli.glmm") {cdouble<-family.glmm$cpp(eta.star)}
+		if(family.glmm$family.glmm=="poisson.glmm"){cdouble<-family.glmm$cpp(eta.star)}
+		if(family.glmm$family.glmm=="binomial.glmm"){cdouble<-family.glmm$cpp(eta.star, ntrials)}
+		 #still a vector
 		cdouble<-Diagonal(length(cdouble),cdouble)
 		Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
 		Sigmuh<-solve(Sigmuh.inv)
