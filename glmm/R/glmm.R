@@ -144,7 +144,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	}
 	names(z)<-varcomps.names
 
-	mod.mcml<-list(x = x, z=z,y = y)
+	mod.mcml<-list(x = x, z=z, y = y, ntrials = ntrials)
 
 	
 	#so now the 3 items are x (matrix), z (list), y (vector)
