@@ -3,7 +3,7 @@ Type: Package
 Title: Generalized Linear Mixed Models via Monte Carlo Likelihood
         Approximation
 Version: 1.1.0
-Date: 2016-06-1
+Date: 2016-06-13
 Author: Christina Knudson
 Maintainer: Christina Knudson <christina@umn.edu>
 Description: Approximates the likelihood of a generalized linear mixed model using Monte Carlo likelihood approximation. Then maximizes the likelihood approximation to return maximum likelihood estimates, observed Fisher information, and other model information.
