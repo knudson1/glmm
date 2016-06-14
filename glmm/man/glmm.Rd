@@ -12,7 +12,7 @@ rmax=1000,iterlim=1000, par.init, zeta=5)}
   \item{random}{an object of class "\code{formula}" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under "Details."}
   \item{varcomps.names}{The names of the distinct variance components in order of \code{varcomps.equal}.}
   \item{data}{an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which \code{glmm} is called.}
-  \item{family.glmm}{The name of the family. Must be class \code{glmm.family}. Current options are either \code{\link{bernoulli.glmm}} or \code{\link{poisson.glmm}}.}
+  \item{family.glmm}{The name of the family. Must be class \code{glmm.family}. Current options are \code{\link{bernoulli.glmm}}, \code{\link{poisson.glmm}}, and \code{\link{binomial.glmm}}.}
   \item{m}{The desired Monte Carlo sample size. See a note in under "Details."}
   \item{varcomps.equal}{An optional vector with elements 1 through the number of distinct variance components. Denotes variance components are to be set equal by assigning them the same integer. The length of varcomps.equal must be equal to the length of the list of random effects formulas. If omitted, varcomps.equal assumes no variance component should be set equal.}
   \item{doPQL}{logical. If \code{TRUE}, PQL estimates are used in the importance sampling distribution. If FALSE, the importance sampling distribution will use 0 for the fixed effects and 1 for the variance components. For advanced users, since \code{glmm} is generally more efficient when \code{doPQL=TRUE}.}
@@ -26,13 +26,15 @@ rmax=1000,iterlim=1000, par.init, zeta=5)}
 \item{zeta}{A scalar that specifies the degrees of freedom for the t-distribution from which random effects are generated.}
 }
 \details{
-Let \eqn{\beta}{beta} be a vector of fixed effects and let \eqn{u}{u} be a vector of random effects. Let \eqn{X}{X} and \eqn{Z}{Z} be design matrices for the fixed and random effects, respectively. The random effects are assumed to be normally distributed with mean 0 and variance matrix \eqn{D}{D}, where \eqn{D}{D} is diagonal with entries from the unknown vector \eqn{\nu}{nu}. Letting \eqn{g}{g} be the link function, \eqn{g(\mu)=X \beta+ZU}{g(mu)=X beta+ ZU}. For example, if the response is Bernoulli, then the logit function is the link.
+Let \eqn{\beta}{beta} be a vector of fixed effects and let \eqn{u}{u} be a vector of random effects. Let \eqn{X}{X} and \eqn{Z}{Z} be design matrices for the fixed and random effects, respectively. The random effects are assumed to be normally distributed with mean 0 and variance matrix \eqn{D}{D}, where \eqn{D}{D} is diagonal with entries from the unknown vector \eqn{\nu}{nu}. Letting \eqn{g}{g} be the link function, \eqn{g(\mu)=X \beta+ZU}{g(mu)=X beta+ ZU}. If the response type is Bernoulli or Binomial, then the logit function is the link; if the response type is Poisson, then the natural logarithm is the link function.
 
 Models for glmm are specified symbolically. A typical fixed effects model has the form \code{response ~ terms} where \code{response} is the (numeric) response vector and \code{terms} is a series of terms which specifies a linear predictor for response. A terms specification of the form \code{first + second} indicates all the terms in \code{first} together with all the terms in \code{second} with duplicates removed. 
 
 A specification of the form \code{first:second} indicates the set of terms obtained by taking the interactions of all terms in \code{first} with all terms in \code{second}. The specification \code{first*second} indicates the cross of \code{first} and \code{second}. This is the same as \code{first + second + first:second}.
 
 The terms in the formula will be re-ordered so that main effects come first, followed by the interactions, all second-order, all third-order and so on: to avoid this, pass a \code{terms} object as the formula. 
+
+If you choose \code{binomial.glmm} as the \code{family.glmm}, then your response should be a two-column matrix: the first column reports the number of successes and the second reports the number of failures.
 
 The random effects for glmm are also specified symbolically. The random effects model specification is typically a list. Each element of the \code{random} list has the form \code{response ~ 0 + term}. The 0 centers the random effects at 0. If you want your random effects to have a nonzero mean, then include that term in the fixed effects.  Each variance component must have its own formula in the list.
 
@@ -57,7 +59,7 @@ To see the summary of the model, use summary().
  \item{likelihood.value}{The Monte Carlo maximum likelihood evaluated at the MCMLEs \code{beta} and \code{nu}.}
  \item{likelihood.gradient}{The Monte Carlo maximum likelihood gradient vector at the MCMLEs \code{beta} and \code{nu}.}
  \item{likelihood.hessian}{The Monte Carlo maximum likelihood Hessian matrix at the MCMLEs \code{beta} and \code{nu}.}
-\item{mod.mcml}{A list containing the fixed effect design matrix, the list of random effect design matrices, and the response.}
+\item{mod.mcml}{A list containing the fixed effect design matrix, the list of random effect design matrices, the response. and the number of trials (for the Binomial family).}
 \item{call}{The call.}
 \item{fixedcall}{The fixed effects call.}
 \item{randcall}{The random effects call.}
@@ -120,6 +122,11 @@ m<-10
 sal<-glmm(Mate~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),
 data=salamander,family.glmm=bernoulli.glmm,m=m,debug=TRUE,doPQL=FALSE)
 summary(sal)
+
+#The above model (sal) can be redone with binomial.glmm
+set.seed(1234)
+sal<-glmm(cbind(Mate,1-Mate)~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),
+data=salamander,family.glmm=binomial.glmm,m=m,debug=TRUE,doPQL=FALSE)
 
 }
 
