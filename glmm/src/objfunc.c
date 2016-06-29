@@ -112,7 +112,7 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 
 /* done with value! */
 /* now going to do second loop, which calculates grad and hess */
-	int npar = *nbeta+*T;
+	int npar = *nbeta + *T;
 	double *lfugradient = Calloc(*T, double);
 	double *lfuhess = Calloc((*T)*(*T), double);
 	double *lfyugradient = Calloc(*nbeta, double);
@@ -128,7 +128,7 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 	int intone = 1;
 
 	double *lobster = Calloc(npar*npar, double);
-	int lfyuindex=0, lfuindex=0, matindex=0;
+	int lfyuindex = 0, lfuindex = 0, matindex = 0;
 
 	for(int k = 0; k<*m; k++){
 		/*start by getting Uk  */
@@ -158,14 +158,46 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 			Gindex++;
 		}
 		for(int i = 0; i<*T; i++){
-			gradient[Gindex]+=lfugradient[i]*v[k];
+			gradient[Gindex]+= lfugradient[i]*v[k];
 			Gindex++;
 		}
+
+	} /* ends FIRST k loop */
+
+	Uindex = 0;	
+	Gindex = 0;
+	lfyuindex = 0;
+	lfuindex = 0;
+	matindex = 0;
+
+	double *GtG = Calloc((npar*npar), double);
+	matmatmult(gradient, gradient, &npar, &intone, &npar, GtG);
+
+	/* begins SECOND k loop */
+	for(int k = 0; k<*m; k++){
+		/*start by getting Uk  */
+		for(int i = 0; i<*myq; i++){
+			Uk[i] = Umat[Uindex];
+			Uindex++;
+		}
+
+		/* calculate eta for this value of Uk
+		first calculate ZUk*/
+		matvecmult(z, Uk, n, myq, zu);
+
+		/* then add xbeta+zu to get current value of eta */
+		addvec(xbeta, zu, n, eta);
+
+		/* calculate lfu gradient and hessian */
+		distRand3C(nu, qzeros, T, nrandom, meow, Uk, lfugradient, lfuhess);
+
+		/* calculate gradient and hessian log f_theta(y|u_k) */
+		elGH(y, x, n, nbeta, eta, family_glmm, ntrials, lfyugradient, lfyuhess);
 
 	/* Calculate hessian. 3 parts: panda, lobster, and matrix G t(G). 
 	Panda is \sum_{k=1}^m (\nabla log f_\theta (uk,y))(\nabla log f_\theta (uk,y))' v(uk,y)
 	Lobster is \sum_{k=1}^m \nabla^2 log f_\theta(uk,y) v(uk,y)  
-	panda and lobster are calculated in a loop, but G t(G) will be calc outside of k-loop.
+	panda and lobster are calculated in a loop, and G t(G) already calculated.
 		First calculate panda. For each k, add on pandabit1 %*% t(pandabit2) 
 		where pandabit2=pandabit1* v[k]. */
 		Gindex = 0;
@@ -193,7 +225,7 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 		matindex = 0;
 		for(int i = 0; i<*nbeta; i++){ /* for first nbeta columns of lobster */
 			for(int j = 0; j<*nbeta; j++){
-				lobster[matindex]+=lfyuhess[lfyuindex]*v[k];
+				lobster[matindex]+= lfyuhess[lfyuindex]*v[k];
 				matindex++;
 				lfyuindex++;
 			}
@@ -209,9 +241,9 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 				lobster[matindex]+= lfuhess[lfuindex]*v[k];
 				matindex++;
 				lfuindex++;
-			}
-		}
-	}
+			} /* ends j loop */
+		}/* ends i loop */
+	} /* ends SECOND k loop */
 
 	Free(pandatemp);
 	Free(pandabit1);
@@ -226,8 +258,7 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 	Free(lfyuhess);
 	Free(qzeros);
 
-	double *GtG = Calloc((npar*npar), double);
-	matmatmult(gradient, gradient, &npar, &intone, &npar, GtG);
+
 
 	/* finally, hessian = lobster+ panda - gradient t(gradient) */
 	for(int i = 0; i<(npar*npar); i++){
