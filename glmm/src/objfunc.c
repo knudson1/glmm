@@ -164,14 +164,12 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 
 	} /* ends FIRST k loop */
 
+	/*	reset counters to 0*/
 	Uindex = 0;	
 	Gindex = 0;
 	lfyuindex = 0;
 	lfuindex = 0;
 	matindex = 0;
-
-	double *GtG = Calloc((npar*npar), double);
-	matmatmult(gradient, gradient, &npar, &intone, &npar, GtG);
 
 	/* begins SECOND k loop */
 	for(int k = 0; k<*m; k++){
@@ -194,21 +192,21 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 		/* calculate gradient and hessian log f_theta(y|u_k) */
 		elGH(y, x, n, nbeta, eta, family_glmm, ntrials, lfyugradient, lfyuhess);
 
-	/* Calculate hessian. 3 parts: panda, lobster, and matrix G t(G). 
-	Panda is \sum_{k=1}^m (\nabla log f_\theta (uk,y))(\nabla log f_\theta (uk,y))' v(uk,y)
+	/* Calculate hessian. 2 parts: panda, lobster. 
+	Panda is \sum_{k=1}^m pandabit1 times pandabit2 where
+	pandabit1 is (\nabla log f_\theta (uk,y)-\nabla objfun)
+	and pandabit2 is (\nabla log f_\theta (uk,y)-\nabla objfun)' v(uk,y)
 	Lobster is \sum_{k=1}^m \nabla^2 log f_\theta(uk,y) v(uk,y)  
-	panda and lobster are calculated in a loop, and G t(G) already calculated.
-		First calculate panda. For each k, add on pandabit1 %*% t(pandabit2) 
-		where pandabit2=pandabit1* v[k]. */
+	 */
 		Gindex = 0;
 		for(int i = 0; i<*nbeta; i++){
-			pandabit1[Gindex] = lfyugradient[i];
-			pandabit2[Gindex] = lfyugradient[i]*v[k];
+			pandabit1[Gindex] = lfyugradient[i] - gradient[Gindex];
+			pandabit2[Gindex] = (lfyugradient[i] - gradient[Gindex])*v[k];
 			Gindex++;
 		}
 		for(int i = 0; i<*T; i++){
-			pandabit1[Gindex] = lfugradient[i];
-			pandabit2[Gindex] = lfugradient[i]*v[k];
+			pandabit1[Gindex] = lfugradient[i] - gradient[Gindex];
+			pandabit2[Gindex] = (lfugradient[i] - gradient[Gindex])*v[k];
 			Gindex++;
 		}
 		/* now have pandabits so can calc what we'll add on this iteration*/
@@ -258,15 +256,12 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 	Free(lfyuhess);
 	Free(qzeros);
 
-
-
-	/* finally, hessian = lobster+ panda - gradient t(gradient) */
+	/* finally, hessian = lobster + panda  */
 	for(int i = 0; i<(npar*npar); i++){
-		hessian[i] = lobster[i] + panda[i] - GtG[i];
+		hessian[i] = lobster[i] + panda[i] ;
 	}
 
 	Free(panda);
-	Free(GtG);
 	Free(lobster);
 
 }
