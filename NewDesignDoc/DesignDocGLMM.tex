@@ -1051,6 +1051,63 @@ I will implement this change in steps. Game plan:
 
 These changes will need to be done in both C and R. The checks will be in R. I'll need to add  documentation for binomial. Bernoulli will be retained.
 
+
+\subsection{MCSE}
+Let  $\gamma_1$ be defined as
+\begin{align}
+  \gamma_1 = \int  f_\theta(u,y) \; du =  f_\theta(y). \label{eq:gamma1} 
+\end{align}
+My thesis shows the Monte Carlo error of the gradient of the log likelihood at the MLE $\hat{\theta}$ is 
+\begin{align}
+V= \dfrac{1}{\gamma_1^2}  \int \left[  \nabla \log f_{\hat{\theta}}(u,y)  \right] \left[  \nabla \log f_{\hat{\theta}}(u,y)  \right]^T \dfrac{f_{\hat{\theta}}(u,y)^2}{\tilde{f}(u)} \, du.
+\end{align}
+
+
+
+We can estimate this with the MCMLE $\hat{\theta}_m$:
+\begin{align}
+\hat{V}= \dfrac{ \dfrac{1}{m}  \sum_{k=1}^m \left( \left[\nabla \log f_{\hat{\theta}_m}(u_k,y)  \right] \left[\nabla \log f_{\hat{\theta}_m}(u_k,y)  \right]^T  \dfrac{ f_{\hat{\theta}_m}(u_k,y)^2   }{\tilde{f}(u_k)}  \right) }
+{  \left( \dfrac{1}{m} \sum_{k=1}^m  \dfrac{ f_{\hat{\theta}_m}(u_k,y)   }{\tilde{f}(u_k)} \right)^2 }_.
+\end{align}
+%\begin{align}
+%\hat{V}= \dfrac{   \sum_{k=1}^m \left( \left[ \nabla \log f_{\hat{\theta}_m} (u_k,y)  - \nabla l_m({\hat{\theta}_m}|y)   \right] \left[ \nabla \log f_{\hat{\theta}_m}(u_k,y)  -\nabla l_m({\hat{\theta}_m}|y)  \right]^T  \dfrac{ f_{\hat{\theta}_m}(u_k,y)   }{\tilde{f}(u_k)}  \right) }{\sum_{k=1}^m  \dfrac{ f_{\hat{\theta}_m}(u_k,y)   }{\tilde{f}(u_k)}}_.
+%\end{align}
+
+Let U be the Hessian of the likelihood evaluated at the MLE. This is estimated by
+\begin{align}
+\hat{U} = \nabla^2 l_m (\hat{\theta}_m |y).
+\end{align}
+In other words, $\hat{U}$ is the  MCLA Hessian evaluated at the MCMLE. 
+
+Then the MCSE of $\hat{\theta}_m$ is the square root of the diagonal elements of
+\begin{align} 
+\dfrac{1}{m} \, \hat{U}^{-1} \, \hat{V} \, \hat{U}^{-1}
+\end{align}
+under the regularity conditions listed in \citet{geyer:1994}.
+
+The breakdown for programming MCSE is:
+\begin{enumerate}
+\item Get $\hat{U}$ from output's \texttt{likelihood.hessian}
+\item Stably invert $\hat{U}$
+\item Calculate $\hat{V}$
+\item Finish calculation (result will be a vector of MCSE with length equal to number of parameters)
+\item Output table
+\end{enumerate}
+The output table will have a row for each parameter. The columns will be estimate (MCMLE), SE, MCSE. This will allow for easy comparison between SE and MCSE so that users can ensure their MCSE is small enough compared to the SE.
+
+Note on calculating $\hat{U}$:the likelihood's Hessian is calculated for every call of objfunc. We can get this from the output's \texttt{likelihood.hessian}.
+
+To do steps:
+\begin{enumerate}
+\item Remember how to do QR decomp (or some other stable matrix decomposition to stable invert the matrix)
+\item Calculate $\hat{V}$ and the rest of the MCSE calculation in R
+\item Change the  $\hat{V}$ calculation to C
+\end{enumerate}
+
+
+\subsection{Revisit Summary Table}
+I just realized I have \texttt{solve()} for calculating the variance-covariance matrix. I need to do a QR decomposition or something more stable.
+
 %
 %\section{Prediction intervals}
 %This is another S3 generic. The user can implement this command to create prediction intervals after  fitting a model $mod$ using the main function. Still learning about these. I currently know almost nothing. What I do know is that I will need the Monte Carlo log likelihood along with its first and second derivatives. I'll get to practice my first-year-theory delta method skills.
