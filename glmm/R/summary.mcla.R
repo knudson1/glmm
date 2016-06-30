@@ -20,7 +20,10 @@ function(object,...){
                "definite, making all standard errors infinite"))
             all.ses <- rep(Inf, nrow(hessian))
         }
-	else{	all.ses<-sqrt(diag(solve(-hessian)))}
+	else{	
+		varcov <-vcov(mod.mcml)
+		all.ses<-sqrt(diag(varcov))
+		}
 	
 	beta.se<-all.ses[1:nbeta]
 	zval<-beta/beta.se
@@ -88,7 +91,12 @@ vcov.glmm <-
 function(object,...){
 	mod<-object
    	stopifnot(inherits(mod, "glmm"))
-	vcov <- -solve(mod$likelihood.hessian)
+
+	cho<-chol(-mod$likelihood.hessian)
+	blah<-diag(nrow(mod$likelihood.hessian))
+	uinv<-backsolve(cho, blah)
+	vcov<-uinv%*%t(uinv)
+
 
 	#get names for vcov matrix
 	rownames(vcov)<-colnames(vcov)<-rep(c("blah"),nrow(vcov))
@@ -128,7 +136,10 @@ confint.glmm<-function(object,parm,level=.95,...){
                "definite, making all standard errors infinite"))
             all.ses <- rep(Inf, nrow(hessian))
         }
-	else{	all.ses<-sqrt(diag(solve(-hessian)))}
+	else{	
+		varcov <-vcov(object)
+		all.ses<-sqrt(diag(varcov))
+		}
 	
 	names(all.ses)<-pnames
 	ci<-matrix(data=NA,nrow=length(parm),ncol=2)
