@@ -1099,10 +1099,19 @@ Note on calculating $\hat{U}$:the likelihood's Hessian is calculated for every c
 
 To do steps:
 \begin{enumerate}
-\item Remember how to do QR decomp (or some other stable matrix decomposition to stable invert the matrix)
+\item Remember how to do qr decomp (stably invert the matrix with qr.solve)
 \item Calculate $\hat{V}$ and the rest of the MCSE calculation in R
 \item Change the  $\hat{V}$ calculation to C
 \end{enumerate}
+
+
+\subsubsection{Cholesky Decomposition for Matrix Inversion}
+Cholesky decomposition takes a symmetric, positive definite matrix and decomposes it into $LL'$, where $L$ is a lower triangular matrix and $L'$ is the transpose of L (so it's upper triangular). Triangular matrices are easy to solve using \texttt{backsolve} in R. For example, if you have the hessian \texttt{hess} and want to get the variance covariance matrix, then do 
+\begin{verbatim}
+cho <- chol(hess)
+uinv <- backsolve(cho, diag(nrow(cho))
+vcov <- uinv %*% t(uinv)
+\end{verbatim}
 
 
 \subsection{Revisit Summary Table}

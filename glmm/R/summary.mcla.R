@@ -92,10 +92,11 @@ function(object,...){
 	mod<-object
    	stopifnot(inherits(mod, "glmm"))
 
-	cho<-chol(-mod$likelihood.hessian)
-	blah<-diag(nrow(mod$likelihood.hessian))
-	uinv<-backsolve(cho, blah)
-	vcov<-uinv%*%t(uinv)
+#	cho<-chol(-mod$likelihood.hessian)
+#	blah<-diag(nrow(mod$likelihood.hessian))
+#	uinv<-backsolve(cho, blah)
+#	vcov<-uinv%*%t(uinv)
+	vcov <- qr.solve(-mod$likelihood.hessian)
 
 
 	#get names for vcov matrix
