@@ -1,5 +1,5 @@
 
-R version 3.2.4 Revised (2016-03-16 r70336) -- "Very Secure Dishes"
+R version 3.3.1 (2016-06-21) -- "Bug in Your Hair"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -73,7 +73,7 @@ Loading required package: Matrix
 > c(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value)
 [1] -5.137664e-05 -5.137676e-05
 > as.vector(ltheta$gradient%*%del)-(lthetadel$value-ltheta$value)
-[1] 1.13056e-10
+[1] 1.131129e-10
 > all.equal(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value,tolerance=10^-5)
 [1] TRUE
 > 
@@ -90,11 +90,11 @@ Loading required package: Matrix
 [6,]  4.276783e-06  4.276776e-06
 > #how big are the diffs? very small
 > lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
-[1] 4.984906e-11 2.697148e-12 2.141327e-11 1.902214e-11 7.989199e-12
-[6] 6.516001e-12
+[1] 4.985616e-11 2.690737e-12 2.141682e-11 1.902392e-11 7.990975e-12
+[6] 6.517777e-12
 > 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  3.016   0.054   3.062 
+  6.340   0.064   6.401 
