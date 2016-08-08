@@ -8,6 +8,7 @@ export(binomial.glmm)
 export(summary.glmm)
 export(coef.glmm)
 export(varcomps)
+export(vcov.glmm)
 
 import(trust)
 import(mvtnorm)
@@ -17,6 +18,6 @@ importFrom(stats, coef, pnorm, qnorm, rnorm, lm, model.matrix, model.response, r
 
 S3method(print, summary.glmm)
 S3method(summary, glmm)
-S3method(coef,glmm)
-S3method(confint,glmm)
-S3method(vcov,glmm)
+S3method(coef, glmm)
+S3method(confint, glmm)
+S3method(vcov, glmm)
