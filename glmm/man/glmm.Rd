@@ -73,6 +73,7 @@ To see the summary of the model, use summary().
 \item{pvec}{A vector containing \code{p1}, \code{p2}, and \code{p3}.}
 \item{beta.pql}{PQL estimate of \eqn{\beta}{beta}, when \code{doPQL} is \code{TRUE}.}
 \item{nu.pql}{PQL estimate of \eqn{\nu}{nu}, when \code{doPQL} is \code{TRUE}.}
+\item{u.pql}{PQL predictions of the random effects.}
 \item{zeta}{The number of degrees of freedom used in the t component of the importance sampling distribution.}
   \item{debug}{If \code{TRUE} extra output useful for testing.}
   The function \code{\link{summary}} (i.e., \code{\link{summary.glmm}}) can
