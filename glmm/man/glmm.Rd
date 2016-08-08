@@ -69,6 +69,7 @@ To see the summary of the model, use summary().
 \item{family.glmm}{The name of the family. Must be class \code{glmm.family}.}
 \item{varcomps.names}{The vector of names for the distinct variance components.}
 \item{varcomps.equal}{The vector denoting equal variance components.}
+\item{u.mat}{A matrix with \code{m} rows. Each row is a vector of random effects generated from the importance sampling distribution.}
   \item{debug}{If \code{TRUE} extra output useful for testing.}
   The function \code{\link{summary}} (i.e., \code{\link{summary.glmm}}) can
   be used to obtain or print a summary of the results. The generic accessor function \code{\link{coef}} (i.e., \code{\link{coef.glmm}}) can be used to extract the coefficients.
