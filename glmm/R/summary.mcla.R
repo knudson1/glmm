@@ -21,7 +21,7 @@ function(object,...){
             all.ses <- rep(Inf, nrow(hessian))
         }
 	else{	
-		varcov <-vcov(mod.mcml)
+		varcov <-vcov.glmm(mod.mcml)
 		all.ses<-sqrt(diag(varcov))
 		}
 	
@@ -138,7 +138,7 @@ confint.glmm<-function(object,parm,level=.95,...){
             all.ses <- rep(Inf, nrow(hessian))
         }
 	else{	
-		varcov <-vcov(object)
+		varcov <-vcov.glmm(object)
 		all.ses<-sqrt(diag(varcov))
 		}
 	
