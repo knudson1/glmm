@@ -288,5 +288,5 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	trust.converged=trust.out$converged,  mod.mcml=mod.mcml,
 	 fixedcall=fixed,randcall=randcall, x=x,y=y, z=random,
 	family.glmm=family.glmm, call=call, varcomps.names=varcomps.names, 
-	varcomps.equal=varcomps.equal, umat=umat, pvec=c(p1, p2, p3), debug=debug), class="glmm"))
+	varcomps.equal=varcomps.equal, umat=umat, pvec=c(p1, p2, p3), beta.pql=beta.pql, nu.pql=nu.pql, zeta=zeta, debug=debug), class="glmm"))
 }
