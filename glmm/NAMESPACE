@@ -9,6 +9,7 @@ export(summary.glmm)
 export(coef.glmm)
 export(varcomps)
 export(vcov.glmm)
+export(mcse)
 
 import(trust)
 import(mvtnorm)

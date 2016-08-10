@@ -1,8 +1,8 @@
 #ntrials is a vector with length equal to length(y). if Bern or Poisson, ntrials is a vec of 1s
 
-mcse <- function(mod){
+mcse <- function(object){
 
-
+	mod <- object
 
 	beta <- mod$beta
 	nu <-mod$nu
