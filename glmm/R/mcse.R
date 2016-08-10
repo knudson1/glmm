@@ -1,6 +1,6 @@
 #ntrials is a vector with length equal to length(y). if Bern or Poisson, ntrials is a vec of 1s
 
-mcse <- function(object){
+mcvcov <- function(object){
 
 	mod <- object
 
@@ -85,10 +85,29 @@ mcse <- function(object){
 	Uhat <- mod$likelihood.hessian
 	Uhatinv <- qr.solve(Uhat)
 
-	UinvVUinv <- Uhatinv %*% Vhat %*% Uhatinv
+	out <- Uhatinv %*% Vhat %*% Uhatinv/m
 
-	MCSE <- sqrt(diag(UinvVUinv)/m)
+	cf<-c(coef(object),varcomps(object))
+	pnames<-names(cf)
+	rownames(out) <- pnames
+	colnames(out) <- pnames
+
+	out
+
+}
+
+#ntrials is a vector with length equal to length(y). if Bern or Poisson, ntrials is a vec of 1s
+
+mcse <- function(object){
+
+
+	UinvVUinv <- mcvcov(object)
+
+	MCSE <- sqrt(diag(UinvVUinv))
 	MCSE
 
 }
+
+
+
 
