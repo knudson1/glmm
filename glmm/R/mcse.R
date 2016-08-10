@@ -80,7 +80,15 @@ mcse <- function(mod){
 	vhatdenom <- ( stuff[[1]]   )^2
 
 	vhatvec <- vhatnum/vhatdenom
-	vhat <- matrix(vhatvec, nrow=npar)
+	Vhat <- matrix(vhatvec, nrow=npar)
+
+	Uhat <- mod$likelihood.hessian
+	Uhatinv <- qr.solve(Uhat)
+
+	UinvVUinv <- Uhatinv %*% Vhat %*% Uhatinv
+
+	MCSE <- sqrt(diag(UinvVUinv)/m)
+	MCSE
 
 }
 
