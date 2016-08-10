@@ -104,6 +104,68 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *y, double *U
 	/*	Vhat's denom*/
 	double vhatdenom = gamma[0]*gamma[0];
 
+/* now going to do second loop, for numerator */
+	int npar = *nbeta + *T;
+	double *lfugradient = Calloc(*T, double);
+	double *lfuhess = Calloc((*T)*(*T), double);
+	double *lfyugradient = Calloc(*nbeta, double);
+	double *lfyuhess = Calloc((*nbeta)*(*nbeta), double);
+	double *Gpiece = Calloc(npar, double);
+
+	Uindex = 0;	
+	int Gindex = 0;
+	int intone = 1;
+
+	int lfyuindex = 0, lfuindex = 0, matindex = 0;
+
+	for(int k = 0; k<*m; k++){
+		/*start by getting Uk  */
+		for(int i = 0; i<*myq; i++){
+			Uk[i] = Umat[Uindex];
+			Uindex++;
+		}
+
+		/* calculate eta for this value of Uk
+		first calculate ZUk*/
+		matvecmult(z, Uk, n, myq, zu);
+
+		/* then add xbeta+zu to get current value of eta */
+		addvec(xbeta, zu, n, eta);
+
+		/* calculate lfu gradient and hessian */
+		distRand3C(nu, qzeros, T, nrandom, meow, Uk, lfugradient, lfuhess);
+
+		/* calculate gradient and hessian log f_theta(y|u_k) */
+		elGH(y, x, n, nbeta, eta, family_glmm, ntrials, lfyugradient, lfyuhess);
+
+		/*now I have lfugradient and lfyugradient*/
+
+		/*create Gpiece to hold nabla log f_theta (uk,y)*/
+
+		Gindex=0;
+		for(int i = 0; i<*nbeta; i++){
+			Gpiece[Gindex]+= lfyugradient[i];
+			Gindex++;
+		}
+		for(int i = 0; i<*T; i++){
+			Gpiece[Gindex]+= lfugradient[i];
+			Gindex++;
+		}
+
+	} /* ends  k loop */
+
+	Free(Gpiece);
+	Free(Uk);
+	Free(xbeta);
+	Free(zu);
+	Free(eta);
+	Free(lfugradient);
+	Free(lfuhess);
+	Free(lfyugradient);
+	Free(lfyuhess);
+	Free(qzeros);
+
+
 
 }
 
