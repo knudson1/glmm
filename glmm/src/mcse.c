@@ -101,8 +101,6 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, doub
 	/* Calculate gamma */
 	gamma[0] = exp(a) * *thing / *m; 
 
-	/*	Vhat's denom*/
-	double vhatdenom = gamma[0]*gamma[0];
 
 /* now going to do second loop, for numerator */
 	int npar = *nbeta + *T;
