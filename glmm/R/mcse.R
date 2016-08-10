@@ -2,7 +2,13 @@
 
 mcse <- function(mod){
 
+	getFamily <- glmm:::getFamily
+	getEk<-glmm:::getEk
+	addVecs<-glmm:::addVecs
+	tconstant <- glmm:::tconstant
+	addMats<-glmm:::addMats
 	
+
 	beta <- mod$beta
 	nu <-mod$nu
 	umat<-mod$umat
@@ -69,7 +75,11 @@ mcse <- function(mod){
 
 	nbeta<- length(beta)
 
-	stuff<-.C("mcsec", as.double(0.0), as.double(0.0), as.double(mod$y),as.double(t(umat)), as.integer(myq), as.integer(m), as.double(mod$x), as.integer(n), as.integer(nbeta), as.double(beta), as.double(Z), as.double(Dinvfornu), as.double(logdetDinvfornu),as.integer(family_glmm), as.double(D.star.inv), as.double(logdet.D.star.inv), as.double(mod$u.pql), as.double(Sigmuh.inv), as.double(logdet.Sigmuh.inv), pea=as.double(pea), nps=as.integer(length(pea)), T=as.integer(T), nrandom=as.integer(nrandom), meow=as.integer(meow),nu=as.double(nu), zeta=as.integer(zeta),tconst=as.double(tconst), v=double(m), ntrials=as.integer(ntrials), value=double(1),gradient=double(length(par)),hessian=double((length(par))^2),PACKAGE="glmm")
+	squaretop <- rep(0,m)
+
+	
+
+	stuff<-.C("mcsec", as.double(0.0), as.double(0.0), as.double(squaretop), as.double(mod$y),as.double(t(umat)), as.integer(myq), as.integer(m), as.double(mod$x), as.integer(n), as.integer(nbeta), as.double(beta), as.double(Z), as.double(Dinvfornu), as.double(logdetDinvfornu),as.integer(family_glmm), as.double(D.star.inv), as.double(logdet.D.star.inv), as.double(mod$u.pql), as.double(Sigmuh.inv), as.double(logdet.Sigmuh.inv), pea=as.double(pea), nps=as.integer(length(pea)), T=as.integer(T), nrandom=as.integer(nrandom), meow=as.integer(meow),nu=as.double(nu), zeta=as.integer(zeta),tconst=as.double(tconst), v=double(m), ntrials=as.integer(mod$mod.mcml$ntrials), value=double(1),gradient=double(length(par)),hessian=double((length(par))^2),PACKAGE="glmm")
 
 
 
