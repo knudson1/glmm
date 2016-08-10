@@ -7,7 +7,7 @@ pee is the vector of sampling proportions (usually 1/3, 1/3, 1/3)
 nps is the length of pee (3 for now, maybe more if imp sampling distrib changes)
 ntrials is a vec of ints with length equal to length(y)
 */
-void mcsec(double *gamma, double *thing, double *squaretop, double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst, double *v, int *ntrials, double *value, double *gradient, double *hessian)
+void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst, double *v, int *ntrials, double *value, double *gradient, double *hessian)
 {
 	double *Uk = Calloc(*myq, double);
 	int Uindex = 0;
@@ -111,6 +111,7 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *y, double *U
 	double *lfyugradient = Calloc(*nbeta, double);
 	double *lfyuhess = Calloc((*nbeta)*(*nbeta), double);
 	double *Gpiece = Calloc(npar, double);
+	double *GGT = Calloc(npar*npar, double);
 
 	Uindex = 0;	
 	int Gindex = 0;
@@ -141,19 +142,28 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *y, double *U
 		/*now I have lfugradient and lfyugradient*/
 
 		/*create Gpiece to hold nabla log f_theta (uk,y)*/
-
 		Gindex=0;
 		for(int i = 0; i<*nbeta; i++){
-			Gpiece[Gindex]+= lfyugradient[i];
+			Gpiece[Gindex] = lfyugradient[i];
 			Gindex++;
 		}
 		for(int i = 0; i<*T; i++){
-			Gpiece[Gindex]+= lfugradient[i];
+			Gpiece[Gindex] = lfugradient[i];
 			Gindex++;
+		}
+		/*now Gpiece is ready*/
+
+		/*calculate GGT Gpiece t(Gpiece)*/
+		matmatmult(Gpiece, Gpiece, &npar, &intone, &npar, GGT);
+		
+		/*add on GGT * weight to numsum. this corresponds to numpieces from R*/
+		for(int i = 0; i < npar*npar; i++){
+			numsum[i]+= GGT[i] * squaretop[k];
 		}
 
 	} /* ends  k loop */
 
+	Free(GGT);
 	Free(Gpiece);
 	Free(Uk);
 	Free(xbeta);
