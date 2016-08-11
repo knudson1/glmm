@@ -46,6 +46,23 @@ summary.glmm <- function(object,...){
 }
 
 
+se <- function(object){
+    mod.mcml<-object
+    stopifnot(inherits(mod.mcml, "glmm"))
+	hessian<-mod.mcml$likelihood.hessian
+	if(det(hessian)==0) {
+            warning(paste("estimated Fisher information matrix not positive",
+               "definite, making all standard errors infinite"))
+            all.ses <- rep(Inf, nrow(hessian))
+    }else{	
+		varcov <-vcov.glmm(mod.mcml)
+		all.ses<-sqrt(diag(varcov))
+	}
+	
+	names(all.ses) <- c(colnames(mod.mcml$x), object$varcomps.names)
+	all.ses
+}
+
 ## print.summary actually displays them
 print.summary.glmm <-
     function (x, digits = max(3, getOption("digits") - 3),

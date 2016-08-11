@@ -11,6 +11,7 @@ export(varcomps)
 export(vcov.glmm)
 export(mcse)
 export(mcvcov)
+export(se)
 
 import(trust)
 import(mvtnorm)

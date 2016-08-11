@@ -112,43 +112,6 @@ family.glmm = bernoulli.glmm, m = 10^4, debug = TRUE)
 proc.time() - ptm
 @
 
-\subsection{Adding Optional Arguments}
-Additional arguments may be added for more control over the model fit. If you're an introductory user, go ahead and ignore this section.\\
-
-\subsubsection{Setting Variance Components Equal}
-By default, \texttt{glmm} assumes each variance component should be distinct. Suppose we want to set $\nu_F = \nu_M.$ Then we would add the argument \texttt{varcomps.equal} to indicate the equality. Since the list of random effects has two entries and we want those entries to share a variance component, we would set \texttt{varcomps.equal = c(1,1)}. In this scenario, we would only have one variance component, so we only need one entry in \texttt{varcomps.names}. Thus, the new command to fit this updated model with one variance component could be the following: 
-
-<<othermodel,eval=FALSE>>=
-sal <- glmm(Mate ~ 0 + Cross, random = list(~ 0 + Female, 
-~ 0 + Male), varcomps.equal = c( 1, 1), varcomps.names = 
-c("Only Varcomp"), data = salamander, family.glmm = 
-bernoulli.glmm, m = 10^4, debug = TRUE)
-@
-As another example, suppose the list \texttt{random} has three entries, indicating three variance components $\nu_1, \nu_2, \nu_3$. To set $\nu_1= \nu_3$, we write \texttt{varcomps.equal = c(1,2,1)}. Thus, the shared variance component would be listed first in any output, and $\nu_2$ would be listed second. Note that the entries in the \texttt{varcomps.equal} vector must start at 1, then continue through the integers. The order of the names of the variance components listed in \texttt{varcomps.names} must correspond to the integers in \texttt{varcomps.equal}. In this problem, the names could be \texttt{varcomps.names = c("shared", "two")}.  \\
-
-
-
-
-\subsubsection{Altering the Importance Sampling Distribution}
-The following default arguments can be adapted to alter the importance sampling distribution: \texttt{doPQL}, \texttt{p1}, \texttt{p2}, \texttt{p3}, and \texttt{zeta}.\\
-
-By default, penalized quasi-likelihood estimates are used to form the importance sampling distribution for the generated random effects.  To skip PQL, add the argument \texttt{doPQL=FALSE}. If PQL is skipped, then the importance sampling distribution uses arbitrary estimates of $0$ for the random effects, $0$ for the fixed effects, and $1$ for the variance components. Sometimes the examples in the \texttt{glmm} documentation  skip the PQL step so that the package can load more quickly. Most of the time, the model will fit more accurately and efficiently if PQL estimates are used in the importance sampling distribution.\\
-
-The importance sampling distribution is a mixture of three distributions. By default, the mixture is evenly weighted, with each component's contribution set at $1/3$. If you wish to change the mixture, you can alter \texttt{p1}, \texttt{p2}, and \texttt{p3} from the default of  \texttt{p1 = 1/3}, \texttt{p2 = 1/3}, and \texttt{p3 = 1/3}. The only restrictions are that the three probabilities must sum to $1$ and \texttt{p1} must be positive.\\
-
- The first component of the importance sampling distribution is a scaled multivariate t-distribution with \texttt{zeta} degrees of freedom. Therefore, another way to alter the importance sampling distribution is by changing \texttt{zeta} from its default of $5$.\\
-
-\subsubsection{Adjusting Optimization Arguments}
-It may be useful to adjust the \texttt{trust} arguments \texttt{rmax} and \texttt{iterlim}. The argument \texttt{rmax} is the maximum allowed trust region radius. By \texttt{glmm} default, this is set to the arbitrary, somewhat large number of $1000$. If this is set to a small number, then the optimization will move more slowly.\\
-
-The argument \texttt{iterlim} must be a positive integer that limits the length of the optimization. If \texttt{iterlim} is too small, then the \texttt{trust} optimization will end before the MCMLA has been maximized.\\
-
-If \texttt{iterlim} is reached, then \texttt{trust} has not converged to the MCMLE. When the \texttt{summary} command is called, a warning will be printed telling the user that the parameter values are not MCMLEs, but \texttt{glmm} can be rerun starting at these  outputted parameter values. To do this, use the \texttt{par.init} argument in section \ref{sec:parinit}. \\
-
-\subsubsection{Starting at a Specified Parameter Value}\label{sec:parinit}
-Rather than using the PQL estimates, you can provide parameter values to \texttt{glmm} using the argument \texttt{par.init}. The \texttt{glmm} argument \texttt{par.init} is a vector that specifies the user-supplied values of the fixed effects and variance components. The parameters must be inputted in the order that \texttt{summary} outputs them, with fixed effects followed by variance components.\\
-
-If \texttt{par.init} is provided, then PQL estimates will not be computed. The \texttt{par.init} estimates will be used instead to form the importance sampling distribution. Then, \texttt{trust} will use \texttt{par.init} as the starting point for the optimization. This argument may be useful for very hard problems that require iteration.\\
 
 \section{Reading the Model Summary}\label{sec:summary}
 
@@ -243,6 +206,22 @@ confint(sal,level=.93,c("F"))
 
 Note that all confidence intervals are calculated using the observed Fisher information from the Monte Carlo likelihood approximation.\\
 
+\section{Monte Carlo Standard Error}
+A common question is ``How big should the Monte Carlo sample size (\texttt{m}) be?'' A larger \texttt{m} leads to higher accuracy in your likelihood-based inference, but the trade-off is a larger \texttt{m} takes more computing time. To assess whether your chosen Monte Carlo sample size \texttt{m} is large enough, you can use the Monte Carlo standard error. 
+
+The point estimates produced by \texttt{glmm} (and by Monte Carlo likelihood approximation in general) have two sources of variability. First,  there is variability from sample to sample.  That is, if we conducted the experiment on another set of 120 salamanders, our point estimates would differ slightly. We measure this sample to sample variability with standard error. Second, there is the variability between calls of \texttt{glmm} because different random numbers are used to calculate the Monte Carlo likelihood approximation. We measure this variability with Monte Carlo standard error.
+
+If the Monte Carlo standard error is large (relative to the standard error), then you should use a large Monte Carlo sample size \texttt{m}. How much larger should \texttt{m} be? The Monte Carlo standard error decreases at a square root rate; if you want a Monte Carlo standard error that is $10\%$ your current Monte Carlo standard error, then you should multiple your Monte Carlo sample size by $100$.
+
+You can find the Monte Carlo standard errors with the \texttt{mcse} command.
+<<getmcse>>=
+mcse(sal)
+@
+You can compare the Monte Carlo standard errors (shown above) to the standard errors (shown below).
+<<comparese>>=
+se(sal)
+@
+
 \section{Estimating the Variance-Covariance Matrix}
 The variance-covariance matrix for the parameter estimates can be found using the \texttt{vcov} function. The only input is the model name.\\
 
@@ -295,6 +274,47 @@ Items 7 through 16 relate to the original function call. \texttt{mod.mcml} conta
 
 The last argument is \texttt{debug}. If the model was fit with the default \texttt{debug = FALSE}, then this argument is just \texttt{FALSE}. If the model was fit with \texttt{debug = TRUE}, then \texttt{debug} contains a list of output for advanced users and programmers.
 
+
+
+
+
+\section{Optional Model-Fitting Arguments}
+Additional arguments may be added for more control over the model fit. If you're an introductory user, go ahead and ignore this section.\\
+
+\subsection{Setting Variance Components Equal}
+By default, \texttt{glmm} assumes each variance component should be distinct. Suppose we want to set $\nu_F = \nu_M.$ Then we would add the argument \texttt{varcomps.equal} to indicate the equality. Since the list of random effects has two entries and we want those entries to share a variance component, we would set \texttt{varcomps.equal = c(1,1)}. In this scenario, we would only have one variance component, so we only need one entry in \texttt{varcomps.names}. Thus, the new command to fit this updated model with one variance component could be the following: 
+
+<<othermodel,eval=FALSE>>=
+sal <- glmm(Mate ~ 0 + Cross, random = list(~ 0 + Female, 
+~ 0 + Male), varcomps.equal = c( 1, 1), varcomps.names = 
+c("Only Varcomp"), data = salamander, family.glmm = 
+bernoulli.glmm, m = 10^4, debug = TRUE)
+@
+As another example, suppose the list \texttt{random} has three entries, indicating three variance components $\nu_1, \nu_2, \nu_3$. To set $\nu_1= \nu_3$, we write \texttt{varcomps.equal = c(1,2,1)}. Thus, the shared variance component would be listed first in any output, and $\nu_2$ would be listed second. Note that the entries in the \texttt{varcomps.equal} vector must start at 1, then continue through the integers. The order of the names of the variance components listed in \texttt{varcomps.names} must correspond to the integers in \texttt{varcomps.equal}. In this problem, the names could be \texttt{varcomps.names = c("shared", "two")}.  \\
+
+
+
+
+\subsection{Altering the Importance Sampling Distribution}
+The following default arguments can be adapted to alter the importance sampling distribution: \texttt{doPQL}, \texttt{p1}, \texttt{p2}, \texttt{p3}, and \texttt{zeta}.\\
+
+By default, penalized quasi-likelihood estimates are used to form the importance sampling distribution for the generated random effects.  To skip PQL, add the argument \texttt{doPQL=FALSE}. If PQL is skipped, then the importance sampling distribution uses arbitrary estimates of $0$ for the random effects, $0$ for the fixed effects, and $1$ for the variance components. Sometimes the examples in the \texttt{glmm} documentation  skip the PQL step so that the package can load more quickly. Most of the time, the model will fit more accurately and efficiently if PQL estimates are used in the importance sampling distribution.\\
+
+The importance sampling distribution is a mixture of three distributions. By default, the mixture is evenly weighted, with each component's contribution set at $1/3$. If you wish to change the mixture, you can alter \texttt{p1}, \texttt{p2}, and \texttt{p3} from the default of  \texttt{p1 = 1/3}, \texttt{p2 = 1/3}, and \texttt{p3 = 1/3}. The only restrictions are that the three probabilities must sum to $1$ and \texttt{p1} must be positive.\\
+
+ The first component of the importance sampling distribution is a scaled multivariate t-distribution with \texttt{zeta} degrees of freedom. Therefore, another way to alter the importance sampling distribution is by changing \texttt{zeta} from its default of $5$.\\
+
+\subsection{Adjusting Optimization Arguments}
+It may be useful to adjust the \texttt{trust} arguments \texttt{rmax} and \texttt{iterlim}. The argument \texttt{rmax} is the maximum allowed trust region radius. By \texttt{glmm} default, this is set to the arbitrary, somewhat large number of $1000$. If this is set to a small number, then the optimization will move more slowly.\\
+
+The argument \texttt{iterlim} must be a positive integer that limits the length of the optimization. If \texttt{iterlim} is too small, then the \texttt{trust} optimization will end before the MCMLA has been maximized.\\
+
+If \texttt{iterlim} is reached, then \texttt{trust} has not converged to the MCMLE. When the \texttt{summary} command is called, a warning will be printed telling the user that the parameter values are not MCMLEs, but \texttt{glmm} can be rerun starting at these  outputted parameter values. To do this, use the \texttt{par.init} argument in section \ref{sec:parinit}. \\
+
+\subsection{Starting at a Specified Parameter Value}\label{sec:parinit}
+Rather than using the PQL estimates, you can provide parameter values to \texttt{glmm} using the argument \texttt{par.init}. The \texttt{glmm} argument \texttt{par.init} is a vector that specifies the user-supplied values of the fixed effects and variance components. The parameters must be inputted in the order that \texttt{summary} outputs them, with fixed effects followed by variance components.\\
+
+If \texttt{par.init} is provided, then PQL estimates will not be computed. The \texttt{par.init} estimates will be used instead to form the importance sampling distribution. Then, \texttt{trust} will use \texttt{par.init} as the starting point for the optimization. This argument may be useful for very hard problems that require iteration.\\
 
 
 % We now look at the \texttt{debug} output.
