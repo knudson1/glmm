@@ -1,5 +1,5 @@
-summary.glmm <-
-function(object,...){
+## summary does all the calculations
+summary.glmm <- function(object,...){
     mod.mcml<-object
     stopifnot(inherits(mod.mcml, "glmm"))
 
@@ -45,6 +45,8 @@ function(object,...){
 family.mcml = mod.mcml$family.mcml, call = call, nucoefmat = nucoefmat, link = link, trust.converged = trust.converged),class="summary.glmm"))
 }
 
+
+## print.summary actually displays them
 print.summary.glmm <-
     function (x, digits = max(3, getOption("digits") - 3),
         signif.stars = getOption("show.signif.stars"), ...)
@@ -76,7 +78,7 @@ cat("Variance Components for Random Effects (P-values are one-tailed):")
 }
 
 
-
+#just display the coefficients (the fixed effects estimates)
 coef.glmm <-
 function(object,...){
 	mod<-object
@@ -86,16 +88,11 @@ function(object,...){
 	coefficients
 }
 
-
+#variance covariance matrix
 vcov.glmm <-
 function(object,...){
 	mod<-object
    	stopifnot(inherits(mod, "glmm"))
-
-#	cho<-chol(-mod$likelihood.hessian)
-#	blah<-diag(nrow(mod$likelihood.hessian))
-#	uinv<-backsolve(cho, blah)
-#	vcov<-uinv%*%t(uinv)
 	vcov <- qr.solve(-mod$likelihood.hessian)
 
 
@@ -108,6 +105,7 @@ function(object,...){
 	vcov
 }
 
+#just display the variance components
 varcomps<-function(object,...){
 
 	mod<-object
@@ -116,6 +114,7 @@ varcomps<-function(object,...){
 	coefficients
 }
 
+#confidence intervals
 confint.glmm<-function(object,parm,level=.95,...){
    	stopifnot(inherits(object, "glmm"))
 
