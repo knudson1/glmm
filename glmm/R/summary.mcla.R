@@ -19,12 +19,12 @@ summary.glmm <- function(object,...){
             warning(paste("estimated Fisher information matrix not positive",
                "definite, making all standard errors infinite"))
             all.ses <- rep(Inf, nrow(hessian))
-        }
-	else{	
+    }else{	
 		varcov <-vcov.glmm(mod.mcml)
 		all.ses<-sqrt(diag(varcov))
-		}
+	}
 	
+	#fixed effects table
 	beta.se<-all.ses[1:nbeta]
 	zval<-beta/beta.se
 	coefmat<-cbind(beta,beta.se,zval,2*pnorm(abs(zval),lower.tail=F))
@@ -32,6 +32,7 @@ summary.glmm <- function(object,...){
 	rownames(coefmat)<-colnames(mod.mcml$x)
 	coefficients<-coefmat[,1]
 	
+	#variance components table
 	nu<-mod.mcml$nu
 	nu.se<-all.ses[-(1:nbeta)]
 	nuzval<-nu/nu.se
@@ -40,9 +41,8 @@ summary.glmm <- function(object,...){
 	rownames(nucoefmat)<-mod.mcml$varcomps.names
 	link<-mod.mcml$family.glmm$link
 
-	
-	return(structure(list(x=x,y=y, z=z, coefmat=coefmat, fixedcall = fixedcall, randcall = randcall, coefficients = coefficients,
-family.mcml = mod.mcml$family.mcml, call = call, nucoefmat = nucoefmat, link = link, trust.converged = trust.converged),class="summary.glmm"))
+
+	return(structure(list(x=x,y=y, z=z, coefmat=coefmat, fixedcall = fixedcall, randcall = randcall, coefficients = coefficients, family.mcml = mod.mcml$family.mcml, call = call, nucoefmat = nucoefmat, link = link, trust.converged = trust.converged), class="summary.glmm"))
 }
 
 
@@ -74,6 +74,8 @@ cat("Variance Components for Random Effects (P-values are one-tailed):")
 	printCoefmat(summ$nucoefmat, digits = digits,
         signif.stars = signif.stars, na.print = "NA", ...)
    cat("\n")
+
+
 
 }
 
