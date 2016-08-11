@@ -207,17 +207,17 @@ confint(sal,level=.93,c("F"))
 Note that all confidence intervals are calculated using the observed Fisher information from the Monte Carlo likelihood approximation.\\
 
 \section{Monte Carlo Standard Error}
-A common question is ``How big should the Monte Carlo sample size (\texttt{m}) be?'' A larger \texttt{m} leads to higher accuracy in your likelihood-based inference, but the trade-off is a larger \texttt{m} takes more computing time. To assess whether your chosen Monte Carlo sample size \texttt{m} is large enough, you can use the Monte Carlo standard error. 
+A common question is ``How big should the Monte Carlo sample size (\texttt{m}) be?'' A larger \texttt{m} leads to higher accuracy in your likelihood-based inference, but the trade-off is a larger \texttt{m} takes more computing time. To assess whether your chosen Monte Carlo sample size \texttt{m} is large enough, you can use the Monte Carlo standard error. \\
 
-The point estimates produced by \texttt{glmm} (and by Monte Carlo likelihood approximation in general) have two sources of variability. First,  there is variability from sample to sample.  That is, if we conducted the experiment on another set of 120 salamanders, our point estimates would differ slightly. We measure this sample to sample variability with standard error. Second, there is the variability between calls of \texttt{glmm} because different random numbers are used to calculate the Monte Carlo likelihood approximation. We measure this variability with Monte Carlo standard error.
+The point estimates produced by \texttt{glmm} (and by Monte Carlo likelihood approximation in general) have two sources of variability. First,  there is variability from sample to sample.  That is, if we conducted the experiment on another set of 120 salamanders, our point estimates would differ slightly. We measure this sample to sample variability with standard error. Second, there is the variability between calls of \texttt{glmm} because different random numbers are used to calculate the Monte Carlo likelihood approximation. We measure this variability with Monte Carlo standard error.\\
 
-If the Monte Carlo standard error is large (relative to the standard error), then you should use a large Monte Carlo sample size \texttt{m}. How much larger should \texttt{m} be? The Monte Carlo standard error decreases at a square root rate; if you want a Monte Carlo standard error that is $10\%$ your current Monte Carlo standard error, then you should multiple your Monte Carlo sample size by $100$.
+If the Monte Carlo standard error is large (relative to the standard error), then you should use a large Monte Carlo sample size \texttt{m}. How much larger should \texttt{m} be? The Monte Carlo standard error decreases at a square root rate; if you want a Monte Carlo standard error that is $10\%$ your current Monte Carlo standard error, then you should multiple your Monte Carlo sample size by $100$.\\
 
 You can find the Monte Carlo standard errors with the \texttt{mcse} command.
-<<getmcse>>=
+<<getmcse, cache= TRUE>>=
 mcse(sal)
 @
-You can compare the Monte Carlo standard errors (shown above) to the standard errors (shown below).
+You can compare the Monte Carlo standard errors (shown above) to the standard errors of the point estimates (shown below).
 <<comparese>>=
 se(sal)
 @
