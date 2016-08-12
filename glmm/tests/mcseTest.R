@@ -190,7 +190,7 @@ mcseTEST <- function(mod){
 		Gpiece <- c(lfyu[[k]]$gradient,lfu[[k]]$gradient)
 		GGT <- Gpiece %*% t(Gpiece)	
 
-		squaretop <- exp(	2*as.numeric(lfu[[k]]$value) + 2*as.numeric(lfyu[[k]]$value) - lfu.twid[k,4] )
+		squaretop <- exp(	2*as.numeric(lfu[[k]]$value) + 2*as.numeric(lfyu[[k]]$value) - 2*lfu.twid[k,4] )
 	
 		numpiece[k,] <- as.numeric(GGT*squaretop)
 	}

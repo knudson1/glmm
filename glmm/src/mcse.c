@@ -86,7 +86,7 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, doub
 		if(k==0){a = b[k];}
 		if(b[k]>a){a = b[k];}
 
-		squaretop[k] = exp(2*lfuval + 2*lfyuval - lfutwid);
+		squaretop[k] = exp(2*lfuval + 2*lfyuval - 2*lfutwid);
 	}
 
 	Free(lfutwidpieces);

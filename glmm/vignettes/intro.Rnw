@@ -214,7 +214,7 @@ The point estimates produced by \texttt{glmm} (and by Monte Carlo likelihood app
 If the Monte Carlo standard error is large (relative to the standard error), then you should use a large Monte Carlo sample size \texttt{m}. How much larger should \texttt{m} be? The Monte Carlo standard error decreases at a square root rate; if you want a Monte Carlo standard error that is $10\%$ your current Monte Carlo standard error, then you should multiple your Monte Carlo sample size by $100$.\\
 
 You can find the Monte Carlo standard errors with the \texttt{mcse} command.
-<<getmcse, cache= TRUE>>=
+<<getmcse>>=
 mcse(sal)
 @
 You can compare the Monte Carlo standard errors (shown above) to the standard errors of the point estimates (shown below).
