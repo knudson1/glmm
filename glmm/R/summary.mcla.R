@@ -154,8 +154,7 @@ confint.glmm<-function(object,parm,level=.95,...){
             warning(paste("estimated Fisher information matrix not positive",
                "definite, making all standard errors infinite"))
             all.ses <- rep(Inf, nrow(hessian))
-        }
-	else{	
+    }else{	
 		varcov <-vcov.glmm(object)
 		all.ses<-sqrt(diag(varcov))
 		}
@@ -164,8 +163,8 @@ confint.glmm<-function(object,parm,level=.95,...){
 	ci<-matrix(data=NA,nrow=length(parm),ncol=2)
 	colnames(ci)<-a
 	rownames(ci)<-parm
-	ci[,1]<-betaandnu[parm]+a[1]*all.ses[parm]
-	ci[,2]<-betaandnu[parm]+a[2]*all.ses[parm]
+	ci[,1]<-betaandnu[parm]+fac[1]*all.ses[parm]
+	ci[,2]<-betaandnu[parm]+fac[2]*all.ses[parm]
 
 	ci
 }

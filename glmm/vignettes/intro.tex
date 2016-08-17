@@ -193,7 +193,7 @@ We put this all together in the following commands. Note that we set the seed so
 \end{alltt}
 \begin{verbatim}
 ##    user  system elapsed 
-## 240.532   0.200 240.741
+## 283.932   0.228 284.220
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -340,13 +340,13 @@ We can calculate confidence intervals for parameters using the \texttt{confint} 
 \hlkwd{confint}\hlstd{(sal)}
 \end{alltt}
 \begin{verbatim}
-##               0.025      0.975
-## CrossR/R  0.9647676  1.2975071
-## CrossR/W  0.2896434  0.6373526
-## CrossW/R -1.8862749 -1.4851238
-## CrossW/W  0.9812412  1.3213731
-## F         1.2989347  1.7202402
-## M         1.0943035  1.4867789
+##               0.025     0.975
+## CrossR/R  0.2695298  1.642493
+## CrossR/W -0.4368727  0.997859
+## CrossW/R -2.7244545 -1.069209
+## CrossW/W  0.2705576  1.674023
+## F         0.4186440  2.157051
+## M         0.2742514  1.893699
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -360,24 +360,24 @@ If we wish to change the level of confidence from the default of $95\%$, we use 
 \end{alltt}
 \begin{verbatim}
 ##                0.05       0.95
-## CrossR/R  0.9735239  1.2887508
-## CrossR/W  0.2987937  0.6282024
-## CrossW/R -1.8757183 -1.4956804
-## CrossW/W  0.9901921  1.3124222
-## F         1.3100217  1.7091532
-## M         1.1046318  1.4764506
+## CrossR/R  0.3798978  1.5321247
+## CrossR/W -0.3215392  0.8825255
+## CrossW/R -2.5913946 -1.2022685
+## CrossW/W  0.3833777  1.5612031
+## F         0.5583890  2.0173065
+## M         0.4044336  1.7635169
 \end{verbatim}
 \begin{alltt}
 \hlkwd{confint}\hlstd{(sal,}\hlkwc{level}\hlstd{=}\hlnum{.99}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-##               0.005      0.995
-## CrossR/R  0.9577625  1.3045121
-## CrossR/W  0.2823232  0.6446728
-## CrossW/R -1.8947202 -1.4766785
-## CrossW/W  0.9740806  1.3285338
-## F         1.2900651  1.7291098
-## M         1.0860409  1.4950415
+##                0.005      0.995
+## CrossR/R  0.05382166  1.8582009
+## CrossR/W -0.66228533  1.2232717
+## CrossW/R -2.98451246 -0.8091506
+## CrossW/W  0.05005718  1.8945236
+## F         0.14552044  2.4301751
+## M         0.01981773  2.1481327
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -390,16 +390,16 @@ We can calculate $90\%$ confidence intervals for the first and third fixed effec
 \end{alltt}
 \begin{verbatim}
 ##                0.05      0.95
-## CrossR/R  0.9735239  1.288751
-## CrossW/R -1.8757183 -1.495680
+## CrossR/R  0.3798978  1.532125
+## CrossW/R -2.5913946 -1.202268
 \end{verbatim}
 \begin{alltt}
 \hlkwd{confint}\hlstd{(sal,}\hlkwc{level}\hlstd{=}\hlnum{.9}\hlstd{,}\hlkwd{c}\hlstd{(}\hlstr{"CrossR/R"}\hlstd{,}\hlstr{"CrossW/R"}\hlstd{))}
 \end{alltt}
 \begin{verbatim}
 ##                0.05      0.95
-## CrossR/R  0.9735239  1.288751
-## CrossW/R -1.8757183 -1.495680
+## CrossR/R  0.3798978  1.532125
+## CrossW/R -2.5913946 -1.202268
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -411,15 +411,15 @@ To calculate a $93$ percent confidence interval for the variance component for t
 \hlkwd{confint}\hlstd{(sal,}\hlkwc{level}\hlstd{=}\hlnum{.93}\hlstd{,}\hlkwd{c}\hlstd{(}\hlnum{5}\hlstd{))}
 \end{alltt}
 \begin{verbatim}
-##     0.035    0.965
-## F 1.30337 1.715805
+##       0.035    0.965
+## F 0.4843026 2.091393
 \end{verbatim}
 \begin{alltt}
 \hlkwd{confint}\hlstd{(sal,}\hlkwc{level}\hlstd{=}\hlnum{.93}\hlstd{,}\hlkwd{c}\hlstd{(}\hlstr{"F"}\hlstd{))}
 \end{alltt}
 \begin{verbatim}
-##     0.035    0.965
-## F 1.30337 1.715805
+##       0.035    0.965
+## F 0.4843026 2.091393
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
