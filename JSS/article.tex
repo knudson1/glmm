@@ -1,4 +1,5 @@
 \documentclass[article]{jss}
+\usepackage{amsmath}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -76,7 +77,7 @@ Our goal is to enable all types of frequentist likelihood-based inference. This 
 
 With this goal in mind, we have created an R package \pkg{glmm} \citep{glmm:package} that approximates the entire likelihood function for a GLMM with either a Bernoulli or Poisson response. This package uses  the method of
  Monte Carlo likelihood approximation (MCLA) \citep{geyer:1994, geyer:thom:1992,  sung:geyer:2007}. 
-%This method relies on the  choice of an importance sampling distribution,  a distribution from which simulated random effects are drawn. These generated random effects are then used to approximate the entire likelihood function. 
+This method relies on the  choice of an importance sampling distribution,  a distribution from which simulated random effects are drawn. These generated random effects are then used to approximate the entire likelihood function. 
 Because MCLA approximates the entire likelihood, \pkg{glmm}  enables  every type of likelihood-based inference. \\
 
 %For more details on MCLA, see \ref{sec:mclageneral}.
@@ -88,6 +89,7 @@ We present   \pkg{glmm}  and demonstrate in section \ref{sec:howto} how to use t
 
 
 \subsection{Examples}\label{sec:examples}
+We turn to two data sets to illustrate \pkg{glmm}. The salamander data set serves as an example for modeling binomial-distributed data, while the radish flower data set serves as an example for modeling Poisson-distributed data.
 
 \subsubsection{The salamander data}
 
@@ -108,7 +110,7 @@ a random effect for each female salamander; a random effect for each male salama
 
 \subsubsection{The radish flower data}
 
-The data in this example are a subset of the data collected by \citet{ridley:ellstrand:2010}. The scientists were interested in whether non-native radishes had adapted to the climate they had been growing in for the last 150 years. In other words, they wanted to compare two types of radish to see whether each type would grow just as well in their own climate as they would in the other climate. 
+The data in this example are a subset of the data collected by \citet{ridley:ellstrand:2010}. The scientists were interested in whether non-native radishes had adapted to the climate they had  grown in for 150 years. In other words, they wanted to compare two types of radish to see whether each type would grow just as well in their own climate as they would in the other climate. \\
 
 In this dataset, the response is the number of radish flowers. This is assumed to have a Poisson distribution.  \texttt{Site} is a categorical variable with two categories representing the two sites where plants were grown. The variable \texttt{Region} is categorical with two categories representing the two places in California from which the plants were taken. The variable \texttt{Pop} is a categorical variable representing the population of radish, and \texttt{Pop} is nested in \texttt{Region}. The variable \texttt{Block} is a categorical blocking variable nested in \texttt{Site}.  Following the example of \citet{ridley:ellstrand:2010}, \texttt{Block} and \texttt{Pop} are random while \texttt{Site} and \texttt{Region} are fixed. The scientists were interested in  the interaction between \texttt{Site} and \texttt{Region}, since that would indicate that radishes grow better in the area they have been grown during recent history.
 
@@ -117,7 +119,74 @@ In this dataset, the response is the number of radish flowers. This is assumed t
 
 \section{Monte Carlo Likelihood Approximation}
 
+MCLA is a  Monte Carlo method for approximating the entire likelihood function; it was first proposed by \citet{geyer:1990} for models with unnormalized densities, then extended to models with normalized densities and random effects \citep{thom:guo:1991}, and then extended again to models with unnormalized densities and random effects \citep{gelf:carl:1993}.
+ We focus on  MCLA  for GLMMs with random effects.  \\
+
+MCLA is powerful  because it enables any type of likelihood-based inference.  Maximum likelihood is of special interest; the maximizer of the Monte Carlo likelihood approximation is called the Monte Carlo maximum likelihood estimate (MCMLE). Because MCLA is a Monte Carlo method, the accuracy of the likelihood approximation and inferences based on the likelihood approximation  can be improved by increasing the size of the Monte Carlo sample used to calculate the likelihood approximation. \\
+
+Let $Y \in \mathcal{R}^n$ be a response vector and let $U \in \mathcal{R}^q$ be a vector of unobservable random effects. The MCLA calculation requires the density for the joint distribution of the observed data  and random effects, $f_\theta(u,y)$. Let $f_\beta(y|u)$ denote the density for the observed data conditional on the random effects, and let $f_\nu (u)$ denote the density for the random effects. Then the joint density can be expressed as the product 
+\begin{align}
+f_\theta (u,y) = f_\beta(y|u) \, f_\nu (u).
+\end{align}
+
+
+Let $\tilde{f}(u)$ be a nonnegative function whose support contains the support of the $f_\theta(u,y)$, where $\tilde{f}(u_k)$ does not depend on $\theta$. Let\hbox{ $u_k,$ $k=1,$ $\ldots,$ $m$}, be vectors of length $q$ drawn from  $\tilde{f}(u_k)$.   The specific importance sampling distribution used in R package \texttt{glmm} is described in Equation FTWIDDLE. 
+Then the Monte Carlo  likelihood approximation is
+\begin{align}
+L_{m}(\theta|y) &=   \dfrac{1}{m} \sum_{k=1}^m  \dfrac{ f_\theta(u_k,y)   }{\tilde{f}(u_k)}_. \label{eq:MCLAval}
+\end{align}
+Again, the function in Equation \ref{eq:MCLAval} approximates the entire likelihood function and can be used for any likelihood-based inference.\\
+
+
+
+
+
+The asymptotic properties of the likelihood approximation as the Monte Carlo sample size increases have been studied in generality  \citep{geyer:1994, geyer:thom:1992} and   for the special case of an importance sampling distribution chosen independently of the data \citep{sung:geyer:2007}.  \citet{geyer:1994} presents conditions under which  the Monte Carlo likelihood approximation converges almost surely to the exact likelihood for any single parameter value.  In addition to studying the point-wise convergence,  we can also consider  the convergence of the entire likelihood function.
+\citet{geyer:1994} shows the Monte Carlo likelihood approximation converges almost surely to the likelihood function for GLMMs specified with  unnormalized densities as long as a Wald-like integrability condition is met.
+ Additionally, if the parameter space can be compactified, the MCMLE converges to the MLE almost surely \citep{geyer:1994}. \citet{geyer:1994} also shows that the Monte Carlo profile likelihoods converge to the exact profile likelihoods almost surely, and no additional regularity conditions are required.\\
+
+
+
+Prior to \pkg{glmm}, MCLA for GLMMs has  been studied by \citet{sung:geyer:2007}, who  focus on an MCLA implementation with an importance sampling distribution constructed independently of the observed data. \citet{sung:geyer:2007} prepared the R package \texttt{bernor} that  fits maximum likelihood estimates for a GLMM with a Bernoulli response; their package uses an importance sampling distribution that does not depend on the observed data. Though their package can perform maximum likelihood for simpler models,  it cannot find MLEs for a model as complicated as the salamander model (described in section \ref{sec:examples}).  \\
+
+This highlights the challenge of  finding an importance sampling distribution that performs well in practice. Though MCLA theory indicates any importance sampling distribution should suffice as long as its support contains the support of the target distribution, many importance sampling distributions require so much computing power that modern computers cannot perform maximum likelihood in practice.
+  This practical problem is  illustrated by the absence of MCLA software that can produce MLEs for nontrivial problems. In response, we present an importance sampling distribution (Equation  F TWIDDLE REF) and the R package \pkg{glmm}.\\
+
+
+
 \subsection[Implementation of MCLA in glmm]{Implementation of MCLA in  \pkg{glmm}}
+
+Need to introduce D and mention that we first need to do PQL. Also Sigma.
+
+Let $s$ be a vector of length $q$ that represents the random effects on the standard normal scale. That is, $s$ is defined such that $u= D^{1/2}s$. Let $\sigma$ be a vector of length $K$ with components $\sqrt{\nu_t},$ $t=1,$ $\ldots,$ $K$.  Let $\beta^*$, $s^*$ and $\sigma^*$ denote the PQL estimates for $\beta$, $s$ and $\sigma$, respectively.  Let
+\begin{align}
+A^*=\sum_{t=1}^K E_t \, \sigma^*_t \nonumber
+\end{align}\
+and
+\begin{align}
+ D^* =A^*A^*. \nonumber
+\end{align}
+ We can ``unstandardize'' our PQL-predicted random effects:
+\begin{align}
+u^*&=A^*s^*. \nonumber
+\end{align}
+
+
+Let $p_1,p_2,p_3$ be  proportions  such that  \hbox{$p_1+p_2+p_3=1$}.  Let $f(u|\mu,\Sigma)$ denote the density for a multivariate normal distribution with mean $\mu$ and variance matrix $\Sigma$.   
+Let $\grave{f}(u|0,D^*)$ denote the density for  a $q$-dimensional multivariate  $t$ distribution with mean $0$, scale matrix $D^*$, and $\zeta=5$ degrees of freedom. Then we propose the following importance sampling distribution:
+\begin{align}\label{eq:ftwiddle}
+\begin{split}
+ \tilde{f}(u) &= p_1  \grave{f}(u|0,D^*)+p_2  f(u \, | \, u^*, D^*)+\\
+&\qquad + p_3  f(u \, | \, u^*, (Z^T  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1}). 
+\end{split}
+\end{align}
+
+
+The first component  $\grave{f}( \,  \cdot \, | 0, D^*)$ of Equation \ref{eq:ftwiddle}  is chosen to ensure  the gradient of the MCLA has a central limit theorem (as shown in REF MY THESIS).  The second component is chosen because it is centered at  $u^*$ and  has  variance $D^*$. The last component is centered at $u^*$ and has a variance based on the Hessian of the  penalized likelihood from PQL.  More specifically, the Hessian of the log density of the last distribution matches the Hessian of the log density of the target distribution $f_\theta(u,y)$. 
+
+
+
+
 
 \section[How to use glmm]{How to use \pkg{glmm}}\label{sec:howto}
 
