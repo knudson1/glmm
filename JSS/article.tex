@@ -18,7 +18,7 @@
 
 %% an abstract and keywords
 \Abstract{
-The R package \pkg{glmm} enables all  likelihood-based inference  for generalized linear mixed models with a canonical link by approximating the entire likelihood function and two derivatives. The model fitting function of \pkg{glmm} calculates and maximizes the Monte Carlo likelihood approximation to find Monte Carlo maximum likelihood estimates for the fixed effects and variance components. Additionally, the value, gradient vector, and Hessian matrix of the MCLA are calculated at the Monte Carlo maximum likelihood estimates. \pkg{glmm} also produces the variance-covariance matrix of the estimates, confidence intervals for the parameters, and Monte Carlo standard errors of the Monte Carlo maximum likelihood estimates.
+The \proglang{R} package \pkg{glmm} enables all  likelihood-based inference  for generalized linear mixed models with a canonical link by approximating the entire likelihood function and two derivatives. The model fitting function of \pkg{glmm} calculates and maximizes the Monte Carlo likelihood approximation to find Monte Carlo maximum likelihood estimates for the fixed effects and variance components. Additionally, the value, gradient vector, and Hessian matrix of the MCLA are calculated at the Monte Carlo maximum likelihood estimates. \pkg{glmm} also produces the variance-covariance matrix of the estimates, confidence intervals for the parameters, and Monte Carlo standard errors of the Monte Carlo maximum likelihood estimates.
 }
 \Keywords{generalized linear mixed models, maximum likelihood, likelihood-based inference, mixed models, likelihood approximation, Monte Carlo}
 \Plainkeywords{generalized linear mixed models, maximum likelihood, likelihood-based inference, mixed models, likelihood approximation, Monte Carlo}
@@ -71,25 +71,26 @@ The R package \pkg{glmm} enables all  likelihood-based inference  for generalize
 %% Note that you should use the \pkg{}, \proglang{} and \code{} commands.
 
 \section{Introduction}
-The generalized linear mixed model (GLMM) is an extension of both the generalized linear model and the linear mixed model; the model incorporates  fixed and random effects as well as a response from an exponential family.   GLMMs were first discussed by \citet{stiratelli:laird:ware:1984} and are now  used in a variety of disciplines. Despite their widespread use, traditional methods of frequentist likelihood-based inference are not generally available. The challenge lies in the likelihood function for GLMMs: because the likelihood cannot depend on the random effects, the likelihood is an  integral that is often intractable (details    in FIX). Due to this challenge, most methodology and software for  GLMMs perform little more than maximum likelihood (such as Monte Carlo EM)  or do not perform likelihood-based inference at all (such as penalized quasi-likelihood). 
+The generalized linear mixed model (GLMM) is an extension of both the generalized linear model and the linear mixed model; the model incorporates  fixed and random effects as well as a response from an exponential family.   GLMMs were first discussed by \citet{stiratelli:laird:ware:1984} and are now  used in a variety of disciplines. Despite their widespread use, traditional methods of frequentist likelihood-based inference are not generally available. The challenge lies in the likelihood function for GLMMs: because the likelihood cannot depend on the random effects, the likelihood is an  integral that is often intractable. Due to this challenge, most methodology and software for  GLMMs perform little more than maximum likelihood (such as Monte Carlo EM)  or do not perform likelihood-based inference at all (such as penalized quasi-likelihood). \\
+
 Our goal is to enable all types of frequentist likelihood-based inference. This includes (but is not limited to) calculating Fisher information, performing hypothesis tests, and constructing confidence intervals.  To perform all types of frequentist likelihood-based inference, the entire likelihood function is necessary.\\
 
 
-With this goal in mind, we have created an R package \pkg{glmm} \citep{glmm:package} that approximates the entire likelihood function for a GLMM with either a Bernoulli or Poisson response. This package uses  the method of
+With this goal in mind, we have created the  \proglang{R} package \pkg{glmm} \citep{glmm:package} that approximates the entire likelihood function for a GLMM with either a Bernoulli or Poisson response. This package uses  the method of
  Monte Carlo likelihood approximation (MCLA) \citep{geyer:1994, geyer:thom:1992,  sung:geyer:2007}. 
 This method relies on the  choice of an importance sampling distribution,  a distribution from which simulated random effects are drawn. These generated random effects are then used to approximate the entire likelihood function. 
 Because MCLA approximates the entire likelihood, \pkg{glmm}  enables  every type of likelihood-based inference. \\
 
 %For more details on MCLA, see \ref{sec:mclageneral}.
 
-Before the release of R package \pkg{glmm}, no publicly-available software  implementing MCLA  produced accurate maximum likelihood estimates for models of non-trivial complexity. For example, the \texttt{bernor}  package \citep{sung:geyer:2007} implements MCLA but cannot accurately perform maximum likelihood for the benchmark data set from a salamander mating experiment (described in section \ref{sec:examples}). 
+Before the release of \proglang{R} package \pkg{glmm}, no publicly-available software  implementing MCLA  produced accurate maximum likelihood estimates for models of non-trivial complexity. For example, the \texttt{bernor}  package \citep{sung:geyer:2007} implements MCLA but cannot accurately perform maximum likelihood for the benchmark data set from a salamander mating experiment (described in section \ref{sec:examples}). 
 %The  absence of MCLA software highlights a   challenge from which the procedure suffers:  finding an importance sampling distribution that works well in practice.  
 %We propose  an importance sampling distribution to be used in implementing MCLA for GLMMs (Equation {eq:ftwiddle});  
 We present   \pkg{glmm}  and demonstrate in section \ref{sec:howto} how to use the package to perform maximum likelihood, test hypotheses, calculate confidence intervals, and calculate Monte Carlo standard errors for the estimates.  
 
 
 \subsection{Examples}\label{sec:examples}
-We turn to two data sets to illustrate \pkg{glmm}. The salamander data set serves as an example for modeling binomial-distributed data, while the radish flower data set serves as an example for modeling Poisson-distributed data.
+We  illustrate \pkg{glmm} with two data sets: the salamander data set serves as an example for modeling binomial-distributed data while the radish flower data set serves as an example for modeling Poisson-distributed data.
 
 \subsubsection{The salamander data}
 
@@ -124,13 +125,13 @@ MCLA is a  Monte Carlo method for approximating the entire likelihood function; 
 
 MCLA is powerful  because it enables any type of likelihood-based inference.  Maximum likelihood is of special interest; the maximizer of the Monte Carlo likelihood approximation is called the Monte Carlo maximum likelihood estimate (MCMLE). Because MCLA is a Monte Carlo method, the accuracy of the likelihood approximation and inferences based on the likelihood approximation  can be improved by increasing the size of the Monte Carlo sample used to calculate the likelihood approximation. \\
 
-Let $Y \in \mathcal{R}^n$ be a response vector and let $U \in \mathcal{R}^q$ be a vector of unobservable random effects. The MCLA calculation requires the density for the joint distribution of the observed data  and random effects, $f_\theta(u,y)$. Let $f_\beta(y|u)$ denote the density for the observed data conditional on the random effects, and let $f_\nu (u)$ denote the density for the random effects. Then the joint density can be expressed as the product 
+Let $Y \in \mathcal{R}^n$ be a response vector and let $U \in \mathcal{R}^q$ be a vector of unobservable random effects. The MCLA calculation requires the density for the joint distribution of the observed data  and random effects, $f_\theta(u,y)$. Let  $\beta \in \mathcal{R}^k$ be a vector of the fixed effects and let $f_\beta(y|u)$ denote the density for the observed data conditional on the random effects. Let $\nu$ be a vector of variance components and let $f_\nu (u)$ denote the density for the random effects. Then the joint density can be expressed as the product 
 \begin{align}
 f_\theta (u,y) = f_\beta(y|u) \, f_\nu (u).
 \end{align}
 
 
-Let $\tilde{f}(u)$ be a nonnegative function whose support contains the support of the $f_\theta(u,y)$, where $\tilde{f}(u_k)$ does not depend on $\theta$. Let\hbox{ $u_k,$ $k=1,$ $\ldots,$ $m$}, be vectors of length $q$ drawn from  $\tilde{f}(u_k)$.   The specific importance sampling distribution used in R package \texttt{glmm} is described in Equation FTWIDDLE. 
+Let $\tilde{f}(u)$ be a nonnegative function whose support contains the support of the $f_\theta(u,y)$, where $\tilde{f}(u_k)$ does not depend on $\theta$. Let\hbox{ $u_k,$ $k=1,$ $\ldots,$ $m$}, be vectors of length $q$ drawn from  $\tilde{f}(u_k)$.   The specific importance sampling distribution used in \proglang{R} package \texttt{glmm} is described in Equation \ref{eq:ftwiddle}. 
 Then the Monte Carlo  likelihood approximation is
 \begin{align}
 L_{m}(\theta|y) &=   \dfrac{1}{m} \sum_{k=1}^m  \dfrac{ f_\theta(u_k,y)   }{\tilde{f}(u_k)}_. \label{eq:MCLAval}
@@ -147,17 +148,18 @@ The asymptotic properties of the likelihood approximation as the Monte Carlo sam
 
 
 
-Prior to \pkg{glmm}, MCLA for GLMMs has  been studied by \citet{sung:geyer:2007}, who  focus on an MCLA implementation with an importance sampling distribution constructed independently of the observed data. \citet{sung:geyer:2007} prepared the R package \texttt{bernor} that  fits maximum likelihood estimates for a GLMM with a Bernoulli response; their package uses an importance sampling distribution that does not depend on the observed data. Though their package can perform maximum likelihood for simpler models,  it cannot find MLEs for a model as complicated as the salamander model (described in section \ref{sec:examples}).  \\
+Prior to \pkg{glmm}, MCLA for GLMMs has  been studied by \citet{sung:geyer:2007}, who  focus on an MCLA implementation with an importance sampling distribution constructed independently of the observed data. \citet{sung:geyer:2007} prepared the \proglang{R} package \texttt{bernor} that  fits maximum likelihood estimates for a GLMM with a Bernoulli response; their package uses an importance sampling distribution that does not depend on the observed data. Though their package can perform maximum likelihood for simpler models,  it cannot find MLEs for a model as complicated as the salamander model (described in section \ref{sec:examples}).  \\
 
 This highlights the challenge of  finding an importance sampling distribution that performs well in practice. Though MCLA theory indicates any importance sampling distribution should suffice as long as its support contains the support of the target distribution, many importance sampling distributions require so much computing power that modern computers cannot perform maximum likelihood in practice.
-  This practical problem is  illustrated by the absence of MCLA software that can produce MLEs for nontrivial problems. In response, we present an importance sampling distribution (Equation  F TWIDDLE REF) and the R package \pkg{glmm}.\\
+  This practical problem is  illustrated by the absence of MCLA software that can produce MLEs for nontrivial problems. In response, we present an importance sampling distribution (Equation  \ref{eq:ftwiddle}) and the \proglang{R} package \pkg{glmm}.\\
 
 
 
 \subsection[Implementation of MCLA in glmm]{Implementation of MCLA in  \pkg{glmm}}
 
-Need to introduce D and mention that we first need to do PQL. Also Sigma.
+ and mention that we first need to do PQL. Also Sigma.
 
+Let $D$ be the variance-covariance matrix for the random effect vector $u$. Though $D$ is a function of the variance components, we suppress this notation for simplicity.
 Let $s$ be a vector of length $q$ that represents the random effects on the standard normal scale. That is, $s$ is defined such that $u= D^{1/2}s$. Let $\sigma$ be a vector of length $K$ with components $\sqrt{\nu_t},$ $t=1,$ $\ldots,$ $K$.  Let $\beta^*$, $s^*$ and $\sigma^*$ denote the PQL estimates for $\beta$, $s$ and $\sigma$, respectively.  Let
 \begin{align}
 A^*=\sum_{t=1}^K E_t \, \sigma^*_t \nonumber
@@ -182,7 +184,7 @@ Let $\grave{f}(u|0,D^*)$ denote the density for  a $q$-dimensional multivariate 
 \end{align}
 
 
-The first component  $\grave{f}( \,  \cdot \, | 0, D^*)$ of Equation \ref{eq:ftwiddle}  is chosen to ensure  the gradient of the MCLA has a central limit theorem (as shown in REF MY THESIS).  The second component is chosen because it is centered at  $u^*$ and  has  variance $D^*$. The last component is centered at $u^*$ and has a variance based on the Hessian of the  penalized likelihood from PQL.  More specifically, the Hessian of the log density of the last distribution matches the Hessian of the log density of the target distribution $f_\theta(u,y)$. 
+The first component  $\grave{f}( \,  \cdot \, | 0, D^*)$ of Equation \ref{eq:ftwiddle}  is chosen to ensure  the gradient of the MCLA has a central limit theorem \citep{mythesis}.  The second component is chosen because it is centered at  $u^*$ and  has  variance $D^*$. The last component is centered at $u^*$ and has a variance based on the Hessian of the  penalized likelihood from PQL.  More specifically, the Hessian of the log density of the last distribution matches the Hessian of the log density of the target distribution $f_\theta(u,y)$. 
 
 
 
