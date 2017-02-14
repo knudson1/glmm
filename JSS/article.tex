@@ -89,33 +89,6 @@ Before the release of \proglang{R} package \pkg{glmm}, no publicly-available sof
 We present   \pkg{glmm}  and demonstrate in section \ref{sec:howto} how to use the package to perform maximum likelihood, test hypotheses, calculate confidence intervals, and calculate Monte Carlo standard errors for the estimates.  
 
 
-\subsection{Examples}\label{sec:examples}
-We  illustrate \pkg{glmm} with two data sets: the salamander data set serves as an example for modeling binomial-distributed data while the radish flower data set serves as an example for modeling Poisson-distributed data.
-
-\subsubsection{The salamander data}\label{sec:salex}
-
-Researchers at the University of Chicago conducted an experiment on a single species of salamanders  in 1986.
- \citet[Section 14.5]{mcc:nelder:1989} presented the experiment and data, and \citet{karim:zeger:1992} proposed a model they call ``Model A.'' The salamander data and model have become a benchmark in the GLMM universe;  the data have been modeled by many researchers including \citet{booth:hobert:1999},  \citet{bres:clay:1993},   \citet{karim:zeger:1992}, \citet{mcc:nelder:1989},  \citet{schall:1991},  \citet{sung:geyer:2007}, and \citet{wolfinger:oconnell:1993}.\\
-
-
-
-
-Before the experiment began, female salamanders and male salamanders of the same species were collected from two locations. The salamanders were categorized into populations named ``Rough Butt'' and ``White Side'' based on their location of origin. The scientific goal was to determine whether salamanders were more likely to mate with those from their own population or whether they were just as likely to mate with salamanders from either population. More specifically, scientsts sought to compare the odds of mating for each type of  cross: female Rough Butt salamanders and male Rough Butt salamanders (denoted RR), female Rough Butt salamanders and male White Side salamanders (denoted RW), female White Side salamanders and male Rough Butt salamanders (denoted WR), and female White Side salamanders and male White Side salamanders (denoted WW).    \\
-
-Scientists ran an experiment three times. Each experiment consisted of trials conducted on two closed groups of 20 salamanders. That is, each experiment was conducted on 40 salamanders that were split into two closed groups.  Each group contained 5 female Rough Butts, 5 female White Sides, 5 male Rough Butts, and 5 male White Sides.  Each trial consisted of placing a  female salamander and a  male salamander in an isolated space together, then observing the binary response of interest: whether the salamanders mated.  Each female salamander participated in six trials with male salamanders from her closed group:  three trials with male White Side salamanders and three trials with male Rough Butt salamanders. Scientists paired salamanders from the same group; inter-group trials were not conducted. Thus, 60 trials were conducted on each closed group, each experiment consisted of 120 trials, and the overall dataset contains binary responses from 360 trials. \\
-
-
- To model these data with a GLMM,  ``Model A'' \citep{karim:zeger:1992} proposes
-a random effect for each female salamander; a random effect for each male salamander; a fixed effect predictor for each of the four types of cross; and a Bernoulli response of whether the pair of salamanders mated, dependent on the type of cross, the female random effect, and the male random effect. 
- Each salamander's random effect is assumed to be independent of the others.  The male salamanders' random effects share one variance component  while the female salamanders' random effects share another variance component. These two variance components are later referred to as $\nu_M$ and $\nu_F$. The males' random effects are crossed with the females' random effects. Though the same salamanders were used in the first two experiments, the data are traditionally modeled assuming that new salamanders were used in each experiment \citep{booth:hobert:1999,  karim:zeger:1992,  mcc:nelder:1989}.\\
-
-\subsubsection{The radish flower data}
-
-The data in this example are a subset of the data collected by \citet{ridley:ellstrand:2010}. The scientists were interested in whether non-native radishes had adapted to the climate they had  grown in for 150 years. In other words, they wanted to compare two types of radish to see whether each type would grow just as well in their own climate as they would in the other climate. \\
-
-In this dataset, the response is the number of radish flowers. This is assumed to have a Poisson distribution.  \texttt{Site} is a categorical variable with two categories representing the two sites where plants were grown. The variable \texttt{Region} is categorical with two categories representing the two places in California from which the plants were taken. The variable \texttt{Pop} is a categorical variable representing the population of radish, and \texttt{Pop} is nested in \texttt{Region}. The variable \texttt{Block} is a categorical blocking variable nested in \texttt{Site}.  Following the example of \citet{ridley:ellstrand:2010}, \texttt{Block} and \texttt{Pop} are random while \texttt{Site} and \texttt{Region} are fixed. The scientists were interested in  the interaction between \texttt{Site} and \texttt{Region}, since that would indicate that radishes grow better in the area they have been grown during recent history.
-
-
 
 
 \section{Monte Carlo Likelihood Approximation}
@@ -166,6 +139,64 @@ The asymptotic properties of the likelihood approximation as the Monte Carlo sam
 
 
 
+\section{Examples}\label{sec:examples}
+We  illustrate \pkg{glmm} with two data sets: the salamander data set serves as an example for modeling binomial-distributed data while the radish flower data set serves as an example for modeling Poisson-distributed data. This section provides background information on  the research conducted and Section \ref{sec:howto} demonstrates the analysis using \pkg{glmm}.
+
+\subsection{The salamander data}\label{sec:salex}
+
+Researchers at the University of Chicago conducted an experiment on a single species of salamanders  in 1986.
+ \citet[Section 14.5]{mcc:nelder:1989} presented the experiment and data, and \citet{karim:zeger:1992} proposed a model they call ``Model A.'' The salamander data and model have become a benchmark in the GLMM universe;  the data have been modeled by many researchers including \citet{booth:hobert:1999},  \citet{bres:clay:1993},   \citet{karim:zeger:1992}, \citet{mcc:nelder:1989},  \citet{schall:1991},  \citet{sung:geyer:2007}, and \citet{wolfinger:oconnell:1993}.\\
+
+
+
+
+Before the experiment began, female salamanders and male salamanders of the same species were collected from two locations. The salamanders were categorized into populations named ``Rough Butt'' and ``White Side'' based on their location of origin. The scientific goal was to determine whether salamanders were more likely to mate with those from their own population or whether they were just as likely to mate with salamanders from either population. More specifically, scientsts sought to compare the odds of mating for each type of  cross: female Rough Butt salamanders and male Rough Butt salamanders (denoted RR), female Rough Butt salamanders and male White Side salamanders (denoted RW), female White Side salamanders and male Rough Butt salamanders (denoted WR), and female White Side salamanders and male White Side salamanders (denoted WW).    \\
+
+Scientists ran an experiment three times. Each experiment consisted of trials conducted on two closed groups of 20 salamanders. That is, each experiment was conducted on 40 salamanders that were split into two closed groups.  Each group contained 5 female Rough Butts, 5 female White Sides, 5 male Rough Butts, and 5 male White Sides.  Each trial consisted of placing a  female salamander and a  male salamander in an isolated space together, then observing the binary response of interest: whether the salamanders mated.  Each female salamander participated in six trials with male salamanders from her closed group:  three trials with male White Side salamanders and three trials with male Rough Butt salamanders. Scientists paired salamanders from the same group; inter-group trials were not conducted. Thus, 60 trials were conducted on each closed group, each experiment consisted of 120 trials, and the overall dataset contains binary responses from 360 trials. \\
+
+
+ To model these data with a GLMM,  ``Model A'' \citep{karim:zeger:1992} proposes
+a random effect for each female salamander; a random effect for each male salamander; a fixed effect predictor for each of the four types of cross; and a Bernoulli response of whether the pair of salamanders mated, dependent on the type of cross, the female random effect, and the male random effect. 
+ Each salamander's random effect is assumed to be independent of the others.  The male salamanders' random effects share one variance component  while the female salamanders' random effects share another variance component. These two variance components are later referred to as $\nu_M$ and $\nu_F$. The males' random effects are crossed with the females' random effects. Though the same salamanders were used in the first two experiments, the data are traditionally modeled assuming that new salamanders were used in each experiment \citep{booth:hobert:1999,  karim:zeger:1992,  mcc:nelder:1989}.\\
+
+ For your convenience, the \texttt{salamander} dataset is  included in the \texttt{glmm} package. The first \proglang{R}  command shown below gives us access to the \texttt{glmm} package and and all of its commands. The second line of code gives us access to the \texttt{salamander} data frame.  The next three commands help us begin to understand the data. We have four variables: \texttt{Mate}, \texttt{Cross}, \texttt{Female}, and \texttt{Male}. The summary shows us \texttt{Mate} is numeric, \texttt{Cross} is a factor with four levels, \texttt{Female} is a factor, and \texttt{Male} is a factor. 
+
+\begin{CodeChunk}
+\begin{CodeInput}
+library(glmm)
+data(salamander)
+names(salamander)
+\end{CodeInput}
+\begin{CodeOutput}
+[1] "Mate" "Cross" "Female" "Male"
+\end{CodeOutput}
+\begin{CodeInput}
+head(salamander)
+\end{CodeInput}
+\begin{CodeOutput}
+   Mate Cross Female Male
+ 1    1   R/R     10   10
+ 2    1   R/R     11   14
+ 3    1   R/R     12   11
+ 4    1   R/R     13   13
+ 5    1   R/R     14   12
+ 6    1   R/W     15   28
+\end{CodeOutput}
+\end{CodeChunk}
+
+The variable \texttt{Mate} tells us whether the pair of salamanders mated: the value is $1$ if they successfully mated and $0$ if they did not. The variable \texttt{Cross} describes the type of female and male salamander. For example, \texttt{Cross = W/R} indicates a White Side female was crossed with a Rough Butt male. The variable \texttt{Female} contains the identification number of the female salamander, and the variable \texttt{Male} contains the identification number of the male salamander.\\ 
+
+
+
+\subsection{The radish flower data}
+
+The data in this example are a subset of the data collected by \citet{ridley:ellstrand:2010}. The scientists were interested in whether non-native radishes had adapted to the climate they had  grown in for 150 years. In other words, they wanted to compare two types of radish to see whether each type would grow just as well in their own climate as they would in the other climate. \\
+
+In this dataset, the response is the number of radish flowers. This is assumed to have a Poisson distribution.  \texttt{Site} is a categorical variable with two categories representing the two sites where plants were grown. The variable \texttt{Region} is categorical with two categories representing the two places in California from which the plants were taken. The variable \texttt{Pop} is a categorical variable representing the population of radish, and \texttt{Pop} is nested in \texttt{Region}. The variable \texttt{Block} is a categorical blocking variable nested in \texttt{Site}.  Following the example of \citet{ridley:ellstrand:2010}, \texttt{Block} and \texttt{Pop} are random while \texttt{Site} and \texttt{Region} are fixed. The scientists were interested in  the interaction between \texttt{Site} and \texttt{Region}, since that would indicate that radishes grow better in the area they have been grown during recent history.
+
+
+
+
 
 
 
@@ -184,27 +215,27 @@ The following vectors can be used to fit a generalized linear mixed model using 
 The first two types of vectors described in the list are required. The last type is optional. That is, the minimum requirement to fit a \texttt{glmm} model is the response vector and one vector for defining the random effects' design matrix. \\
 
 
-\subsection{Salamander data analysis}
 
-Recall the salamander experiment described in Section \ref{sec:examples}. For your convenience, the \texttt{salamander} dataset is  included in the \texttt{glmm} package. The data arose from an experiment conducted at the University of Chicago in 1986 and were first presented by \citet[section 14.5]{mcc:nelder:1989}.  \\
 
-The variable \texttt{Mate} tells us whether the pair of salamanders mated. The value is $1$ if they successfully mated and $0$ if they did not. The variable \texttt{Cross} describes the type of female and male salamander. For example, \texttt{Cross = W/R} indicates a White Side female was crossed with a Rough Butt male. The variable \texttt{Female} contains the identification number of the female salamander, and the variable \texttt{Male} contains the identification number of the male salamander.\\ 
 
-The first \proglang{R}  command shown below gives us access to the \texttt{glmm} package and and all of its commands. The second line of code gives us access to the \texttt{salamander} data frame.  The next three commands help us begin to understand the data. We have four variables: \texttt{Mate}, \texttt{Cross}, \texttt{Female}, and \texttt{Male}. The summary shows us \texttt{Mate} is numeric, \texttt{Cross} is a factor with four levels, \texttt{Female} is a factor, and \texttt{Male} is a factor. 
+
+
+
 
 \begin{CodeChunk}
 \begin{CodeInput}
-library(glmm)
-data(salamander)
-names(salamander)
+input code
 \end{CodeInput}
 \begin{CodeOutput}
-[1] "Mate" "Cross" "Female" "Male"
+output code
 \end{CodeOutput}
 \begin{CodeInput}
 second input
 \end{CodeInput}
 \end{CodeChunk}
+
+
+
 
 
 \subsection{Using the model-fitting function}
