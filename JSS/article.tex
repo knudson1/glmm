@@ -92,7 +92,7 @@ We present   \pkg{glmm}  and demonstrate in section \ref{sec:howto} how to use t
 \subsection{Examples}\label{sec:examples}
 We  illustrate \pkg{glmm} with two data sets: the salamander data set serves as an example for modeling binomial-distributed data while the radish flower data set serves as an example for modeling Poisson-distributed data.
 
-\subsubsection{The salamander data}
+\subsubsection{The salamander data}\label{sec:salex}
 
 Researchers at the University of Chicago conducted an experiment on a single species of salamanders  in 1986.
  \citet[Section 14.5]{mcc:nelder:1989} presented the experiment and data, and \citet{karim:zeger:1992} proposed a model they call ``Model A.'' The salamander data and model have become a benchmark in the GLMM universe;  the data have been modeled by many researchers including \citet{booth:hobert:1999},  \citet{bres:clay:1993},   \citet{karim:zeger:1992}, \citet{mcc:nelder:1989},  \citet{schall:1991},  \citet{sung:geyer:2007}, and \citet{wolfinger:oconnell:1993}.\\
@@ -177,18 +177,20 @@ The asymptotic properties of the likelihood approximation as the Monte Carlo sam
 
 The following vectors can be used to fit a generalized linear mixed model using the \texttt{glmm} package. These vectors can be contained in a data frame, but they do not need to be.
 \begin{enumerate}
-\item A response vector. If your response is Poisson, then the entries in the response vector must be natural numbers. If your response is Bernoulli, then the entries in the response vector must be $0$ and $1$. (For this version of \texttt{glmm}, these are the only two response types possible. If you need to fit a model with a different response, contact me.) 
+\item The response vector(s). If your response is Poisson or Bernoulli, then you should have a single response vector. If your response is Poisson, then the entries in the response vector must be natural numbers. If your response is Bernoulli, then the entries in the response vector must be $0$ and $1$. If your response is binomial, then you should have two vectors connected with \texttt{cbind}: the first vector should be the number of successes and the second should be the number of failures.
 \item At least one vector that will be used for defining the random effects' design matrix. For this version of \texttt{glmm}, the vector(s) should be class \texttt{factor}.
 \item Vector(s) that will be used for defining the fixed effects' design matrix. The vector(s) can be of class \texttt{factor} or \texttt{numeric}. 
 \end{enumerate}
 The first two types of vectors described in the list are required. The last type is optional. That is, the minimum requirement to fit a \texttt{glmm} model is the response vector and one vector for defining the random effects' design matrix. \\
 
 
-We use the \texttt{salamander} dataset as an example in this vignette. For your convenience, it is already included in the \texttt{glmm} package. The data arose from an experiment conducted at the University of Chicago in 1986 and were first presented by \citet[section 14.5]{mcc:nelder:1989}. Scientists paired female and male salamanders of two types (Rough Butt and White Side) and collected data on whether or not they mated.  \\
+\subsection{Salamander data analysis}
+
+Recall the salamander experiment described in Section \ref{sec:examples}. For your convenience, the \texttt{salamander} dataset is  included in the \texttt{glmm} package. The data arose from an experiment conducted at the University of Chicago in 1986 and were first presented by \citet[section 14.5]{mcc:nelder:1989}.  \\
 
 The variable \texttt{Mate} tells us whether the pair of salamanders mated. The value is $1$ if they successfully mated and $0$ if they did not. The variable \texttt{Cross} describes the type of female and male salamander. For example, \texttt{Cross = W/R} indicates a White Side female was crossed with a Rough Butt male. The variable \texttt{Female} contains the identification number of the female salamander, and the variable \texttt{Male} contains the identification number of the male salamander.\\ 
 
-The first R  command shown below gives us access to the \texttt{glmm} package and and all of its commands. The second line of code gives us access to the \texttt{salamander} data frame.  The next three commands help us begin to understand the data. We have four variables: \texttt{Mate}, \texttt{Cross}, \texttt{Female}, and \texttt{Male}. The summary shows us \texttt{Mate} is numeric, \texttt{Cross} is a factor with four levels, \texttt{Female} is a factor, and \texttt{Male} is a factor. 
+The first \proglang{R}  command shown below gives us access to the \texttt{glmm} package and and all of its commands. The second line of code gives us access to the \texttt{salamander} data frame.  The next three commands help us begin to understand the data. We have four variables: \texttt{Mate}, \texttt{Cross}, \texttt{Female}, and \texttt{Male}. The summary shows us \texttt{Mate} is numeric, \texttt{Cross} is a factor with four levels, \texttt{Female} is a factor, and \texttt{Male} is a factor. 
 
 \begin{CodeChunk}
 \begin{CodeInput}
