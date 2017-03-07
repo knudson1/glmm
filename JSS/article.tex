@@ -73,7 +73,7 @@ The \proglang{R} package \pkg{glmm} enables all  likelihood-based inference  for
 \section{Introduction}
 The generalized linear mixed model (GLMM) is an extension of both the generalized linear model and the linear mixed model; the model incorporates  fixed and random effects as well as a response from an exponential family.   GLMMs were first discussed by \citet{stiratelli:laird:ware:1984} and are now  used in a variety of disciplines. Despite their widespread use, traditional methods of frequentist likelihood-based inference are not generally available. The challenge lies in the likelihood function for GLMMs: because the likelihood cannot depend on the random effects, the likelihood is an  integral that is often intractable. Due to this challenge, most methodology and software for  GLMMs perform little more than maximum likelihood (such as Monte Carlo EM)  or do not perform likelihood-based inference at all (such as penalized quasi-likelihood). \\
 
-Our goal is to enable all types of frequentist likelihood-based inference. This includes (but is not limited to) calculating Fisher information, performing hypothesis tests, and constructing confidence intervals.  To perform all types of frequentist likelihood-based inference, the entire likelihood function is necessary.\\
+Our goal is to enable all types of frequentist likelihood-based inference. This includes (but is not limited to) calculating Fisher information, performing hypothesis tests, and constructing likelihood-based confidence intervals.  To perform all types of frequentist likelihood-based inference, the entire likelihood function is necessary.\\
 
 
 With this goal in mind, we have created the  \proglang{R} package \pkg{glmm} \citep{glmm:package} that approximates the entire likelihood function for a GLMM with either a Bernoulli or Poisson response. This package uses  the method of
@@ -83,7 +83,7 @@ Because MCLA approximates the entire likelihood, \pkg{glmm}  enables  every type
 
 %For more details on MCLA, see \ref{sec:mclageneral}.
 
-Before the release of \proglang{R} package \pkg{glmm}, no publicly-available software  implementing MCLA  produced accurate maximum likelihood estimates for models of non-trivial complexity. For example, the \texttt{bernor}  package \citep{sung:geyer:2007} implements MCLA but cannot accurately perform maximum likelihood for the benchmark data set from a salamander mating experiment (described in section \ref{sec:examples}). 
+Before the release of \proglang{R} package \pkg{glmm}, no publicly-available software  implementing MCLA  produced accurate maximum likelihood estimates for models of non-trivial complexity. For example, the \texttt{bernor}  package \citep{bernor} implements MCLA but cannot accurately perform maximum likelihood for the benchmark data set from a salamander mating experiment (described in section \ref{sec:examples}). 
 %The  absence of MCLA software highlights a   challenge from which the procedure suffers:  finding an importance sampling distribution that works well in practice.  
 %We propose  an importance sampling distribution to be used in implementing MCLA for GLMMs (Equation {eq:ftwiddle});  
 We present   \pkg{glmm}  and demonstrate in section \ref{sec:howto} how to use the package to perform maximum likelihood, test hypotheses, calculate confidence intervals, and calculate Monte Carlo standard errors for the estimates.  
@@ -101,12 +101,13 @@ MCLA is powerful  because it enables any type of likelihood-based inference.  Ma
 
 Prior to \pkg{glmm}, MCLA for GLMMs was   studied by \citet{sung:geyer:2007}, who  focused on an MCLA implementation with an importance sampling distribution constructed independently of the observed data. \citet{sung:geyer:2007} prepared the \proglang{R} package \texttt{bernor} that  fits maximum likelihood estimates for a GLMM with a Bernoulli response; their package uses an importance sampling distribution that does not depend on the observed data. Though their package can perform maximum likelihood for simpler models,  it cannot find MLEs for a model as complicated as the salamander model (described in section \ref{sec:examples}).  \\
 
-This highlights the challenge of  finding an importance sampling distribution that performs well in practice. Though MCLA theory indicates any importance sampling distribution should suffice as long as its support contains the support of the target distribution, many importance sampling distributions require so much computing power that modern computers cannot perform  likelihood-based inference in practice.
+This highlights the challenge of  finding an importance sampling distribution that performs well in practice. Though MCLA theory indicates any importance sampling distribution should suffice as long as its support contains the support of the target distribution, many importance sampling distributions require require such large Monte Carlo
+    sample sizes that computers cannot perform  likelihood-based inference in practice.
   This practical problem is  illustrated by the absence of MCLA software that can produce MLEs for nontrivial problems. In response, we present an importance sampling distribution \citep{mythesis} and the \proglang{R} package \pkg{glmm}.\\
 
 \subsection{Calculation of the Monte Carlo likelihood approximation}
 
-Let $Y \in \mathcal{R}^n$ be a response vector and let $U \in \mathcal{R}^q$ be a vector of unobservable random effects. The MCLA calculation requires the density for the joint distribution of the observed data  and random effects, $f_\theta(u,y)$. Let  $\beta \in \mathcal{R}^k$ be a vector of the fixed effects and let $f_\beta(y|u)$ denote the density for the observed data conditional on the random effects. Let $\nu$ be a vector of variance components and let $f_\nu (u)$ denote the density for the random effects. Then the joint density can be expressed as the product 
+Let $Y \in \mathcal{R}^n$ be a response vector and let $U \in \mathcal{R}^q$ be a vector of unobservable random effects. The MCLA calculation requires the density for the joint distribution of the observed data  and random effects, $f_\theta(u,y)$. Let  $\beta \in \mathcal{R}^k$ be a vector of the fixed effects and let $f_\beta(y|u)$ denote the density for the observed data conditional on the random effects. Let $\nu$ be a vector of variance components and let $f_\nu (u)$ denote the (marginal) density for the random effects. Then the joint density can be expressed as the product 
 \begin{align}
 f_\theta (u,y) = f_\beta(y|u) \, f_\nu (u).
 \end{align}
@@ -145,7 +146,7 @@ We  illustrate \pkg{glmm} with two data sets: the salamander data set serves as 
 \subsection{The salamander data}\label{sec:salex}
 
 Researchers at the University of Chicago conducted an experiment on a single species of salamanders  in 1986.
- \citet[Section 14.5]{mcc:nelder:1989} presented the experiment and data, and \citet{karim:zeger:1992} proposed a model they call ``Model A.'' The salamander data and model have become a benchmark in the GLMM universe;  the data have been modeled by many researchers including \citet{booth:hobert:1999},  \citet{bres:clay:1993},   \citet{karim:zeger:1992}, \citet{mcc:nelder:1989},  \citet{schall:1991},  \citet{sung:geyer:2007}, and \citet{wolfinger:oconnell:1993}.\\
+ \citet[Section 14.5]{mcc:nelder:1989} presented the experiment and data, and \citet{karim:zeger:1992} proposed a model they call ``Model A.'' The salamander data and model have become a benchmark in the GLMM universe;  the data have been reanalyzed by many researchers including \citet{booth:hobert:1999},  \citet{bres:clay:1993},   \citet{karim:zeger:1992}, \citet{mcc:nelder:1989},  \citet{schall:1991},  \citet{sung:geyer:2007}, and \citet{wolfinger:oconnell:1993}.\\
 
 
 
@@ -159,7 +160,7 @@ Scientists ran an experiment three times. Each experiment consisted of trials co
 a random effect for each female salamander; a random effect for each male salamander; a fixed effect predictor for each of the four types of cross; and a Bernoulli response of whether the pair of salamanders mated, dependent on the type of cross, the female random effect, and the male random effect. 
  Each salamander's random effect is assumed to be independent of the others.  The male salamanders' random effects share one variance component  while the female salamanders' random effects share another variance component. These two variance components are later referred to as $\nu_M$ and $\nu_F$. The males' random effects are crossed with the females' random effects. Though the same salamanders were used in the first two experiments, the data are traditionally modeled assuming that new salamanders were used in each experiment \citep{booth:hobert:1999,  karim:zeger:1992,  mcc:nelder:1989}.\\
 
- For your convenience, the \texttt{salamander} dataset is  included in the \texttt{glmm} package. The first \proglang{R}  command shown below gives us access to the \texttt{glmm} package and and all of its commands. The second line of code gives us access to the \texttt{salamander} data frame.  The next three commands help us begin to understand the data. We have four variables: \texttt{Mate}, \texttt{Cross}, \texttt{Female}, and \texttt{Male}. The summary shows us \texttt{Mate} is numeric, \texttt{Cross} is a factor with four levels, \texttt{Female} is a factor, and \texttt{Male} is a factor. 
+ For the convenience of users, the \texttt{salamander} dataset is  included in the \texttt{glmm} package. The first \proglang{R}  command shown below gives us access to the \texttt{glmm} package and and all of its commands. The second line of code gives us access to the \texttt{salamander} data frame.  The next three commands help us begin to understand the data. We have four variables: \texttt{Mate}, \texttt{Cross}, \texttt{Female}, and \texttt{Male}. The summary shows us \texttt{Mate} is numeric, \texttt{Cross} is a factor with four levels, \texttt{Female} is a factor, and \texttt{Male} is a factor. 
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -181,6 +182,16 @@ head(salamander)
  4    1   R/R     13   13
  5    1   R/R     14   12
  6    1   R/W     15   28
+\end{CodeOutput}
+\begin{CodeInput}
+str(salamander)
+\end{CodeInput}
+\begin{CodeOutput}
+'data.frame':	360 obs. of  4 variables:
+ $ Mate  : num  1 1 1 1 1 1 0 0 0 0 ...
+ $ Cross : Factor w/ 4 levels "R/R","R/W","W/R",..: 1 1 1 1 1 2 2 2 2 2 ...
+ $ Female: Factor w/ 60 levels "10","11","12",..: 1 2 3 4 5 6 7 8 9 10 ...
+ $ Male  : Factor w/ 60 levels "10","11","12",..: 1 5 2 4 3 19 18 16 20 17 ...
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -244,10 +255,24 @@ second input
 
 
 
+\begin{CodeChunk}
+\begin{CodeInput}
+input code
+\end{CodeInput}
+\begin{CodeOutput}
+output code
+\end{CodeOutput}
+\begin{CodeInput}
+second input
+\end{CodeInput}
+\end{CodeChunk}
 
-In the following code, we  fit the model using the \texttt{glmm} command and save the model under the name  \texttt{sal}. Because \texttt{Mate} is our response, it is on the left of the $\sim$. We want to have a fixed effect for each of the four levels of \texttt{Cross}, so we type \texttt{Mate $\sim$ 0 + Cross}. Because \texttt{Cross} is a factor, typing \texttt{Mate $\sim$ Cross} would fit an equivalent model. \\ 
 
-Next, the \texttt{random} list creates the design matrices for the random effects. Since we want two random effects for each cross (one from the female salamander and one from the male salamander), we type \texttt{list($\sim$ 0 + Female, $\sim$ 0 + Male)}. We  include the \texttt{0} because we want our random effects to be centered at 0. Almost always, you will want your random effects to have mean 0. \\
+
+
+In the  code above, we  fit the model using the \texttt{glmm} command and save the model under the name  \texttt{sal}. The fixed and random effects specification uses the formula mini-language in \proglang{R}. Because \texttt{Mate} is our response, it is on the left of the $\sim$. We want to have a fixed effect for each of the four levels of \texttt{Cross}, so we type \texttt{Mate $\sim$ 0 + Cross}. Because \texttt{Cross} is a factor, typing \texttt{Mate $\sim$ Cross} would fit a similar model but would use \texttt{R/R} as a reference group. That is, this model would estimate the log odds of two rough butts mating ($\beta_{R/R}$) and three  regression coefficients ($\beta_{R/W}-\beta_{R/R}$, $\beta_{W/R}-\beta_{R/R}$, and $\beta_{W/W}-\beta_{R/R}$) that compare the log odds of mating for each of the crosses to the log odds of two rough butts mating.  \\ 
+
+Next, the \texttt{random} list creates the design matrices for the random effects. Since we want two random effects for each cross (one from the female salamander and one from the male salamander), we type \texttt{list($\sim$ 0 + Female, $\sim$ 0 + Male)}.  We almost always  want to include \texttt{0 +} in the random effects specification. We  include the \texttt{0 +} because we do not want one of the salamanders to be the reference salamander.\\
 
  Following the \texttt{random} list, the argument \texttt{varcomps.names} allows us to name the list of variance components. In the \texttt{random} list, we have placed the females first. Therefore, the order of the variance components names are first ``F'' and then ``M.''  \\
 
