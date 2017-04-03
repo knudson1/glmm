@@ -12,18 +12,18 @@
 #}
 
 #note that Dstarinv is just the DIAGONAL of Dstarinv
-tdist2<-function(tconst,u, Dstarinv,zeta,myq){
+tdist2 <- function(tconst,u, Dstarinv,zeta,myq){
 	inside<-1+sum(t(u)*Dstarinv*u)/zeta
 	logft<-tconst - ((zeta+myq)/2)*log(inside)
 	logft
 }
 
 tconstant<-function(zeta,myq,Dstarinvdiag){
-	piece1<-log(gamma((zeta+myq)/2))
-	piece1b<--log(gamma(zeta/2))
-	piece1c<--myq*log(zeta*pi)/2
-	piece2<- .5*log(prod(Dstarinvdiag))	
-	piece1+piece1b+piece1c+piece2
+	piece1 <- lgamma((zeta+myq)/2)
+	piece1b <- -lgamma(zeta/2)
+	piece1c <- -myq * log(zeta*pi)/2
+	piece2 <- .5 * log(prod(Dstarinvdiag))	
+	piece1 + piece1b + piece1c + piece2
 }
 
 # no longer used

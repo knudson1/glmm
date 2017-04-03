@@ -1,6 +1,6 @@
 
-R version 3.3.1 (2016-06-21) -- "Bug in Your Hair"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.3.3 (2017-03-06) -- "Another Canoe"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -90,11 +90,11 @@ Loading required package: Matrix
 [6,]  4.276783e-06  4.276776e-06
 > #how big are the diffs? very small
 > lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
-[1] 4.985616e-11 2.690737e-12 2.141682e-11 1.902392e-11 7.990975e-12
-[6] 6.517777e-12
+[1] 4.985616e-11 2.690751e-12 2.141327e-11 1.902481e-11 7.990975e-12
+[6] 6.519554e-12
 > 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  6.340   0.064   6.401 
+  4.248   0.060   4.306 
