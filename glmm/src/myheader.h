@@ -38,6 +38,45 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 
 void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst, int *ntrials);
 
+
+R_CMethodDef cMethods[] = {
+	{"matTvecmult" , (DL_FUNC) &matTvecmult, 5, {REALSXP, REALSXP, INTSXP, INTSXP, REALSXP} },
+	{"diag" , (DL_FUNC) &diag, 3, {REALSXP,  INTSXP, REALSXP} },
+	{"matTmatmult" , (DL_FUNC) &matTmatmult, 6, {REALSXP, REALSXP, INTSXP, INTSXP, INTSXP, REALSXP} },
+	{"matmatmult" , (DL_FUNC) &matmatmult, 6, {REALSXP, REALSXP, INTSXP, INTSXP, INTSXP, REALSXP} },
+	{"matvecmult" , (DL_FUNC) &matvecmult, 5, {REALSXP, REALSXP, INTSXP, INTSXP, REALSXP} },
+	{"identmat" , (DL_FUNC) &identmat, 2, { INTSXP, INTSXP} },
+	{"sumup" , (DL_FUNC) &sumup, 3, {REALSXP, INTSXP, REALSXP} },
+	{"subvec" , (DL_FUNC) &subvec, 4, {REALSXP, REALSXP, INTSXP, REALSXP} },
+	{"addvec" , (DL_FUNC) &addvec, 4, {REALSXP, REALSXP, INTSXP, REALSXP} },
+	{"divvec" , (DL_FUNC) &divvec, 4, {REALSXP, REALSXP, INTSXP, REALSXP} },
+
+	{"distRandGenC" , (DL_FUNC) &distRandGenC, 6, {REALSXP, REALSXP, INTSXP, REALSXP, REALSXP, REALSXP} },
+	{"distRand3C" , (DL_FUNC) &distRand3C, 8, {REALSXP, REALSXP, INTSXP, INTSXP, INTSXP, REALSXP, REALSXP, REALSXP} },
+
+	{"cum3" , (DL_FUNC) &cum3, 5, {REALSXP, INTSXP, INTSXP, INTSXP, REALSXP} },
+	{"cp3" , (DL_FUNC) &cp3, 5, {REALSXP, INTSXP, INTSXP, INTSXP, REALSXP} },
+	{"cpp3" , (DL_FUNC) &cpp3, 5, {REALSXP, INTSXP, INTSXP, INTSXP, REALSXP} },
+
+	{"elval" , (DL_FUNC) &elval, 7, {REALSXP, INTSXP, INTSXP, REALSXP, INTSXP, INTSXP, REALSXP} },
+	{"elGH" , (DL_FUNC) &elGH, 9, {REALSXP, REALSXP, INTSXP, INTSXP, REALSXP, INTSXP, INTSXP, REALSXP, REALSXP} },
+
+	{"tdist" , (DL_FUNC) &tdist, 6, {REALSXP, INTSXP,  REALSXP, INTSXP, REALSXP, REALSXP} },
+
+	{"objfunc" , (DL_FUNC) &objfunc, 30, {REALSXP, REALSXP, INTSXP, INTSXP, REALSXP, INTSXP, INTSXP, REALSXP, REALSXP, REALSXP, REALSXP, INTSXP, REALSXP, REALSXP, REALSXP, REALSXP, REALSXP, REALSXP, INTSXP, INTSXP, INTSXP, INTSXP, REALSXP, REALSXP, REALSXP, REALSXP, INTSXP, REALSXP, REALSXP, REALSXP} },
+
+	{"mcsec" , (DL_FUNC) &mcsec, 30, {REALSXP, REALSXP,  REALSXP, REALSXP, REALSXP, REALSXP,  INTSXP, INTSXP, REALSXP, INTSXP, INTSXP, REALSXP, REALSXP, REALSXP, REALSXP, INTSXP, REALSXP, REALSXP, REALSXP, REALSXP, REALSXP, REALSXP, INTSXP, INTSXP,
+INTSXP, INTSXP, REALSXP, INTSXP, REALSXP, INTSXP} },
+
+
+	{NULL, NULL, 0}
+}
+
+
+void R_init_myLib(DLL *info) {R_registerRoutines(info cMethods, NULL, NULL, NULL);}
+
+
+
 #include <math.h>
 
 #endif /* GLMM_MYHEADER_H */
