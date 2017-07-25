@@ -16,7 +16,7 @@
 \documentclass[11pt]{article}
 
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Using glmm}
+%\VignetteIndexEntry{intro}
   %\usepackage[utf8]{inputenc}
 %\VignettePackage{glmm}
 %\VignetteKeywords{glmm, maximum likelihood, mle, Monte Carlo, likelihood approximation, likelihood based inference, Monte Carlo likelihood approximation, salamander, generalized linear mixed model}
@@ -53,7 +53,7 @@ The basis of \texttt{glmm} is MCLA, which was first proposed by \citet{geyer:199
 
 The following vectors can be used to fit a generalized linear mixed model using the \texttt{glmm} package. These vectors can be contained in a data frame, but they do not need to be.
 \begin{enumerate}
-\item A response vector. If your response is Poisson, then the entries in the response vector must be natural numbers. If your response is Bernoulli, then the entries in the response vector must be $0$ and $1$. (For this version of \texttt{glmm}, these are the only two response types possible. If you need to fit a model with a different response, contact me.) 
+\item A response vector. If your response is Poisson, then the entries in the response vector must be natural numbers. If your response is Bernoulli, then the entries in the response vector must be $0$ and $1$. If your response is binomial, then you will have two vectors: a vector of successes and a vector of failures. (For this version of \texttt{glmm}, these are the only  response types possible. If you need to fit a model with a different response, contact me.) 
 \item At least one vector that will be used for defining the random effects' design matrix. For this version of \texttt{glmm}, the vector(s) should be class \texttt{factor}.
 \item Vector(s) that will be used for defining the fixed effects' design matrix. The vector(s) can be of class \texttt{factor} or \texttt{numeric}. 
 \end{enumerate}
