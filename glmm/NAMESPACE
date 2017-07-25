@@ -1,4 +1,4 @@
-useDynLib(glmm, .registration=TRUE)
+useDynLib(glmm)
 
 
 export(glmm)
