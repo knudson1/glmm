@@ -56,9 +56,9 @@ To see the summary of the model, use summary().
 \code{glmm} returns an object of class \code{glmm} is a list containing at least the following components: 
 \item{beta }{A vector of the Monte Carlo maximum likelihood estimates (MCMLEs) for the fixed effects.}
  \item{nu }{A vector of the Monte Carlo maximum likelihood estimates for the variance components.}
- \item{likelihood.value}{The Monte Carlo maximum likelihood evaluated at the MCMLEs \code{beta} and \code{nu}.}
- \item{likelihood.gradient}{The Monte Carlo maximum likelihood gradient vector at the MCMLEs \code{beta} and \code{nu}.}
- \item{likelihood.hessian}{The Monte Carlo maximum likelihood Hessian matrix at the MCMLEs \code{beta} and \code{nu}.}
+ \item{loglike.value}{The Monte Carlo log likelihood evaluated at the MCMLEs \code{beta} and \code{nu}.}
+ \item{loglike.gradient}{The Monte Carlo log likelihood gradient vector at the MCMLEs \code{beta} and \code{nu}.}
+ \item{loglike.hessian}{The Monte Carlo log likelihood Hessian matrix at the MCMLEs \code{beta} and \code{nu}.}
 \item{mod.mcml}{A list containing the fixed effect design matrix, the list of random effect design matrices, the response. and the number of trials (for the Binomial family).}
 \item{call}{The call.}
 \item{fixedcall}{The fixed effects call.}
