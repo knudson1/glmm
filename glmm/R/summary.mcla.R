@@ -169,3 +169,10 @@ confint.glmm<-function(object,parm,level=.95,...){
 	ci
 }
 
+# isolate the MC log likelihood evaluated at the MCMLEs
+logLik.glmm<-function(object,...){
+
+   	stopifnot(inherits(object, "glmm"))
+	object$loglike.value
+}
+
