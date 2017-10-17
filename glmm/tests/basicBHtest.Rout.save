@@ -1,0 +1,49 @@
+
+R version 3.1.1 (2014-07-10) -- "Sock it to Me"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(glmm)
+Loading required package: trust
+Loading required package: mvtnorm
+Loading required package: Matrix
+> data(BoothHobert)
+> set.seed(123)
+> mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,family.glmm=bernoulli.glmm,m=1000,doPQL=TRUE)
+> summary(mod.mcml1)
+
+Call:
+glmm(fixed = y ~ 0 + x1, random = list(y ~ 0 + z1), varcomps.names = c("z1"), 
+    data = BoothHobert, family.glmm = bernoulli.glmm, m = 1000, 
+    doPQL = TRUE)
+
+
+Link is: "logit (log odds)"
+
+Fixed Effects:
+   Estimate Std. Error z value Pr(>|z|)    
+x1    6.044      1.388   4.354 1.34e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+Variance Components for Random Effects (P-values are one-tailed):
+   Estimate Std. Error z value Pr(>|z|)/2
+z1    1.559      1.376   1.133      0.129
+
+> 
+> proc.time()
+   user  system elapsed 
+  4.725   0.067   4.780 

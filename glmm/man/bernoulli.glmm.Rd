@@ -10,6 +10,7 @@ bernoulli.glmm()
 
 \value{
 \item{family.glmm }{The family name, as a string.}
+\item{link}{The link function (canonical link is required), as a string.}
   \item{cum }{The cumulant function.}
   \item{cp }{The first derivative of the cumulant function.}
   \item{cpp }{The second derivative of the cumulant function.}
@@ -25,9 +26,10 @@ bernoulli.glmm()
 \code{\link{glmm}}
 }
 \examples{
+eta<--3:3
 bernoulli.glmm()$family.glmm
-bernoulli.glmm()$cum(2)
-bernoulli.glmm()$cp(2)
+bernoulli.glmm()$cum(eta)
+bernoulli.glmm()$cp(1)
 bernoulli.glmm()$cpp(2)
 
 }

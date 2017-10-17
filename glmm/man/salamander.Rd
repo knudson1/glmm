@@ -10,14 +10,11 @@
   A data frame with the following columns:
 
    \describe{
-    \item{Season}{A factor with levels \code{Spring} and \code{Summer} to categorize when the experiment was conducted.}
-    \item{Experiment}{A factor with levels \code{1},\code{2}, \code{3} to indicate the experiment number.}
-    \item{TypeM}{Type of the male salamander; Rough Butt=R and White Side=W.}
-    \item{TypeF}{Type of the female salamander; Rough Butt=R and White Side=W.}
-\item{Cross}{Cross between female and male type. A factor with four levels: \code{RR},\code{RW},\code{WR}, and \code{WW}. For example, \code{Cross=WR} indicates a White Side female was crossed with a Rough Butt male.}
+\item{Mate}{Whether the salamanders mated (1) or did not mate (0).}
+\item{Cross}{Cross between female and male type. A factor with four levels: \code{R/R},\code{R/W},\code{W/R}, and \code{W/W}. The type of the female salamander is listed first and the male is listed second. Rough Butt is represented by R and White Side is represented by W. For example, \code{Cross=W/R} indicates a White Side female was crossed with a Rough Butt male.}
 \item{Male}{Identification number of the male salamander. A factor.}
 \item{Female}{Identification number of the female salamander. A factor.}
-\item{Mate}{Whether the salamanders mated (1) or did not mate (0).}
+
 }
 }
 

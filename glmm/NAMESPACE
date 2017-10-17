@@ -1,11 +1,28 @@
-export(bernoulli.glmm)
+useDynLib(glmm, .registration = TRUE, .fixes = "C_")
+
+
 export(glmm)
+export(bernoulli.glmm)
 export(poisson.glmm)
+export(binomial.glmm)
 export(summary.glmm)
 export(coef.glmm)
+export(varcomps)
+export(vcov.glmm)
+export(mcse)
+export(mcvcov)
+export(se)
+export(logLik.glmm)
 
 import(trust)
+import(mvtnorm)
+import(Matrix)
+
+importFrom(stats, coef, pnorm, qnorm, rnorm, lm, model.matrix, model.response, runif, optim, printCoefmat)
 
 S3method(print, summary.glmm)
 S3method(summary, glmm)
-S3method(coef,glmm)
+S3method(coef, glmm)
+S3method(confint, glmm)
+S3method(vcov, glmm)
+S3method(logLik, glmm)

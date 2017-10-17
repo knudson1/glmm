@@ -1,0 +1,55 @@
+
+R version 3.1.1 (2014-07-10) -- "Sock it to Me"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # test the t distribution
+> 
+> library(glmm)
+Loading required package: trust
+Loading required package: mvtnorm
+Loading required package: Matrix
+> 
+> tdist2<-function(tconst,u, Dstarinv,zeta,myq){
++ 	inside<-1+t(u)%*%Dstarinv%*%u/zeta
++ 	logft<-tconst - ((zeta+myq)/2)*log(inside)
++ 	as.vector(logft)
++ }
+> 
+> zeta<-5
+> myq<-10
+> set.seed(1234)
+> u<-rt(10,df=zeta)
+> Dstarinvdiag<-rep(1.1,10)
+> tconstant<-glmm:::tconstant
+> tconst<-tconstant(zeta,myq,Dstarinvdiag)
+> 
+> Dstarinv<-diag(Dstarinvdiag)
+> tR<-tdist2(tconst,u,Dstarinv,zeta,myq)
+> 
+> #compare version in R to version in C
+> tC<-.C("tdist",as.double(Dstarinv),  as.integer(myq), as.double(u), as.integer(zeta), as.double(tconst), double(1))
+> all.equal(tC[[6]],tR)
+[1] TRUE
+> 
+> #compare my version to the mvtnorm version
+> Dstar<-diag(10)/1.1
+> theirs<-dmvt(u,sigma=Dstar,df=zeta)
+> theirs==tR
+[1] TRUE
+> 
+> proc.time()
+   user  system elapsed 
+  2.632   0.027   2.654 

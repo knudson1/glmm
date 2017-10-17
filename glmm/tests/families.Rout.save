@@ -1,0 +1,50 @@
+
+R version 3.1.1 (2014-07-10) -- "Sock it to Me"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(glmm)
+Loading required package: trust
+Loading required package: mvtnorm
+> theta<-1
+> delta<-.01
+> 
+> #check derivatives for bernoulli using finite differences
+> this<-bernoulli.glmm()$cp(theta)*delta
+> that<-bernoulli.glmm()$cum(theta+delta)-bernoulli.glmm()$cum(theta)
+> all.equal(this,that)
+[1] "Mean relative difference: 0.001342634"
+> 
+> this<-bernoulli.glmm()$cpp(theta)*delta
+> that<-bernoulli.glmm()$cp(theta+delta)-bernoulli.glmm()$cp(theta)
+> all.equal(this,that)
+[1] "Mean relative difference: 0.002313554"
+> 
+> #check derivatives for poisson using finite differences
+> this<-poisson.glmm()$cp(theta)*delta
+> that<-poisson.glmm()$cum(theta+delta)-poisson.glmm()$cum(theta)
+> all.equal(this,that)
+[1] "Mean relative difference: 0.005016708"
+> 
+> this<-poisson.glmm()$cpp(theta)*delta
+> that<-poisson.glmm()$cp(theta+delta)-poisson.glmm()$cp(theta)
+> all.equal(this,that)
+[1] "Mean relative difference: 0.005016708"
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  0.179   0.040   0.191 

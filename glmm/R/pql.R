@@ -15,12 +15,12 @@ function(mod.mcml,family.mcml,cache){
 	s<-rep(1,totnrandom)
 	
 	#need to give this Y, X, etc
-	Y=mod.mcml$y
-	X=mod.mcml$x
-	Z=do.call(cbind,mod.mcml$z)
+	Y = mod.mcml$y
+	X = mod.mcml$x
+	Z = do.call(cbind,mod.mcml$z)
+	ntrials = mod.mcml$ntrials
 	
-	#outer.optim<-optim(par=sigma, fn=fn.outer,  beta=beta, s=s, Y=Y ,X=X ,Z=Z ,eek=eek ,family.mcml=family.mcml,cache=cache)
-	outer.optim<-suppressWarnings(optim(par=sigma, fn=fn.outer,  beta=beta, s=s, Y=Y ,X=X ,Z=Z ,eek=eek ,family.mcml=family.mcml,cache=cache))
+	outer.optim<-suppressWarnings(optim(par=sigma, fn=fn.outer,  beta=beta, s=s, Y=Y ,X=X ,Z=Z ,eek=eek ,family.mcml=family.mcml, cache=cache, ntrials=ntrials))
 
 	list(sigma=outer.optim$par)
 
@@ -28,33 +28,54 @@ function(mod.mcml,family.mcml,cache){
 
 
 fn.outer <-
-function(par,beta,s,Y,X,Z,eek,family.mcml,cache){
+function(par,beta,s,Y,X,Z,eek,family.mcml,cache, ntrials){
 	sigma<-par
 	Aks<-Map("*",eek,sigma)
 	A<-addVecs(Aks) #at this point still a vector
 	A<-diag(A) #takes the vector and makes it a diag matrix
 
+ 	if (! missing(cache)) {
+             stopifnot(is.environment(cache))
+             if (exists("s.twid", envir = cache, inherits = FALSE)) {
+                 stopifnot(is.numeric(cache$s.twid))
+                 stopifnot(is.finite(cache$s.twid))
+                 stopifnot(length(cache$s.twid) == length(s))
+                 s <- cache$s.twid
+             }
+#
+	     if (exists("beta.twid", envir = cache, inherits = FALSE)) {
+                 stopifnot(is.numeric(cache$beta.twid))
+                 stopifnot(is.finite(cache$beta.twid))
+                 stopifnot(length(cache$beta.twid) == length(beta))
+                 beta <- cache$beta.twid
+             }
+         }
+
 	nbeta<-length(beta)
 	#run trust
-	inner.optim<-trust(fn.inner.trust,parinit=c(beta,s),rinit=5,rmax=10000,minimize=F,Y=Y,X=X,Z=Z,A=A,nbeta=nbeta,
-family.mcml=family.mcml,cache=cache)
+	inner.optim<-trust(fn.inner.trust,parinit=c(beta,s), rinit=5, rmax=10000, minimize=F, Y=Y, X=X, Z=Z, A=A, nbeta=nbeta, family.mcml=family.mcml, cache=cache, ntrials = ntrials)
 	
 	#get beta and s
-	#parms<-inner.optim$argument
-	#beta.twid<-cache$beta.twid<-parms[1:nbeta]
-	#s.twid<-cache$s.twid<-parms[-(1:nbeta)]
 	beta.twid<-cache$beta.twid
 	s.twid<-cache$s.twid
 	
 	#calculate eta.twid
 	eta.twid<-(X%*%beta.twid+Z%*%A%*%s.twid)
 	
-	#calculate el(eta.twid) = piece1
+	#calculate el using eta.twid. this is piece1
 	family.mcml<-getFamily(family.mcml)
-	piece1<-el(Y,X,eta.twid,family.mcml)$value
+
+	if(family.mcml$family.glmm=="bernoulli.glmm"){
+		piece1<-.C("elc", as.double(Y), as.double(X), as.integer(nrow(X)), as.integer(ncol(X)), as.double(eta.twid), as.integer(1), as.integer(ntrials), value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value}
+	if(family.mcml$family.glmm=="poisson.glmm"){
+		piece1<-.C("elc", as.double(Y), as.double(X), as.integer(nrow(X)), as.integer(ncol(X)), as.double(eta.twid), as.integer(2), as.integer(ntrials), value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value}
+	if(family.mcml$family.glmm=="binomial.glmm"){
+		piece1<-.C("elc", as.double(Y), as.double(X), as.integer(nrow(X)), as.integer(ncol(X)), as.double(eta.twid), as.integer(3), as.integer(ntrials), value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value}
 	
 	#calculate W = c''(eta.twid)
-	dubya<-family.mcml$cpp(eta.twid)
+	if(family.mcml$family.glmm=="bernoulli.glmm") {dubya<-family.mcml$cpp(eta.twid)}
+	if(family.mcml$family.glmm=="poisson.glmm"){dubya<-family.mcml$cpp(eta.twid)}
+	if(family.mcml$family.glmm=="binomial.glmm"){dubya<-family.mcml$cpp(eta.twid, ntrials)}
 	W<-diag(as.vector(dubya))
 	
 	#calculate thatthing = A t(Z)WZA+I
@@ -75,15 +96,25 @@ family.mcml=family.mcml,cache=cache)
 }
 
 fn.inner.trust <-
-function(mypar,Y,X,Z,A,family.mcml,nbeta,cache )
+function(mypar,Y,X,Z,A,family.mcml,nbeta,cache, ntrials )
 {
 	beta<-mypar[1:nbeta]
+	#print(beta)
 	s<-mypar[-(1:nbeta)]
 	eta<-X%*%beta+Z%*%A%*%s
 	family.mcml<-getFamily(family.mcml)
-	mu<-family.mcml$cp(eta)
+	if(family.mcml$family.glmm=="bernoulli.glmm") {mu<-family.mcml$cp(eta)}
+	if(family.mcml$family.glmm=="poisson.glmm"){mu<-family.mcml$cp(eta)}
+	if(family.mcml$family.glmm=="binomial.glmm"){mu<-family.mcml$cp(eta, ntrials)}
+	
 
-	value<- el(Y,X,eta,family.mcml)$value-.5*s%*%s
+	#value<- ellikelihood(Y,X,eta,family.mcml)$value-.5*s%*%s
+	if(family.mcml$family.glmm=="bernoulli.glmm"){
+		value<-.C("elc", as.double(Y), as.double(X), as.integer(nrow(X)), as.integer(ncol(X)), as.double(eta),as.integer(1),as.integer(ntrials), value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value-.5*s%*%s}
+	if(family.mcml$family.glmm=="poisson.glmm"){
+		value<-.C("elc", as.double(Y), as.double(X), as.integer(nrow(X)), as.integer(ncol(X)), as.double(eta), as.integer(2), as.integer(ntrials), value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value-.5*s%*%s}
+	if(family.mcml$family.glmm=="binomial.glmm"){
+		value<-.C("elc", as.double(Y), as.double(X), as.integer(nrow(X)), as.integer(ncol(X)), as.double(eta), as.integer(3), as.integer(ntrials), value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value-.5*s%*%s}
 	
 	#gradient calculation
 	db<-t(X)%*%(Y-mu)
@@ -91,7 +122,9 @@ function(mypar,Y,X,Z,A,family.mcml,nbeta,cache )
 	gradient<-c(db,ds)
 
 	#hessian calculation
-	cdub<-family.mcml$cpp(eta)
+	if(family.mcml$family.glmm=="bernoulli.glmm") {cdub<-family.mcml$cpp(eta)}
+	if(family.mcml$family.glmm=="poisson.glmm"){cdub<-family.mcml$cpp(eta)}
+	if(family.mcml$family.glmm=="binomial.glmm"){cdub<-family.mcml$cpp(eta, ntrials)}
 	cdub<-as.vector(cdub)
 	cdub<-diag(cdub)
 	kyoo<-nrow(A)
