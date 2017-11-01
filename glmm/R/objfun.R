@@ -19,23 +19,7 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 	nrand<-lapply(mod.mcml$z,ncol)
 	nrandom<-unlist(nrand)
 
-<<<<<<< HEAD
-	eta<-b<-rep(0,m)
-	lfu<-lfu.twid<-lfyu<-list(rep(c(0,0,0),m))
-	
-	#for each simulated random effect vector
-	for(k in 1:m){
-		Uk<-umat[k,]  #use the simulated vector as our random effect vec
-		eta<-mod.mcml$x%*%beta+Z%*%Uk # calculate eta using it
-		zeros<-rep(0,length(Uk))
-		lfu[[k]]<-distRand(nu,Uk,mod.mcml$z,zeros,distrib="normal")            #log f_theta(u_k)
-		lfu.twid[[k]]<-distRand(nu.pql,Uk,mod.mcml$z,u.star,distrib="normal")   #log f~_theta(u_k)
-		lfyu[[k]]<-el(mod.mcml$y,mod.mcml$x,eta,family.glmm) #log f_theta(y|u_k)
-		
-		b[k]<-lfu[[k]]$value+lfyu[[k]]$value-lfu.twid[[k]]$value
-	}
-=======
->>>>>>> cec21ce5c52b1b01e35db8812df499abd9e4457c
+
 
 	family.glmm<-getFamily(family.glmm)
 	if(family.glmm$family.glmm=="bernoulli.glmm"){family_glmm=1}	
