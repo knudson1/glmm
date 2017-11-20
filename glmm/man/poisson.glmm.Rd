@@ -12,7 +12,7 @@
   \item{cum }{The cumulant function.}
   \item{cp }{The first derivative of the cumulant function.}
   \item{cpp }{The second derivative of the cumulant function.}
-  \item{checkData }{A function to check that all data are either 0 or 1.}
+  \item{checkData }{A function to check that all data are nonnegative integers.}
 }
 
 \author{Christina Knudson}

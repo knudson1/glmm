@@ -4,7 +4,7 @@
 \title{Functions for the Binomial family. }
 \description{Given a scalar \code{eta} and the number of trials, this calculates the cumulant and two derivatives for the Bernoulli family. Also checks that the data are entered correctly.}
 \usage{
-bernoulli.glmm()
+binomial.glmm()
 }
 
 
