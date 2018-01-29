@@ -13,16 +13,15 @@ void tdist(double *DstarInv,  int *myq, double *uvec, int *zeta, double *tconst,
 	/* calculates blah=DstarInv%*%u  */
 	matvecmult(DstarInv,uvec,myq,myq,blah);
 
-	double *blah2=Calloc(1,double);
+	double blah2;
 	int thing1=1;
 	/*calculates blah2=t(u)%*%Dstarinv %*% u */
-	matTvecmult(uvec,blah,myq,&thing1,blah2);
+	matTvecmult(uvec,blah,myq,&thing1,&blah2);
 	Free(blah);
 
 
 	/* calculates inner=1+blah2/df  */
-	double inner=1+*blah2/(*zeta);
-	Free(blah2);
+	double inner=1+blah2/(*zeta);
 	double outer=log(inner);
 	double thing=  *zeta/2.0+*myq/2.0;
 	*logft=*tconst-outer*thing;

@@ -1,75 +1,108 @@
 #include <stdlib.h> // for NULL
+#include <Rdefines.h>
 #include <R_ext/Rdynload.h>
+#include <R_ext/Visibility.h>
 
-/* FIXME: 
-   Check these declarations against the C/Fortran source code.
-*/
+// Only need to declare C functions called from R, that is,
+//     called from functions in directory R
+//         elc
+//         mcsec
+//         objfunc
+//     called from functions in directory tests
+//         cp3
+//         cpp3
+//         cum3
+//         distRand3C
+//         distRandGenC
+//         elGH
+//         elval
+//         matTmatmult
+//         matTvecmult
+//         matvecmult
+//         subvec
+//         sumup
+//         tdist
+//
+// See Sections 5.4 and 6.15 of Writing R Extensions
+// Also see R package fooRegister (in git repo https://github.com/cjgeyer/foo)
 
-/* .C calls */
-extern void elc(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void matdet(void *, void *, void *);
-extern void matinv(void *, void *, void *);
-extern void matmatmult(void *, void *, void *, void *, void *, void *);
-extern void matsmash(void *, void *, void *, void *);
-extern void matsolve(void *, void *, void *, void *);
-extern void matvecmult(void *, void *, void *, void *, void *);
-extern void mcsec(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void objfunc(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+#include "myheader.h"
 
-extern void matTvecmult(void *, void *, void *, void *, void *);
-extern void diag(void *,void *,void *);
-extern void matTmatmult(void *, void *, void *, void *, void *, void *);
-extern void identmat(void *, void *);
-extern void sumup(void *, void *, void *);
-extern void subvec(void *, void *, void *, void *);
-extern void addvec(void *, void *, void *, void *);
-extern void divvec(void *, void *, void *, void *);
+static R_NativePrimitiveArgType elc_types[10] = {REALSXP, REALSXP,
+    INTSXP, INTSXP, REALSXP, INTSXP, INTSXP, REALSXP, REALSXP,
+    REALSXP};
 
-extern void distRandGenC(void *,void *,void *,void *, void *,void *);
-extern void distRand3C(void *,void *, void *,void *, void *,void *, void *, void *);
+static R_NativePrimitiveArgType mcsec_types[30] = {REALSXP, REALSXP,
+    REALSXP, REALSXP, REALSXP, REALSXP, INTSXP, INTSXP, REALSXP, INTSXP,
+    INTSXP, REALSXP, REALSXP, REALSXP, REALSXP, INTSXP, REALSXP,
+    REALSXP, REALSXP, REALSXP, REALSXP, REALSXP, INTSXP, INTSXP, INTSXP,
+    INTSXP, REALSXP, INTSXP, REALSXP, INTSXP};
 
-extern void cum3(void *,void *,void *,void *, void *);
-extern void cp3(void *,void *,void *,void *, void *);
-extern void cpp3(void *,void *,void *,void *, void *);
+static R_NativePrimitiveArgType objfunc_types[30] = {REALSXP, REALSXP,
+    INTSXP, INTSXP, REALSXP, INTSXP, INTSXP, REALSXP, REALSXP, REALSXP,
+    REALSXP, INTSXP, REALSXP, REALSXP, REALSXP, REALSXP, REALSXP,
+    REALSXP, INTSXP, INTSXP, INTSXP, INTSXP, REALSXP, INTSXP, REALSXP,
+    REALSXP, INTSXP, REALSXP, REALSXP, REALSXP};
 
-extern void elval(void *,void *,void *,void *,void *,void *,void *);
-extern void elGH(void *,void *,void *,void *,void *,void *,void *,void *,void *);
+static R_NativePrimitiveArgType cp3_types[5] = {REALSXP, INTSXP, INTSXP,
+    INTSXP, REALSXP};
 
-extern void tdist(void *,void *,void *,void *,void *,void *);
+static R_NativePrimitiveArgType distRand3C_types[8] = {REALSXP,
+    REALSXP, INTSXP, INTSXP, INTSXP, REALSXP, REALSXP, REALSXP};
 
+static R_NativePrimitiveArgType distRandGenC_types[6] = {REALSXP,
+    REALSXP, INTSXP, REALSXP, REALSXP, REALSXP};
 
-static const R_CMethodDef CEntries[] = {
-    {"elc",         (DL_FUNC) &elc,         10},
-    {"matdet",      (DL_FUNC) &matdet,       3},
-    {"matinv",      (DL_FUNC) &matinv,       3},
-    {"matmatmult",  (DL_FUNC) &matmatmult,   6},
-    {"matsmash",    (DL_FUNC) &matsmash,     4},
-    {"matsolve",    (DL_FUNC) &matsolve,     4},
-    {"matvecmult",  (DL_FUNC) &matvecmult,   5},
-    {"mcsec",       (DL_FUNC) &mcsec,       30},
-    {"objfunc",     (DL_FUNC) &objfunc,     30},
-    {"matTvecmult", (DL_FUNC) &matTvecmult,  5},
-    {"diag",        (DL_FUNC) &diag,         3},
-    {"matTmatmult", (DL_FUNC) &matTmatmult,  6},
-    {"identmat",    (DL_FUNC) &identmat,     2},
-    {"sumup",       (DL_FUNC) &sumup,        3},
-    {"subvec",      (DL_FUNC) &subvec,       4},
-    {"addvec",      (DL_FUNC) &addvec,       4},
-    {"divvec",      (DL_FUNC) &divvec,       4},
-    {"distRandGenC",(DL_FUNC) &distRandGenC, 6},
-    {"distRand3C",  (DL_FUNC) &distRand3C,   8},
-    {"cum3",        (DL_FUNC) &cum3,         5},
-    {"cp3",         (DL_FUNC) &cp3,          5},
-    {"cpp3",        (DL_FUNC) &cpp3,         5},
-    {"elval",       (DL_FUNC) &elval,        7},
-    {"elGH",        (DL_FUNC) &elGH,         9},
-    {"tdist",       (DL_FUNC) &tdist,        6},
-    {NULL, NULL, 0}
+static R_NativePrimitiveArgType elGH_types[9] = {REALSXP, REALSXP,
+    INTSXP, INTSXP, REALSXP, INTSXP, INTSXP, REALSXP, REALSXP};
+
+static R_NativePrimitiveArgType elval_types[7] = {REALSXP,  INTSXP,
+    INTSXP, REALSXP, INTSXP, INTSXP, REALSXP};
+
+static R_NativePrimitiveArgType matTmatmult_types[6] = {REALSXP,
+    REALSXP, INTSXP, INTSXP, INTSXP, REALSXP};
+
+static R_NativePrimitiveArgType matTvecmult_types[5] = {REALSXP,
+    REALSXP, INTSXP, INTSXP, REALSXP};
+
+static R_NativePrimitiveArgType subvec_types[4] = {REALSXP,
+    REALSXP, INTSXP, REALSXP};
+
+static R_NativePrimitiveArgType sumup_types[3] = {REALSXP,
+    INTSXP, REALSXP};
+
+static R_NativePrimitiveArgType tdist_types[6] = {REALSXP,  INTSXP,
+    REALSXP, INTSXP, REALSXP, REALSXP};
+
+// types for function cpp3 below not error, same types as cp3
+// types for function cum3 below not error, same types as cp3
+// types for function matvecmult below not error, same types
+//     as matTvecmult
+
+static R_CMethodDef cMethods[] = {
+    {"elc", (DL_FUNC) &elc, 10, elc_types},
+    {"mcsec", (DL_FUNC) &mcsec, 30, mcsec_types},
+    {"objfunc", (DL_FUNC) &objfunc, 30, objfunc_types},
+    {"cp3", (DL_FUNC) &cp3, 5, cp3_types},
+    {"cpp3", (DL_FUNC) &cpp3, 5, cp3_types},
+    {"cum3", (DL_FUNC) &cum3, 5, cp3_types},
+    {"distRand3C", (DL_FUNC) &distRand3C, 8, distRand3C_types},
+    {"distRandGenC", (DL_FUNC) &distRandGenC, 6, distRandGenC_types},
+    {"elGH", (DL_FUNC) &elGH, 9, elGH_types},
+    {"elval", (DL_FUNC) &elval, 7, elval_types},
+    {"matTmatmult", (DL_FUNC) &matTmatmult, 6, matTmatmult_types},
+    {"matTvecmult", (DL_FUNC) &matTvecmult, 5, matTvecmult_types},
+    {"matvecmult", (DL_FUNC) &matvecmult, 5, matTvecmult_types},
+    {"subvec", (DL_FUNC) &subvec, 4, subvec_types},
+    {"sumup", (DL_FUNC) &sumup, 3, sumup_types},
+    {"tdist", (DL_FUNC) &tdist, 6, tdist_types},
+    {NULL, NULL, 0, NULL}
 };
 
-void R_init_glmm(DllInfo *dll)
+void attribute_visible R_init_glmm(DllInfo *info)
 {
-    R_registerRoutines(dll, CEntries, NULL, NULL, NULL);
-    R_useDynamicSymbols(dll, FALSE);
+    R_registerRoutines(info, cMethods, NULL, NULL, NULL);
+    R_useDynamicSymbols(info, FALSE);
+    R_forceSymbols(info, TRUE);
 }
 

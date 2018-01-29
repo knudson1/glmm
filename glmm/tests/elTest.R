@@ -31,14 +31,14 @@ function(Y,X,eta,family.mcml){
 	neta<-length(eta)
 
 	if(family.mcml$family.glmm=="bernoulli.glmm"){
-		foo<-.C("cum3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cumout=double(1))$cumout
-		mu<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cpout=double(neta))$cpout
-		cdub<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cppout=double(neta))$cppout
+		foo<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cumout=double(1))$cumout
+		mu<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cpout=double(neta))$cpout
+		cdub<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cppout=double(neta))$cppout
 	}
 	if(family.mcml$family.glmm=="poisson.glmm"){
-		foo<-.C("cum3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cumout=double(1))$cumout
-		mu<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cpout=double(neta))$cpout
-		cdub<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cppout=double(neta))$cppout
+		foo<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cumout=double(1))$cumout
+		mu<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cpout=double(neta))$cpout
+		cdub<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cppout=double(neta))$cppout
 	}
 
 	value<-as.numeric(Y%*%eta-foo)
@@ -52,17 +52,17 @@ function(Y,X,eta,family.mcml){
 #compare elR and el.C for a value of eta
 eta<-rep(2,150)
 that<-elR(mod.mcml$y,mod.mcml$x,eta,family.mcml=bernoulli.glmm)	
-this<-.C("elc", as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
+this<-.C(glmm:::C_elc, as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 all.equal(as.numeric(that$value),this$value)
 all.equal(as.numeric(that$gradient),this$gradient)
 all.equal(as.numeric(that$hessian),this$hessian)
 
 #compare to elval
-elvalout<-.C("elval", as.double(mod.mcml$y), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1))
+elvalout<-.C(glmm:::C_elval, as.double(mod.mcml$y), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1))
 all.equal(as.numeric(that$value),elvalout$value)
 
 #compare to elGH
-elGHout<-.C("elGH",as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1), as.integer(1), gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))
+elGHout<-.C(glmm:::C_elGH,as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1), as.integer(1), gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))
 all.equal(as.numeric(that$gradient),elGHout$gradient)
 all.equal(as.numeric(that$hessian),elGHout$hessian)
 

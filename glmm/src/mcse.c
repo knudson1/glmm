@@ -115,8 +115,6 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, doub
 	int Gindex = 0;
 	int intone = 1;
 
-	int lfyuindex = 0, lfuindex = 0, matindex = 0;
-
 	for(int k = 0; k<*m; k++){
 		/*start by getting Uk  */
 		for(int i = 0; i<*myq; i++){

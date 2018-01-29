@@ -1,3 +1,19 @@
+# Notes added by Charlie
+# Do this if want extra gcc checks that are not allowed in Makevars
+# Look in glmm.Rcheck/00install.out to see warning messages
+export PKG_CFLAGS="-Wall -Wextra"
+
+rm *.tar.gz # if version number has changed
+R CMD build glmm
+R CMD check glmm_*.tar.gz
+
+# to check with valgrind
+R CMD check --use-valgrind glmm_*.tar.gz
+
+# before submission this should be done using R-devel
+R CMD check --as.cran glmm_*.tar.gz
+
+# old notes, don't need to do this stuff
 \rm -f glmm/src/*.{o,so}
 R CMD build glmm
 R CMD build glmm --no-build-vignettes

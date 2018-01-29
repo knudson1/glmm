@@ -1,6 +1,5 @@
 useDynLib(glmm, .registration = TRUE, .fixes = "C_")
 
-
 export(glmm)
 export(bernoulli.glmm)
 export(poisson.glmm)

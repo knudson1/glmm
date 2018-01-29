@@ -152,15 +152,15 @@ all.equal(this, that)
 #bin = bern for cumulant, ntrials = 1
 eta <- 1
 ntrials <-1
-this <- .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(1.1))
-that <- .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(1), ntrials=as.integer(ntrials), out=as.double(1.1))
+this <- .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(1.1))
+that <- .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(1), ntrials=as.integer(ntrials), out=as.double(1.1))
 all.equal(this$out, that$out)
 
 #bin = 2 bern for cumulant
 eta <- 1
 ntrials <-2
-bincum <- .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
-berncum <- ntrials* .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(1), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+bincum <- .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+berncum <- ntrials* .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(1), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 all.equal(bincum, berncum)
 doublecheck <- cumR(eta, ntrials)
 bincum
@@ -170,8 +170,8 @@ all.equal(bincum, doublecheck)
 
 eta <- -1
 ntrials <-2
-bincum <- .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
-berncum <- ntrials* .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(1), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+bincum <- .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+berncum <- ntrials* .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(1), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 all.equal(bincum, berncum)
 doublecheck <- cumR(eta, ntrials)
 bincum
@@ -182,14 +182,14 @@ all.equal(bincum, doublecheck)
 #compare cumulant's derivative (R vs C)
 eta <- 1
 ntrials <-4
-this <- .C("cp3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+this <- .C(glmm:::C_cp3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 that <- cpR(eta, ntrials)
 all.equal(this, that)
 
 #compare cumulant's 2nd derivative  (R vs C)
 eta <- 1
 ntrials <-4
-this <- .C("cpp3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+this <- .C(glmm:::C_cpp3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 that <- cppR(eta, ntrials)
 all.equal(this, that)
 
@@ -197,7 +197,7 @@ all.equal(this, that)
 neta<-6
 eta <- 1:neta
 ntrials <- rep(4, times=neta)
-this <- .C("cum3", eta=as.double(eta), neta=as.integer(neta), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+this <- .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(neta), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 that <- 0
 for(i in 1:neta){
 	that <- that + cumR(eta[i], ntrials[i])
@@ -214,7 +214,7 @@ ntrials<-1
 that <- bernoulli.glmm()$cum(eta)
 this <- binomial.glmm()$cum(eta, ntrials)
 all.equal(this, that)
-that <-  .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+that <-  .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 all.equal(this, that)
 
 eta<--2
@@ -228,7 +228,7 @@ ntrials<-2
 that <- 2*bernoulli.glmm()$cum(eta)
 this <- binomial.glmm()$cum(eta, ntrials)
 all.equal(this, that)
-that <-  .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+that <-  .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 all.equal(this, that)
 
 eta<-1
@@ -242,7 +242,7 @@ ntrials<-3
 that <- 3*bernoulli.glmm()$cp(eta)
 this <- binomial.glmm()$cp(eta, ntrials)
 all.equal(this, that)
-that <-  .C("cp3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+that <-  .C(glmm:::C_cp3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 all.equal(this, that)
 
 eta<-1
@@ -256,7 +256,7 @@ ntrials<-3
 that <- 3*bernoulli.glmm()$cpp(eta)
 this <- binomial.glmm()$cpp(eta, ntrials)
 all.equal(this, that)
-that <-  .C("cpp3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+that <-  .C(glmm:::C_cpp3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 all.equal(this, that)
 
 eta<--1

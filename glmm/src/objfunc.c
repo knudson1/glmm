@@ -166,10 +166,10 @@ void objfunc(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
 
 	/*	reset counters to 0*/
 	Uindex = 0;	
-	Gindex = 0;
-	lfyuindex = 0;
-	lfuindex = 0;
-	matindex = 0;
+	// Gindex = 0;     // not needed; reset in loop
+	// lfyuindex = 0;  // not needed; reset in loop
+	// lfuindex = 0;   // not needed; reset in loop
+	// matindex = 0;   // not needed; reset in loop
 
 	/* begins SECOND k loop */
 	for(int k = 0; k<*m; k++){

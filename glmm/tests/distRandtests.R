@@ -101,7 +101,7 @@ dr2<-distRand2(nu,U,mu,T,nrandom)
 all.equal(dr3$gradient,dr2$gradient)
 all.equal(dr3$hessian,dr2$hessian)
 
-drc<-.C("distRand3C", as.double(nu), as.double(mu), as.integer(T), as.integer(nrandom), as.integer(meow), as.double(U), double(T), double(T^2))
+drc<-.C(glmm:::C_distRand3C, as.double(nu), as.double(mu), as.integer(T), as.integer(nrandom), as.integer(meow), as.double(U), double(T), double(T^2))
 
 all.equal(drc[[7]],dr3$gradient)
 all.equal(matrix(drc[[8]],nrow=3,byrow=F),dr3$hessian)

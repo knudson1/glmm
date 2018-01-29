@@ -1,6 +1,6 @@
 
-R version 3.2.4 Revised (2016-03-16 r70336) -- "Very Secure Dishes"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -53,7 +53,7 @@ Loading required package: Matrix
 > 
 > #compare elc and logfyuk for a value of eta
 > eta<-rep(2,150)
-> this<-.C("elc",as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
+> this<-.C(glmm:::C_elc,as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 > that<-logfyuk(eta,mod.mcml$x,mod.mcml$y)
 > all.equal(as.numeric(this$value),as.numeric(that$value))
 [1] TRUE
@@ -63,12 +63,12 @@ Loading required package: Matrix
 [1] TRUE
 > 
 > #compare elval to logfyuk
-> this<-.C("elval", as.double(mod.mcml$y), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1))
+> this<-.C(glmm:::C_elval, as.double(mod.mcml$y), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1))
 > all.equal(as.numeric(this$value),as.numeric(that$value))
 [1] TRUE
 > 
 > #compare elGH to logfyuk
-> this<-.C("elGH", as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
+> this<-.C(glmm:::C_elGH, as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 > all.equal(as.numeric(this$gradient),as.numeric(that$gradient))
 [1] TRUE
 > all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
@@ -168,7 +168,7 @@ Loading required package: Matrix
 > meow<-c(0,10)
 > set.seed(1234)
 > myyou<-rnorm(10)
-> hohum<-.C("distRand3C",as.double(mynu), as.double(mymu), as.integer(T), as.integer(nrandom), as.integer(meow), as.double(myyou), double(T), double(T^2)) 
+> hohum<-.C(glmm:::C_distRand3C,as.double(mynu), as.double(mymu), as.integer(T), as.integer(nrandom), as.integer(meow), as.double(myyou), double(T), double(T^2)) 
 > drcheck<-distRandCheck(mynu,myyou,mymu)
 > all.equal(drcheck$gradient,hohum[[7]])
 [1] TRUE
@@ -196,7 +196,7 @@ Loading required package: Matrix
 > 
 > #check distRandGenC
 > logdet<-sum(log(eigen(D.star.inv)$values))
-> stuff<-.C("distRandGenC",as.double(D.star.inv),as.double(logdet), as.integer(length(you)), as.double(you), as.double(u.pql), double(1))[[6]]
+> stuff<-.C(glmm:::C_distRandGenC,as.double(D.star.inv),as.double(logdet), as.integer(length(you)), as.double(you), as.double(u.pql), double(1))[[6]]
 > all.equal(that$value,stuff)
 [1] TRUE
 > 
@@ -270,4 +270,4 @@ Loading required package: Matrix
 > 
 > proc.time()
    user  system elapsed 
-  2.380   0.034   2.412 
+  2.708   0.072   3.044 

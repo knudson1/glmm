@@ -2,15 +2,14 @@
 void elc(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family,  int *ntrials, double *elval, double *elgradient, double *elhessian)
 {
 
-	double *cumout=Calloc(1, double);
-	cumout[0]=0.0;
+	double cumout=0.0;
 	double *cpout=Calloc(*nrowX, double);
 	memset(cpout,0,*nrowX);
 	double *cppout=Calloc(*nrowX, double);
 	memset(cppout,0,*nrowX);
 
 	/*calling cum3, cp3, cpp3 will just change the doubles cumout, cpout, cppout  */
-	cum3(eta, nrowX, family, ntrials, cumout);
+	cum3(eta, nrowX, family, ntrials, &cumout);
 	cp3(eta, nrowX, family, ntrials, cpout);
 	cpp3(eta, nrowX, family, ntrials, cppout);
 
@@ -19,8 +18,7 @@ void elc(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family,
 	int thing1=1,*ione=&thing1;
 	double thing2=0.0, *foo2=&thing2;
 	matTvecmult(Y,eta,nrowX,ione, foo2); /* Y dot eta goes in foo2 */
-	elval[0]=foo2[0]-cumout[0];
-	Free(cumout);
+	elval[0]=foo2[0]-cumout;
 
 	/*calculate gradient of el: X^T (Y-c'(eta))  
 	first use loop to calculate Y-c'(eta) and turn c''(eta) into -c''(eta)*/

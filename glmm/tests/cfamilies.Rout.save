@@ -1,6 +1,6 @@
 
-R version 3.2.4 Revised (2016-03-16 r70336) -- "Very Secure Dishes"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -33,17 +33,17 @@ Loading required package: Matrix
 > #check cum3 for a vector containing both positive and negative values of eta
 > eta<-seq(-1,1,.1)
 > neta<-length(eta)
-> that<-.C("cum3",eta=as.double(eta),neta=as.integer(neta), type=as.integer(1), ntrials=as.integer(1), cumout=double(1))
+> that<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta), type=as.integer(1), ntrials=as.integer(1), cumout=double(1))
 > all.equal(sum(cum(eta)),that$cumout)
 [1] TRUE
 > 
 > #check cp3
-> that<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cpout=double(neta))
+> that<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cpout=double(neta))
 > all.equal(cp(eta),that$cpout)
 [1] TRUE
 > 
 > #check cpp3
-> that<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cppout=double(neta))
+> that<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cppout=double(neta))
 > all.equal(cpp(eta),that$cppout)
 [1] TRUE
 > 
@@ -56,21 +56,21 @@ Loading required package: Matrix
 > neta<-length(eta)
 > 
 > #check cum3
-> that<-.C("cum3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cumout=double(1))
+> that<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cumout=double(1))
 > all.equal(sum(cum(eta)),that$cumout)
 [1] TRUE
 > 
 > #check cp3
-> that<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cpout=double(neta))
+> that<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cpout=double(neta))
 > all.equal(cp(eta),that$cpout)
 [1] TRUE
 > 
 > #check cpp3
-> that<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cppout=double(neta))
+> that<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cppout=double(neta))
 > all.equal(cpp(eta),that$cppout)
 [1] TRUE
 > 
 > 
 > proc.time()
    user  system elapsed 
-  1.935   0.064   1.985 
+  1.772   0.100   2.479 

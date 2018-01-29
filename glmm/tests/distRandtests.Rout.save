@@ -1,6 +1,6 @@
 
-R version 3.1.1 (2014-07-10) -- "Sock it to Me"
-Copyright (C) 2014 The R Foundation for Statistical Computing
+R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -123,7 +123,7 @@ Loading required package: Matrix
 > all.equal(dr3$hessian,dr2$hessian)
 [1] TRUE
 > 
-> drc<-.C("distRand3C", as.double(nu), as.double(mu), as.integer(T), as.integer(nrandom), as.integer(meow), as.double(U), double(T), double(T^2))
+> drc<-.C(glmm:::C_distRand3C, as.double(nu), as.double(mu), as.integer(T), as.integer(nrandom), as.integer(meow), as.double(U), double(T), double(T^2))
 > 
 > all.equal(drc[[7]],dr3$gradient)
 [1] TRUE
@@ -132,4 +132,4 @@ Loading required package: Matrix
 > 
 > proc.time()
    user  system elapsed 
-  2.663   0.077   2.714 
+  1.760   0.080   2.128 

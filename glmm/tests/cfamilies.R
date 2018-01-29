@@ -13,15 +13,15 @@ cpp<-function(eta) {(1/(1+exp(-eta)))*(1/(1+exp(eta)))}
 #check cum3 for a vector containing both positive and negative values of eta
 eta<-seq(-1,1,.1)
 neta<-length(eta)
-that<-.C("cum3",eta=as.double(eta),neta=as.integer(neta), type=as.integer(1), ntrials=as.integer(1), cumout=double(1))
+that<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta), type=as.integer(1), ntrials=as.integer(1), cumout=double(1))
 all.equal(sum(cum(eta)),that$cumout)
 
 #check cp3
-that<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cpout=double(neta))
+that<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cpout=double(neta))
 all.equal(cp(eta),that$cpout)
 
 #check cpp3
-that<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cppout=double(neta))
+that<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cppout=double(neta))
 all.equal(cpp(eta),that$cppout)
 
 ######################
@@ -33,14 +33,14 @@ eta<-c(4.5,5,5.5)
 neta<-length(eta)
 
 #check cum3
-that<-.C("cum3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cumout=double(1))
+that<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cumout=double(1))
 all.equal(sum(cum(eta)),that$cumout)
 
 #check cp3
-that<-.C("cp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cpout=double(neta))
+that<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cpout=double(neta))
 all.equal(cp(eta),that$cpout)
 
 #check cpp3
-that<-.C("cpp3",eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cppout=double(neta))
+that<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cppout=double(neta))
 all.equal(cpp(eta),that$cppout)
 

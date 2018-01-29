@@ -33,18 +33,18 @@ logfyuk<-function(eta,x,y){
 
 #compare elc and logfyuk for a value of eta
 eta<-rep(2,150)
-this<-.C("elc",as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
+this<-.C(glmm:::C_elc,as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 that<-logfyuk(eta,mod.mcml$x,mod.mcml$y)
 all.equal(as.numeric(this$value),as.numeric(that$value))
 all.equal(as.numeric(this$gradient),as.numeric(that$gradient))
 all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
 
 #compare elval to logfyuk
-this<-.C("elval", as.double(mod.mcml$y), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1))
+this<-.C(glmm:::C_elval, as.double(mod.mcml$y), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1))
 all.equal(as.numeric(this$value),as.numeric(that$value))
 
 #compare elGH to logfyuk
-this<-.C("elGH", as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
+this<-.C(glmm:::C_elGH, as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 all.equal(as.numeric(this$gradient),as.numeric(that$gradient))
 all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
 
@@ -137,7 +137,7 @@ nrandom<-10
 meow<-c(0,10)
 set.seed(1234)
 myyou<-rnorm(10)
-hohum<-.C("distRand3C",as.double(mynu), as.double(mymu), as.integer(T), as.integer(nrandom), as.integer(meow), as.double(myyou), double(T), double(T^2)) 
+hohum<-.C(glmm:::C_distRand3C,as.double(mynu), as.double(mymu), as.integer(T), as.integer(nrandom), as.integer(meow), as.double(myyou), double(T), double(T^2)) 
 drcheck<-distRandCheck(mynu,myyou,mymu)
 all.equal(drcheck$gradient,hohum[[7]])
 all.equal(drcheck$hessian,matrix(hohum[[8]],nrow=T,byrow=F))
@@ -162,7 +162,7 @@ all.equal(this,that$value)
 
 #check distRandGenC
 logdet<-sum(log(eigen(D.star.inv)$values))
-stuff<-.C("distRandGenC",as.double(D.star.inv),as.double(logdet), as.integer(length(you)), as.double(you), as.double(u.pql), double(1))[[6]]
+stuff<-.C(glmm:::C_distRandGenC,as.double(D.star.inv),as.double(logdet), as.integer(length(you)), as.double(you), as.double(u.pql), double(1))[[6]]
 all.equal(that$value,stuff)
 
 

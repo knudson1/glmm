@@ -1,6 +1,6 @@
 
-R version 3.2.4 Revised (2016-03-16 r70336) -- "Very Secure Dishes"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -189,16 +189,16 @@ Loading required package: Matrix
 > #bin = bern for cumulant, ntrials = 1
 > eta <- 1
 > ntrials <-1
-> this <- .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(1.1))
-> that <- .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(1), ntrials=as.integer(ntrials), out=as.double(1.1))
+> this <- .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(1.1))
+> that <- .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(1), ntrials=as.integer(ntrials), out=as.double(1.1))
 > all.equal(this$out, that$out)
 [1] TRUE
 > 
 > #bin = 2 bern for cumulant
 > eta <- 1
 > ntrials <-2
-> bincum <- .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
-> berncum <- ntrials* .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(1), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+> bincum <- .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+> berncum <- ntrials* .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(1), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 > all.equal(bincum, berncum)
 [1] TRUE
 > doublecheck <- cumR(eta, ntrials)
@@ -213,8 +213,8 @@ Loading required package: Matrix
 > 
 > eta <- -1
 > ntrials <-2
-> bincum <- .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
-> berncum <- ntrials* .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(1), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+> bincum <- .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+> berncum <- ntrials* .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(1), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 > all.equal(bincum, berncum)
 [1] TRUE
 > doublecheck <- cumR(eta, ntrials)
@@ -230,7 +230,7 @@ Loading required package: Matrix
 > #compare cumulant's derivative (R vs C)
 > eta <- 1
 > ntrials <-4
-> this <- .C("cp3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+> this <- .C(glmm:::C_cp3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 > that <- cpR(eta, ntrials)
 > all.equal(this, that)
 [1] TRUE
@@ -238,7 +238,7 @@ Loading required package: Matrix
 > #compare cumulant's 2nd derivative  (R vs C)
 > eta <- 1
 > ntrials <-4
-> this <- .C("cpp3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+> this <- .C(glmm:::C_cpp3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 > that <- cppR(eta, ntrials)
 > all.equal(this, that)
 [1] TRUE
@@ -247,7 +247,7 @@ Loading required package: Matrix
 > neta<-6
 > eta <- 1:neta
 > ntrials <- rep(4, times=neta)
-> this <- .C("cum3", eta=as.double(eta), neta=as.integer(neta), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+> this <- .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(neta), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 > that <- 0
 > for(i in 1:neta){
 + 	that <- that + cumR(eta[i], ntrials[i])
@@ -268,7 +268,7 @@ Loading required package: Matrix
 > this <- binomial.glmm()$cum(eta, ntrials)
 > all.equal(this, that)
 [1] TRUE
-> that <-  .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+> that <-  .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 > all.equal(this, that)
 [1] TRUE
 > 
@@ -285,7 +285,7 @@ Loading required package: Matrix
 > this <- binomial.glmm()$cum(eta, ntrials)
 > all.equal(this, that)
 [1] TRUE
-> that <-  .C("cum3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+> that <-  .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 > all.equal(this, that)
 [1] TRUE
 > 
@@ -302,7 +302,7 @@ Loading required package: Matrix
 > this <- binomial.glmm()$cp(eta, ntrials)
 > all.equal(this, that)
 [1] TRUE
-> that <-  .C("cp3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+> that <-  .C(glmm:::C_cp3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 > all.equal(this, that)
 [1] TRUE
 > 
@@ -319,7 +319,7 @@ Loading required package: Matrix
 > this <- binomial.glmm()$cpp(eta, ntrials)
 > all.equal(this, that)
 [1] TRUE
-> that <-  .C("cpp3", eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
+> that <-  .C(glmm:::C_cpp3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(3), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 > all.equal(this, that)
 [1] TRUE
 > 
@@ -336,4 +336,4 @@ Loading required package: Matrix
 > 
 > proc.time()
    user  system elapsed 
-  1.935   0.063   1.977 
+  1.904   0.116   2.920 

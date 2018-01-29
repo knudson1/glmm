@@ -1,6 +1,6 @@
 
-R version 3.1.1 (2014-07-10) -- "Sock it to Me"
-Copyright (C) 2014 The R Foundation for Statistical Computing
+R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -40,7 +40,7 @@ Loading required package: Matrix
 > tR<-tdist2(tconst,u,Dstarinv,zeta,myq)
 > 
 > #compare version in R to version in C
-> tC<-.C("tdist",as.double(Dstarinv),  as.integer(myq), as.double(u), as.integer(zeta), as.double(tconst), double(1))
+> tC<-.C(glmm:::C_tdist,as.double(Dstarinv),  as.integer(myq), as.double(u), as.integer(zeta), as.double(tconst), double(1))
 > all.equal(tC[[6]],tR)
 [1] TRUE
 > 
@@ -52,4 +52,4 @@ Loading required package: Matrix
 > 
 > proc.time()
    user  system elapsed 
-  2.632   0.027   2.654 
+  1.624   0.052   1.810 
