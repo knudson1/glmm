@@ -11,7 +11,7 @@
    \describe{
     \item{y}{Presence or absence: a factor with levels \code{n} and \code{y}.}
     \item{ap}{active/placebo: a factor with levels \code{a} and \code{p}.}
-    \item{hilo}{hi/low compliance: a factor with levels \code{hi} amd \code{lo}.}
+    \item{hilo}{hi/low compliance: a factor with levels \code{hi} and \code{lo}.}
 \item{week}{Numeric: week of test.}
 \item{ID}{Subject ID: a factor.}
 \item{trt}{A factor with levels \code{placebo}, \code{drug}, \code{drug+}, a re-coding of \code{ap} and \code{hilo}.}
@@ -23,7 +23,7 @@
 
 The presence of H. influenzae was checked at weeks 0, 2, 4, 6 and 11: 30 of the checks were missing and are not included in this data frame.}
 
-\references{Venables, W. N. and Ripley, B. D. (2002) Modern Applied Statistics with S. Fourth edition.  Springer.}
+\references{Venables, W. N. and Ripley, B. D. (2002) \emph{Modern Applied Statistics with S}, Fourth edition.  Springer.}
 \examples{
 data(bacteria)
 }

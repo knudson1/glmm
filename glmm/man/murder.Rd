@@ -12,11 +12,11 @@
     \item{y}{The number of homicide victims known personally by the subject.}
     \item{race}{a factor with levels \code{black} and \code{white}.}
     \item{black}{a dummy variable to indicate whether the subject was black.}
-\item{white}{a dummy variable to indiciate whether the subject was white.}
+\item{white}{a dummy variable to indicate whether the subject was white.}
 }
 }
 
-\references{Agresti, A. (2002) Categorical Data Analysis. Second edition. Wiley.}
+\references{Agresti, A. (2002)  \emph{Categorical Data Analysis}, Second edition. Wiley.}
 \examples{
 data(murder)
 }

@@ -2,8 +2,7 @@
 \docType{data}
 \alias{salamander}
 \title{Salamander mating data set from McCullagh and Nelder (1989)}
-\description{This data set presents the outcome of an experiment  conducted at the University of Chicago in 1986 to study interbreeding between populations of mountain dusky salamanders. }
- 
+\description{This data set presents the outcome of an experiment  conducted at the University of Chicago in 1986 to study interbreeding between populations of mountain dusky salamanders (McCullagh and Nelder, 1989, Section 14.5).}
 
 \usage{data(salamander)}
 \format{
@@ -19,7 +18,7 @@
 }
 
 
-\references{McCullagh P. and Nelder, J. A. 1989. Generalized Linear Models, Section 14.5, Chapman and Hall/CRC.}
+\references{McCullagh P. and Nelder, J. A. (1989)  \emph{Generalized Linear Models}.  Chapman and Hall/CRC.}
 
 \examples{data(salamander)}
 \keyword{generalized linear mixed models}

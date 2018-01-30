@@ -3,8 +3,7 @@
 \alias{radish2}
 \title{Radish count data set}
 \description{Data on life history traits for the invasive California wild
-     radish _Raphanus sativus_. }
- 
+     radish \emph{Raphanus sativus}. }
 
 \usage{data(radish2)}
 \format{
@@ -25,10 +24,10 @@
 \references{     These data are a subset of data previously analyzed using aster
      methods in the following.
 
-     Ridley, C. E. and Ellstrand, N. C. (2010). Rapid evolution of
+     Ridley, C. E. and Ellstrand, N. C. (2010)  Rapid evolution of
      morphology and adaptive life history in the invasive California
-     wild radish (_Raphanus sativus_) and the implications for
-     management. _Evolutionary Applications_, *3*, 64-76.
+     wild radish (\emph{Raphanus sativus}) and the implications for
+     management.  \emph{Evolutionary Applications}, \bold{3}, 64--76.
 }
 
 \examples{data(radish2)}

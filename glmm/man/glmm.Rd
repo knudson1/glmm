@@ -80,13 +80,13 @@ To see the summary of the model, use summary().
   be used to obtain or print a summary of the results. The generic accessor function \code{\link{coef}} (i.e., \code{\link{coef.glmm}}) can be used to extract the coefficients.
 }
 \references{
-Geyer, C. J. (1994). On the convergence of Monte Carlo maximum likelihood calculations. Journal of the Royal Statistical Society, Series B, 61:261--274.
+Geyer, C. J. (1994)  On the convergence of Monte Carlo maximum likelihood calculations.  \emph{Journal of the Royal Statistical Society, Series B}, \bold{61}, 261--274.
 
-Geyer, C. J. and Thompson, E. (1992). Constrained Monte Carlo maximum likelihood for dependent data. Journal of the Royal Statistical Society, Series B, 54:657--699.
+Geyer, C. J. and Thompson, E. (1992)  Constrained Monte Carlo maximum likelihood for dependent data.  \emph{Journal of the Royal Statistical Society, Series B}, \bold{54}, 657--699.
 
-Knudson, C. (2016). Monte Carlo likelihood approximation for generalized linear mixed models. PhD thesis, University of Minnesota.
+Knudson, C. (2016). Monte Carlo likelihood approximation for generalized linear mixed models. PhD thesis, University of Minnesota.  \url{http://hdl.handle.net/11299/178948}
 
-Sung, Y. J. and Geyer, C. J. (2007). Monte Carlo likelihood inference for missing data models. Annals of Statistics, 35:990--1011.}
+Sung, Y. J. and Geyer, C. J. (2007)  Monte Carlo likelihood inference for missing data models.  \emph{Annals of Statistics}, \bold{35}, 990--1011.}
 
 \author{Christina Knudson}
 %\note{}

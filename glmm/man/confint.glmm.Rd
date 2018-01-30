@@ -11,12 +11,12 @@
 
 \arguments{
   \item{object}{An object of class \code{glmm} usually created using \code{\link{glmm}}.}
-  \item{parm}{A specification of which parametesr are to be given confidence intervals, either a vector of numbers or a vector of names. If missing, all parameters are considered.}
+  \item{parm}{A specification of which parameters are to be given confidence intervals, either a vector of numbers or a vector of names. If missing, all parameters are considered.}
   \item{level}{The confidence level required.}
   \item{\dots}{Additional arguments passed to or from other methods.}
 }
 
-\value{A matrix (or vector) with columns giving lower and upper confidence limits for each parameter. These will be labelled as (1-level)/2 and 1-(1-level)/2 in percent. By default, 2.5% and 97.5%.}
+\value{A matrix (or vector) with columns giving lower and upper confidence limits for each parameter. These will be labeled as (1-level)/2 and 1-(1-level)/2 in percent. By default, 2.5% and 97.5%.}
 }
 
 \author{Christina Knudson}
