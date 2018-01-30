@@ -1,5 +1,9 @@
 #include "myheader.h"
+#if defined(__GNUC__) || defined(__clang__)
+void elval(double *Y,  int *nrowX, int *ncolX __attribute__ ((unused)), double *eta, int *family, int *ntrials, double *elval)
+#else
 void elval(double *Y,  int *nrowX, int *ncolX, double *eta, int *family, int *ntrials, double *elval)
+#endif /* defined(__GNUC__) || defined(__clang__) */
 {
 	double cumout = 0.0;
 
