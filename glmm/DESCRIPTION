@@ -15,6 +15,6 @@ Imports: stats
 ByteCompile: TRUE
 NeedsCompilation: yes
 VignetteBuilder: knitr
-Suggests: knitr
+Suggests: knitr, digest
 Packaged: 2015-11-24 18:56:08 UTC; christina
 Repository: CRAN
