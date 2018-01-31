@@ -1,7 +1,10 @@
 # Notes added by Charlie
 # Do this if want extra gcc checks that are not allowed in Makevars
 # Look in glmm.Rcheck/00install.out to see warning messages
-export PKG_CFLAGS="-Wall -Wextra"
+export R_MAKEVARS_USER=`pwd`/myMakevars
+# Note that file myMakevars must be a copy of glmm/src/Makevars
+#     with extra stuff added
+
 
 rm *.tar.gz # if version number has changed
 R CMD build glmm
