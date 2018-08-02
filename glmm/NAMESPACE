@@ -16,6 +16,10 @@ export(logLik.glmm)
 import(trust)
 import(mvtnorm)
 import(Matrix)
+import(parallel)
+import(doParallel)
+import(foreach)
+import(itertools)
 
 importFrom(stats, coef, pnorm, qnorm, rnorm, lm, model.matrix, model.response, runif, optim, printCoefmat)
 

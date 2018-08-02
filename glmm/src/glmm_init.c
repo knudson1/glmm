@@ -44,6 +44,12 @@ static R_NativePrimitiveArgType objfunc_types[30] = {REALSXP, REALSXP,
     REALSXP, INTSXP, INTSXP, INTSXP, INTSXP, REALSXP, INTSXP, REALSXP,
     REALSXP, INTSXP, REALSXP, REALSXP, REALSXP};
 
+static R_NativePrimitiveArgType hess_types[31] = {REALSXP, REALSXP,
+    INTSXP, INTSXP, REALSXP, INTSXP, INTSXP, REALSXP, REALSXP, REALSXP,
+    REALSXP, INTSXP, REALSXP, REALSXP, REALSXP, REALSXP, REALSXP,
+    REALSXP, INTSXP, INTSXP, INTSXP, INTSXP, REALSXP, INTSXP, REALSXP,
+    REALSXP, INTSXP, REALSXP, REALSXP, REALSXP, INTSXP};
+
 static R_NativePrimitiveArgType cp3_types[5] = {REALSXP, INTSXP, INTSXP,
     INTSXP, REALSXP};
 
@@ -83,6 +89,8 @@ static R_CMethodDef cMethods[] = {
     {"elc", (DL_FUNC) &elc, 10, elc_types},
     {"mcsec", (DL_FUNC) &mcsec, 30, mcsec_types},
     {"objfunc", (DL_FUNC) &objfunc, 30, objfunc_types},
+    {"valgrad", (DL_FUNC) &valgrad, 30, objfunc_types},
+    {"hess", (DL_FUNC) &hess, 31, hess_types},
     {"cp3", (DL_FUNC) &cp3, 5, cp3_types},
     {"cpp3", (DL_FUNC) &cpp3, 5, cp3_types},
     {"cum3", (DL_FUNC) &cum3, 5, cp3_types},
