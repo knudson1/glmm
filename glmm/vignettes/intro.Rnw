@@ -107,7 +107,7 @@ We put this all together in the following commands. Note that we set the seed so
 set.seed(1234) 
 sal <- glmm(Mate ~ 0 + Cross, random = list(~ 0 + Female, 
 ~ 0 + Male), varcomps.names = c("F", "M"), data = salamander, 
-family.glmm = bernoulli.glmm, m = 10^4, debug = TRUE)
+family.glmm = bernoulli.glmm, m = 10^4, debug = TRUE, cores = 2)
 @
 
 

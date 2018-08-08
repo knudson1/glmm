@@ -4,7 +4,7 @@
 \description{This function fits generalized linear mixed models (GLMMs) by approximating the likelihood with ordinary Monte Carlo, then maximizing the approximated likelihood. }
 \usage{glmm(fixed, random, varcomps.names, data, family.glmm, m, 
 varcomps.equal, doPQL = TRUE,debug=FALSE, p1=1/3,p2=1/3, p3=1/3,
-rmax=1000,iterlim=1000, par.init, zeta=5)}
+rmax=1000,iterlim=1000, par.init, zeta=5, cores=NULL)}
 
 
 \arguments{
@@ -24,6 +24,7 @@ rmax=1000,iterlim=1000, par.init, zeta=5)}
 \item{iterlim}{A positive integer specifying the maximum number of trust iterations to be performed before the trust program is terminated. This is an argument for \code{trust}.}
 \item{par.init}{An optional argument. A single vector that specifies the initial values of the fixed effects and variance components. The parameters should be inputted in the order that \code{\link{summary.glmm}} outputs them, with fixed effects followed by variance components. }
 \item{zeta}{A scalar that specifies the degrees of freedom for the t-distribution from which random effects are generated.}
+\item{cores}{An optional argument. A single integer that specifies the number of cores that should be accessed during computation. The integer should be less than the number of cores in the computing device. If not specified, the default number of cores used is one less than the total number of cores available in the computing device.}
 }
 \details{
 Let \eqn{\beta}{beta} be a vector of fixed effects and let \eqn{u}{u} be a vector of random effects. Let \eqn{X}{X} and \eqn{Z}{Z} be design matrices for the fixed and random effects, respectively. The random effects are assumed to be normally distributed with mean 0 and variance matrix \eqn{D}{D}, where \eqn{D}{D} is diagonal with entries from the unknown vector \eqn{\nu}{nu}. Letting \eqn{g}{g} be the link function, \eqn{g(\mu)=X \beta+ZU}{g(mu)=X beta+ ZU}. If the response type is Bernoulli or Binomial, then the logit function is the link; if the response type is Poisson, then the natural logarithm is the link function.
@@ -104,7 +105,7 @@ library(glmm)
 data(BoothHobert)
 set.seed(1234)
 mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
-family.glmm=bernoulli.glmm,m=100,doPQL=TRUE)
+family.glmm=bernoulli.glmm,m=100,doPQL=TRUE,cores=2)
 mod.mcml1$beta
 mod.mcml1$nu
 summary(mod.mcml1)
@@ -115,7 +116,7 @@ data(Booth2)
 set.seed(1234)
 mod.mcml3<-glmm(y~0+x1,list(y~0+z1,~0+z2),varcomps.names=c("z"), 
 varcomps.equal=c(1,1), data=Booth2,family.glmm=bernoulli.glmm,
-m=100,doPQL=FALSE)
+m=100,doPQL=FALSE,cores=2)
 mod.mcml3$beta
 mod.mcml3$nu
 summary(mod.mcml3)
@@ -128,13 +129,13 @@ set.seed(1234)
 data(salamander)
 m<-10
 sal<-glmm(Mate~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),
-data=salamander,family.glmm=bernoulli.glmm,m=m,debug=TRUE,doPQL=FALSE)
+data=salamander,family.glmm=bernoulli.glmm,m=m,debug=TRUE,doPQL=FALSE,cores=2)
 summary(sal)
 
 #The above model (sal) can be redone with binomial.glmm
 set.seed(1234)
 sal<-glmm(cbind(Mate,1-Mate)~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),
-data=salamander,family.glmm=binomial.glmm,m=m,debug=TRUE,doPQL=FALSE)
+data=salamander,family.glmm=binomial.glmm,m=m,debug=TRUE,doPQL=FALSE,cores=2)
 
 }
 
