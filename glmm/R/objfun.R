@@ -108,7 +108,7 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 	registerDoParallel(cl)
 	clusterEvalQ(cl, library(itertools))
 	clusterExport(cl, c("umat", "myq", "m", "mod.mcml", "n", "nbeta", "beta", "Z", "Dinvfornu", "logdetDinvfornu", "family_glmm", "D.star.inv", "logdet.D.star.inv", "u.star", "logdet.Sigmuh.inv", "pea", "T", "nrandom", "meow", "nu", "zeta", "tconst", "ntrials", "par", "Sigmuh.inv", "gradient"), envir = environment())
-	out2 <- foreach(miniu=isplitRows(umat, chunks = no_cores)) %dopar% {.C(C_hess, as.double(mod.mcml$y),as.double(t(miniu)), as.integer(myq), as.integer(nrow(miniu)), as.double(mod.mcml$x), as.integer(n), as.integer(nbeta), as.double(beta), as.double(Z), as.double(Dinvfornu), as.double(logdetDinvfornu),as.integer(family_glmm), as.double(D.star.inv), as.double(logdet.D.star.inv), as.double(u.star), as.double(Sigmuh.inv), as.double(logdet.Sigmuh.inv), pea=as.double(pea), nps=as.integer(length(pea)), T=as.integer(T), nrandom=as.integer(nrandom), meow=as.integer(meow),nu=as.double(nu), zeta=as.integer(zeta),tconst=as.double(tconst), v=double(m), ntrials=as.integer(ntrials),gradient=as.double(gradient),hessian=double((length(par))^2), b=as.double(b), length=as.integer(m))}
+	out2 <- foreach(miniu=isplitRows(umat, chunks = no_cores)) %dopar% {.C(C_hess, as.double(mod.mcml$y),as.double(t(miniu)), as.integer(myq), as.integer(nrow(miniu)), as.double(mod.mcml$x), as.integer(n), as.integer(nbeta), as.double(beta), as.double(Z), as.double(Dinvfornu), as.double(logdetDinvfornu),as.integer(family_glmm), as.double(D.star.inv), as.double(logdet.D.star.inv), as.double(u.star), as.double(Sigmuh.inv), as.double(logdet.Sigmuh.inv), pea=as.double(pea), nps=as.integer(length(pea)), T=as.integer(T), nrandom=as.integer(nrandom), meow=as.integer(meow),nu=as.double(nu), zeta=as.integer(zeta),tconst=as.double(tconst), v=double(nrow(miniu)), ntrials=as.integer(ntrials),gradient=as.double(gradient),hessian=double((length(par))^2), b=as.double(b), length=as.integer(m))}
 	stopCluster(cl)
 	
 	#adding hessian components
@@ -120,10 +120,15 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 	  }
 	  hessian[j] <- hessadd
 	}
+	
+	#making weights accessible
+	weights <- c()
+	for(i in 1:no_cores){
+	  weights <- c(weights, out2[[i]]$v)
+	}
+  if (!missing(cache)) cache$weights<-weights		
 
-	#if (!missing(cache)) cache$weights<-stuff$v		#### is this necessary?
-
-	list(value=value,gradient=gradient,hessian=matrix(hessian,ncol=length(par),byrow=FALSE))
-
+  list(value=value,gradient=gradient,hessian=matrix(hessian,ncol=length(par),byrow=FALSE))
+	
 }
 
