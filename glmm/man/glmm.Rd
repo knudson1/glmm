@@ -24,7 +24,7 @@ rmax=1000,iterlim=1000, par.init, zeta=5, cores=NULL)}
 \item{iterlim}{A positive integer specifying the maximum number of trust iterations to be performed before the trust program is terminated. This is an argument for \code{trust}.}
 \item{par.init}{An optional argument. A single vector that specifies the initial values of the fixed effects and variance components. The parameters should be inputted in the order that \code{\link{summary.glmm}} outputs them, with fixed effects followed by variance components. }
 \item{zeta}{A scalar that specifies the degrees of freedom for the t-distribution from which random effects are generated.}
-\item{cores}{An optional argument. A single integer that specifies the number of cores that should be accessed during computation. The integer should be less than the number of cores in the computing device. If not specified, the default number of cores used is one less than the total number of cores available in the computing device.}
+\item{cores}{An optional argument. An integer that specifies the number of cores that should be accessed during computation. The integer should be less than the number of cores in the computing device. See "Details" for default value.}
 }
 \details{
 Let \eqn{\beta}{beta} be a vector of fixed effects and let \eqn{u}{u} be a vector of random effects. Let \eqn{X}{X} and \eqn{Z}{Z} be design matrices for the fixed and random effects, respectively. The random effects are assumed to be normally distributed with mean 0 and variance matrix \eqn{D}{D}, where \eqn{D}{D} is diagonal with entries from the unknown vector \eqn{\nu}{nu}. Letting \eqn{g}{g} be the link function, \eqn{g(\mu)=X \beta+ZU}{g(mu)=X beta+ ZU}. If the response type is Bernoulli or Binomial, then the logit function is the link; if the response type is Poisson, then the natural logarithm is the link function.
@@ -50,6 +50,8 @@ This package's importance sampling distribution is a mixture of three distributi
 The Monte Carlo sample size \code{m} should be chosen as large as possible. You may want to run the model a couple times to begin to understand the variability inherent to Monte Carlo. There are no hard and fast rules for choosing \code{m}, and more research is needed on this area. For a general idea, I believe the \code{BoothHobert} model produces stable enough estimates at \eqn{m=10^3} and the \code{salamander} model produces stable enough estimates at \eqn{m=10^5}, as long as \code{doPQL} is \code{TRUE}.
 
 To see the summary of the model, use summary().
+
+A parallel computing component has been added to this package and is meant to decrease computation time. The \code{cores} argument will allow you to alter the number of cores accessed during the approximation of the log-likelihood value, gradient and hessian. By default, the optimal number of cores, one less than the total number of cores in the device, will be used for this calculation with a single core being used in the case that the device only has one core. 
 }
 
 \value{
@@ -76,6 +78,7 @@ To see the summary of the model, use summary().
 \item{nu.pql}{PQL estimate of \eqn{\nu}{nu}, when \code{doPQL} is \code{TRUE}.}
 \item{u.pql}{PQL predictions of the random effects.}
 \item{zeta}{The number of degrees of freedom used in the t component of the importance sampling distribution.}
+\item{cores}{An integer specifying the number of cores accessed during the approximation of the log-likelihood value, gradient and hessian.}
   \item{debug}{If \code{TRUE} extra output useful for testing.}
   The function \code{\link{summary}} (i.e., \code{\link{summary.glmm}}) can
   be used to obtain or print a summary of the results. The generic accessor function \code{\link{coef}} (i.e., \code{\link{coef.glmm}}) can be used to extract the coefficients.
