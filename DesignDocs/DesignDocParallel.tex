@@ -168,8 +168,8 @@ Finally, we approach the calculations for the hessian. First, we know that the e
 \noindent and so, to account for computational instability, we can multiply the equation by $\dfrac{e^d}{e^d}$ where $d=\max(b_k)$
 
 \begin{multline}
-\nabla^2 l_m(\theta|y)= \dfrac{   \sum_{k=1}^m \left[ \nabla^2 \log f_\theta(u_k,y)     \right]  e^{b_k-a} }{\sum\limits_{i=1}^m e^{b_k-a}}\\
-+ \dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(u_k,y)  - \nabla l_m(\theta|y)   \right] \left[ \nabla \log f_\theta(u_k,y)  -\nabla l_m(\theta|y)  \right]^T  e^{b_k-a}   }{\sum\limits_{i=1}^m e^{b_k-a}}
+\nabla^2 l_m(\theta|y)= \dfrac{   \sum_{k=1}^m \left[ \nabla^2 \log f_\theta(u_k,y)     \right]  e^{b_k-d} }{\sum\limits_{i=1}^m e^{b_k-d}}\\
++ \dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(u_k,y)  - \nabla l_m(\theta|y)   \right] \left[ \nabla \log f_\theta(u_k,y)  -\nabla l_m(\theta|y)  \right]^T  e^{b_k-d}   }{\sum\limits_{i=1}^m e^{b_k-d}}
 \end{multline}
 
 \noindent Notice that we can assure that the second part of equation 15 is accurate by providing $\nabla l_m (\theta|y)$, the gradient, to the function which calculates the hessian. Additionally, by collecting the $b_k$'s from each core in the value and gradient calculation, we can assure that the denominator of the equation is the same for each of the cores calculating the hessian. 
