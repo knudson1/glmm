@@ -29,6 +29,7 @@
 \title{An Introduction to Model-Fitting with the R package \texttt{glmm} }
 \author{Christina Knudson}
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 \maketitle
 \setlength\parindent{0pt}
@@ -99,6 +100,8 @@ After the name of the data set, we need to specify the type of the response. In 
 Next, we specify our Monte Carlo sample size \texttt{m}. The general rule is the larger the Monte Carlo sample size, the more accurate the Monte Carlo likelihood approximation (MCLA) will be, and the more accurate the resulting Monte Carlo maximum likelihood estimates (MCMLEs) will be. Ideally, you want the largest \texttt{m} that time allows. For this vignette, we have chosen a Monte Carlo sample size that allows for quick computation. If you are interested in accuracy in the resulting estimates for the salamander model, we suggest a larger Monte Carlo sample size.  \\
 
 %Finally, we can decide whether we would like additional output (see details in section \ref{sec:otherstuff}). If we would like the additional output, we type \texttt{debug = TRUE}. The default is \texttt{debug = FALSE}.\\
+
+Finally, we specify the number of cores we would like to use for the parallel calculations using \texttt{cores}. To read more about the \texttt{cores} argument, please read \href{https://cran.r-project.org/web/packages/glmm/vignettes/parallel.pdf}{"Model-Fitting in Parallel with the R package \texttt{glmm}"}
 
 We put this all together in the following commands. Note that we set the seed so that we can have reproducible results. In other words, if you set your seed to the same number and type the exact command listed below, your results should be identical to those listed here. 
 
@@ -286,7 +289,7 @@ By default, \texttt{glmm} assumes each variance component should be distinct. Su
 sal <- glmm(Mate ~ 0 + Cross, random = list(~ 0 + Female, 
 ~ 0 + Male), varcomps.equal = c( 1, 1), varcomps.names = 
 c("Only Varcomp"), data = salamander, family.glmm = 
-bernoulli.glmm, m = 10^4, debug = TRUE)
+bernoulli.glmm, m = 10^4, debug = TRUE, cores = 2)
 @
 As another example, suppose the list \texttt{random} has three entries, indicating three variance components $\nu_1, \nu_2, \nu_3$. To set $\nu_1= \nu_3$, we write \texttt{varcomps.equal = c(1,2,1)}. Thus, the shared variance component would be listed first in any output, and $\nu_2$ would be listed second. Note that the entries in the \texttt{varcomps.equal} vector must start at 1, then continue through the integers. The order of the names of the variance components listed in \texttt{varcomps.names} must correspond to the integers in \texttt{varcomps.equal}. In this problem, the names could be \texttt{varcomps.names = c("shared", "two")}.  \\
 
