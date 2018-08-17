@@ -42,7 +42,7 @@ Sigmuh<-solve(Sigmuh.inv)
 p1=p2=p3=1/3
 zeta=5
 
-no_cores <- debug$no_cores
+no_cores <- out$cores
 
 # define a few things that will be used for finite differences
 lth<-objfun(par=par, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh, D.star=D.star, Sigmuh.inv= Sigmuh.inv, zeta=zeta, ntrials=ntrials, no_cores=no_cores)

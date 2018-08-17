@@ -1,11 +1,17 @@
 \documentclass[11pt]{article}
 
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{parallel}
+  %\usepackage[utf8]{inputenc}
+%\VignettePackage{glmm}
+%\VignetteKeywords{glmm, maximum likelihood, mle, Monte Carlo, likelihood approximation, likelihood based inference, Monte Carlo likelihood approximation, salamander, generalized linear mixed model, parallel computing}
+
 \usepackage{hyperref}
 
 \title{Model-Fitting in Parallel with the R package \texttt{glmm}}
 \author{Sydney Benson}
 \begin{document}
-\SweaveOpts{concordance=TRUE}
+%\SweaveOpts{concordance=TRUE}
 
 \maketitle
 \setlength\parindent{0pt}
@@ -18,15 +24,11 @@ The R package \texttt{glmm} approximates the likelihood function for generalized
 In version 1.2.4, the R package \texttt{glmm} has been revised to calculate the value, gradient vector and Hessian matrix in parallel. This addition has added an optional argument to the \texttt{glmm} command, additional output, and has decreased the time it takes to fit the model. \\
 
 \section{Additional Model-Fitting Arguments}
-In the following code, we fit the model using the \texttt{glmm} command and save the model under the name  \texttt{sal}. The final argument for the \texttt{glmm} command is \texttt{cores}. The \texttt{cores} argument is optional and, by default, R will calculate the optimal number of cores to use for the parallel calculations. The optimal number of cores is one less than the number of cores available in the device. However, if you choose to specify a different number of cores, you may do that using the \texttt{cores} argument. In this example, we will use two cores. \\
-
-Using multiple cores will be useful for reducing the time the \texttt{glmm} command takes to run, thus allowing for an increased \texttt{m} without additional computational expense. \\
+In the following code, we fit the model using the \texttt{glmm} command and save the model under the name  \texttt{sal}. The final argument for the \texttt{glmm} command is \texttt{cores}. The \texttt{cores} argument is optional and, by default, R will calculate the optimal number of cores to use for the parallel calculations if \texttt{cores} is not specified. The optimal number of cores is one less than the number of cores available in the device. However, if you choose to specify a different number of cores, you may do that using the \texttt{cores} argument. In this example, we will use two cores. \\
 
 Note: you may only specify the number of cores you want to use if it is less than or equal to the optimal number of cores that R defines. If you specify a number greater than the optimal number defined by R, the number of cores used will default to R's optimal number. \\
 
-To read about the other arguments in the \texttt{glmm} command, please read \href{https://cran.r-project.org/web/packages/glmm/vignettes/intro.pdf}{"An Introduction to Model-Fitting with the R package \texttt{glmm}"}. \\
-
-Lastly, we can see the time reduction made by running the calculations in parallel using the \texttt{proc.time} command. The times shown here are from fitting a model on a MacBook Air that cost 1000 USD in 2015.
+Using multiple cores is useful for reducing the time the \texttt{glmm} command takes to run, thus allowing for an increased \texttt{m} without additional computational expense. We can see the time reduction made by running the calculations in parallel using the \texttt{proc.time} command. The times shown here are from fitting a model on a MacBook Air that cost 1000 USD in 2015.
 
 <<timing1>>=
 library(glmm)
@@ -48,14 +50,16 @@ family.glmm = bernoulli.glmm, m = 10^4, debug = TRUE, cores = 2)
 proc.time() - start
 @
 
+To read about the other arguments in the \texttt{glmm} command, please read \href{https://cran.r-project.org/web/packages/glmm/vignettes/intro.pdf}{"An Introduction to Model-Fitting with the R package \texttt{glmm}"}. \\
+
 \section{Additional Output}
-Using the \texttt{names} command allows us to see the additional output that we can access, beyond the model summary. With the addition of parallel caluclations, we also have the addition of the \texttt{cores} output. \texttt{cores} will tell you how many cores were used during the parallel calculations. 
+Using the \texttt{names} command allows us to see the additional output that we can access, beyond the model summary. With the addition of parallel calculations, we also have the addition of the \texttt{cores} output. \texttt{cores} will tell you how many cores were used during the value, gradient vector and Hessian matrix calculations. 
 
 <<morestuff>>=
 names(sal)
 sal$cores
 @
 
-To read about the model summary or the other additional output using the \texttt{glmm} command, please read \href{https://cran.r-project.org/web/packages/glmm/vignettes/intro.pdf}{"An Introduction to Model-Fitting with the R package \texttt{glmm}"}
+To read about the model summary or the other additional output provided when using the \texttt{glmm} command, please read \href{https://cran.r-project.org/web/packages/glmm/vignettes/intro.pdf}{"An Introduction to Model-Fitting with the R package \texttt{glmm}"}
 
 \end{document}

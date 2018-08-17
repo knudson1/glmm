@@ -44,7 +44,7 @@ Sigmuh<-solve(Sigmuh.inv)
 del<-rep(10^-6,6)
 ntrials<-1
 
-no_cores <- debug$no_cores
+no_cores <- sal$cores
 
 ltheta<-objfun(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, 
     cache, p1, p2, p3, m1, D.star, Sigmuh, Sigmuh.inv, zeta, ntrials=ntrials, no_cores=no_cores)

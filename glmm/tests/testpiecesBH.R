@@ -21,7 +21,7 @@ objfun<-glmm:::objfun
 getEk<-glmm:::getEk
 addVecs<-glmm:::addVecs
 
-no_cores <- mod.mcml1$debug$no_cores
+no_cores <- mod.mcml1$cores
 
 ############################################
 #this should be the same as elc

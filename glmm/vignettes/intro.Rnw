@@ -19,17 +19,18 @@
 %\VignetteIndexEntry{intro}
   %\usepackage[utf8]{inputenc}
 %\VignettePackage{glmm}
-%\VignetteKeywords{glmm, maximum likelihood, mle, Monte Carlo, likelihood approximation, likelihood based inference, Monte Carlo likelihood approximation, salamander, generalized linear mixed model}
+%\VignetteKeywords{glmm, maximum likelihood, mle, Monte Carlo, likelihood approximation, likelihood based inference, Monte Carlo likelihood approximation, salamander, generalized linear mixed model, parallel computing}
 
 \usepackage{amsmath}
 \usepackage[sort,longnamesfirst]{natbib}
 \usepackage{verbatim}   % useful for program listings
 \usepackage{amsfonts}
 \usepackage[small,compact]{titlesec} 
+\usepackage{hyperref}
 \title{An Introduction to Model-Fitting with the R package \texttt{glmm} }
 \author{Christina Knudson}
 \begin{document}
-\SweaveOpts{concordance=TRUE}
+%\SweaveOpts{concordance=TRUE}
 
 \maketitle
 \setlength\parindent{0pt}
@@ -101,7 +102,7 @@ Next, we specify our Monte Carlo sample size \texttt{m}. The general rule is the
 
 %Finally, we can decide whether we would like additional output (see details in section \ref{sec:otherstuff}). If we would like the additional output, we type \texttt{debug = TRUE}. The default is \texttt{debug = FALSE}.\\
 
-Finally, we specify the number of cores we would like to use for the parallel calculations using \texttt{cores}. To read more about the \texttt{cores} argument, please read \href{https://cran.r-project.org/web/packages/glmm/vignettes/parallel.pdf}{"Model-Fitting in Parallel with the R package \texttt{glmm}"}
+Finally, we specify the number of cores we would like to use for the value, gradient vector and Hessian matrix calculations, done in parallel, using \texttt{cores}. To read more about the \texttt{cores} argument, please read \href{https://cran.r-project.org/web/packages/glmm/vignettes/parallel.pdf}{"Model-Fitting in Parallel with the R package \texttt{glmm}"}
 
 We put this all together in the following commands. Note that we set the seed so that we can have reproducible results. In other words, if you set your seed to the same number and type the exact command listed below, your results should be identical to those listed here. 
 
