@@ -63,18 +63,21 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 	miniu <- NULL
 
 	#parallelizing the calculations for the value of the log-likelihood approximation and gradient
-	cl <- makeCluster(no_cores)
-	registerDoParallel(cl)
-	clusterEvalQ(cl, library(itertools))
-	clusterExport(cl, c("umat", "myq", "m", "mod.mcml", "n", "nbeta", "beta", "Z", "Dinvfornu", "logdetDinvfornu", "family_glmm", "D.star.inv", "logdet.D.star.inv", "u.star", "logdet.Sigmuh.inv", "pea", "T", "nrandom", "meow", "nu", "zeta", "tconst", "ntrials", "par", "Sigmuh.inv"), envir = environment())
+	cl <- makeCluster(no_cores)              #making cluster environment
+	registerDoParallel(cl)                   #making cluster usable with foreach
+	clusterEvalQ(cl, library(itertools))     #installing itertools library on each core
+	clusterExport(cl, c("umat", "myq", "m", "mod.mcml", "n", "nbeta", "beta", "Z", "Dinvfornu", "logdetDinvfornu", "family_glmm", "D.star.inv", "logdet.D.star.inv", "u.star", "logdet.Sigmuh.inv", "pea", "T", "nrandom", "meow", "nu", "zeta", "tconst", "ntrials", "par", "Sigmuh.inv"), envir = environment())     #installing variables on each core
 	out <- foreach(miniu=isplitRows(umat, chunks = no_cores)) %dopar% {.C(C_valgrad, as.double(mod.mcml$y),as.double(t(miniu)), as.integer(myq), as.integer(nrow(miniu)), as.double(mod.mcml$x), as.integer(n), as.integer(nbeta), as.double(beta), as.double(Z), as.double(Dinvfornu), as.double(logdetDinvfornu),as.integer(family_glmm), as.double(D.star.inv), as.double(logdet.D.star.inv), as.double(u.star), as.double(Sigmuh.inv), as.double(logdet.Sigmuh.inv), pea=as.double(pea), nps=as.integer(length(pea)), T=as.integer(T), nrandom=as.integer(nrandom), meow=as.integer(meow),nu=as.double(nu), zeta=as.integer(zeta),tconst=as.double(tconst), v=double(m), ntrials=as.integer(ntrials), value=double(1),gradient=double(length(par)), b=double(nrow(miniu)))}
-	stopCluster(cl)
+	#foreach runs loop in parallel, dopar operator sends each chunk of umat to seperate core and runs the .C function
+	stopCluster(cl)     #closing the cluster environment
 	
 	#combining the b's from each core into one vector
-	b <- c()
+	bs <- as.list(rep(0, no_cores))
 	for(i in 1:no_cores){
-	  b <- c(b, out[[i]]$b)
+	  bs[[i]] <- out[[i]]$b
 	}
+	
+	b <- Reduce(c, bs)
 	
 	#recalculating the approximation of the log-likelihood value
 	#finding a, the max of values
@@ -107,8 +110,8 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 	cl <- makeCluster(no_cores)
 	registerDoParallel(cl)
 	clusterEvalQ(cl, library(itertools))
-	clusterExport(cl, c("umat", "myq", "m", "mod.mcml", "n", "nbeta", "beta", "Z", "Dinvfornu", "logdetDinvfornu", "family_glmm", "D.star.inv", "logdet.D.star.inv", "u.star", "logdet.Sigmuh.inv", "pea", "T", "nrandom", "meow", "nu", "zeta", "tconst", "ntrials", "par", "Sigmuh.inv", "gradient"), envir = environment())
-	out2 <- foreach(miniu=isplitRows(umat, chunks = no_cores)) %dopar% {.C(C_hess, as.double(mod.mcml$y),as.double(t(miniu)), as.integer(myq), as.integer(nrow(miniu)), as.double(mod.mcml$x), as.integer(n), as.integer(nbeta), as.double(beta), as.double(Z), as.double(Dinvfornu), as.double(logdetDinvfornu),as.integer(family_glmm), as.double(D.star.inv), as.double(logdet.D.star.inv), as.double(u.star), as.double(Sigmuh.inv), as.double(logdet.Sigmuh.inv), pea=as.double(pea), nps=as.integer(length(pea)), T=as.integer(T), nrandom=as.integer(nrandom), meow=as.integer(meow),nu=as.double(nu), zeta=as.integer(zeta),tconst=as.double(tconst), v=double(nrow(miniu)), ntrials=as.integer(ntrials),gradient=as.double(gradient),hessian=double((length(par))^2), b=as.double(b), length=as.integer(m))}
+	clusterExport(cl, c("umat", "myq", "m", "mod.mcml", "n", "nbeta", "beta", "Z", "Dinvfornu", "logdetDinvfornu", "family_glmm", "D.star.inv", "logdet.D.star.inv", "u.star", "logdet.Sigmuh.inv", "pea", "T", "nrandom", "meow", "nu", "zeta", "tconst", "ntrials", "par", "Sigmuh.inv", "gradient", "b"), envir = environment())
+	out2 <- foreach(miniu=isplitRows(umat, chunks = no_cores), minib=isplitVector(b, chunks = no_cores)) %dopar% {.C(C_hess, as.double(mod.mcml$y),as.double(t(miniu)), as.integer(myq), as.integer(nrow(miniu)), as.double(mod.mcml$x), as.integer(n), as.integer(nbeta), as.double(beta), as.double(Z), as.double(Dinvfornu), as.double(logdetDinvfornu),as.integer(family_glmm), as.double(D.star.inv), as.double(logdet.D.star.inv), as.double(u.star), as.double(Sigmuh.inv), as.double(logdet.Sigmuh.inv), pea=as.double(pea), nps=as.integer(length(pea)), T=as.integer(T), nrandom=as.integer(nrandom), meow=as.integer(meow),nu=as.double(nu), zeta=as.integer(zeta),tconst=as.double(tconst), v=double(nrow(miniu)), ntrials=as.integer(ntrials),gradient=as.double(gradient),hessian=double((length(par))^2), b=as.double(b), length=as.integer(m), q=as.double(minib))}
 	stopCluster(cl)
 	
 	#adding hessian components
@@ -122,10 +125,11 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 	}
 	
 	#making weights accessible
-	weights <- c()
+	weight <- as.list(rep(0, no_cores))
 	for(i in 1:no_cores){
-	  weights <- c(weights, out2[[i]]$v)
+	  weight[[i]] <- out2[[i]]$v
 	}
+	weights <- Reduce(c, weight)
   if (!missing(cache)) cache$weights<-weights		
 
   list(value=value,gradient=gradient,hessian=matrix(hessian,ncol=length(par),byrow=FALSE))
