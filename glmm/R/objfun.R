@@ -61,6 +61,7 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 #		}
 	
 	miniu <- NULL
+	minib <- NULL
 
 	#parallelizing the calculations for the value of the log-likelihood approximation and gradient
 	cl <- makeCluster(no_cores)              #making cluster environment
