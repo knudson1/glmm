@@ -2,7 +2,7 @@ library(glmm)
 data(BoothHobert)
 set.seed(1234)
 out<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
-          family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE, cores=1)
+          family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE, cores=2)
 mod.mcml<-out$mod.mcml
 debug<-out$debug
 nu.pql<-debug$nu.pql
