@@ -5,9 +5,9 @@ data(BoothHobert)
 
 #Bin and Ber, with response as a vector
 set.seed(123)
-mod.mcml1<-glmm(y~0+x1, list(y~0+z1), varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=10, doPQL=TRUE)
+mod.mcml1<-glmm(y~0+x1, list(y~0+z1), varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=10, doPQL=TRUE, cores=2)
 set.seed(123)
-mod.mcml2<-glmm(y~0+x1, list(y~0+z1), varcomps.names=c("z1"), data=BoothHobert, family.glmm=binomial.glmm, m=10, doPQL=TRUE)
+mod.mcml2<-glmm(y~0+x1, list(y~0+z1), varcomps.names=c("z1"), data=BoothHobert, family.glmm=binomial.glmm, m=10, doPQL=TRUE, cores=2)
 all.equal(coef(mod.mcml1),coef(mod.mcml2))
 all.equal(varcomps(mod.mcml1),varcomps(mod.mcml2))
 
@@ -15,7 +15,7 @@ all.equal(varcomps(mod.mcml1),varcomps(mod.mcml2))
 Bigy<-cbind(BoothHobert$y,1-BoothHobert$y)
 #  Bin with cbind(successes, failures)
 set.seed(123)
-mod.mcml6<-glmm(Bigy~0+x1, list(Bigy~0+z1), varcomps.names=c("z1"), data=BoothHobert, family.glmm=binomial.glmm, m=10, doPQL=TRUE)
+mod.mcml6<-glmm(Bigy~0+x1, list(Bigy~0+z1), varcomps.names=c("z1"), data=BoothHobert, family.glmm=binomial.glmm, m=10, doPQL=TRUE, cores=2)
 all.equal(coef(mod.mcml1),coef(mod.mcml6))
 all.equal(varcomps(mod.mcml1),varcomps(mod.mcml6))
 

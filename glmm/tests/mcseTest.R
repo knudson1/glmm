@@ -223,6 +223,6 @@ mcseTEST <- function(mod){
 
 data(BoothHobert)
 set.seed(123)
-mod.mcml1<-glmm(y~0+x1, list(y~0+z1), varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=1000, doPQL=TRUE)
+mod.mcml1<-glmm(y~0+x1, list(y~0+z1), varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=1000, doPQL=TRUE, cores=2)
 all.equal(mcseTEST(mod.mcml1), as.numeric(mcse(mod.mcml1)))
 

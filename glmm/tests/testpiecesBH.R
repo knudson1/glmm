@@ -1,7 +1,7 @@
 library(glmm)
 data(BoothHobert)
 set.seed(1234)
-mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE)
+mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, cores=2)
 
 mod.mcml<-mod.mcml1$mod.mcml
 z<-mod.mcml$z[[1]]
@@ -20,6 +20,8 @@ family.glmm<-bernoulli.glmm
 objfun<-glmm:::objfun
 getEk<-glmm:::getEk
 addVecs<-glmm:::addVecs
+
+no_cores <- mod.mcml1$cores
 
 ############################################
 #this should be the same as elc
@@ -189,7 +191,7 @@ piece3<-rep(0,3)
 #calculate objfun's value for comparison
 cache<-new.env(parent = emptyenv())
 objfun<-glmm:::objfun
-that<-objfun(c(beta,nu), nbeta=1, nu.pql=nu.pql, u.star=u.star, mod.mcml=mod.mcml, family.glmm=bernoulli.glmm,cache=cache,umat=umat, p1=1/3, p2=1/3, p3=1/3, m1=m1, D.star=D.star, Sigmuh=Sigmuh, Sigmuh.inv=Sigmuh.inv, zeta=5, ntrials=1)
+that<-objfun(c(beta,nu), nbeta=1, nu.pql=nu.pql, u.star=u.star, mod.mcml=mod.mcml, family.glmm=bernoulli.glmm,cache=cache,umat=umat, p1=1/3, p2=1/3, p3=1/3, m1=m1, D.star=D.star, Sigmuh=Sigmuh, Sigmuh.inv=Sigmuh.inv, zeta=5, ntrials=1, no_cores=no_cores)
 
 #get t stuff ready
 tconstant<-glmm:::tconstant

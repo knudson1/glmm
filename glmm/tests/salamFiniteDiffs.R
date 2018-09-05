@@ -1,7 +1,7 @@
 library(glmm)
 set.seed(1234)
 data(salamander)
-sal<-glmm(Mate~Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"), data=salamander,family.glmm=bernoulli.glmm,m=100,debug=TRUE,doPQL=FALSE)
+sal<-glmm(Mate~Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"), data=salamander,family.glmm=bernoulli.glmm,m=100,debug=TRUE,doPQL=FALSE, cores=2)
 
 objfun<-glmm:::objfun
 beta<-rep(0,4)
@@ -44,10 +44,12 @@ Sigmuh<-solve(Sigmuh.inv)
 del<-rep(10^-6,6)
 ntrials<-1
 
-ltheta<-objfun(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, 
-    cache, p1, p2, p3, m1, D.star, Sigmuh, Sigmuh.inv, zeta, ntrials=ntrials)
+no_cores <- sal$cores
 
-lthetadel<-objfun(par+del, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2, p3, m1, D.star, Sigmuh, Sigmuh.inv, zeta, ntrials=ntrials) 
+ltheta<-objfun(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, 
+    cache, p1, p2, p3, m1, D.star, Sigmuh, Sigmuh.inv, zeta, ntrials=ntrials, no_cores=no_cores)
+
+lthetadel<-objfun(par+del, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2, p3, m1, D.star, Sigmuh, Sigmuh.inv, zeta, ntrials=ntrials, no_cores=no_cores)
 
 #do finite diffs to check value --> gradient
 c(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value)

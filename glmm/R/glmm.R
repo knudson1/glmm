@@ -1,5 +1,5 @@
 glmm <-
-function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000,par.init=NULL,zeta=5)
+function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000,par.init=NULL,zeta=5, cores=NULL)
 	{
 	if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
 	if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
@@ -266,9 +266,11 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 #	genData2<-genRand(ones,zeros,mod.mcml$z,m2,distrib="normal",gamm)
 
 	umat<-rbind(genData,genData2,genData3)
+	
+	no_cores <- min(cores, max(1, detectCores()-1))
 
 	#use trust to max the objfun (monte carlo likelihood)
-	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug, nbeta=length(beta.pql), nu.pql=nu.pql, umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star,  cache=cache,  p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star, Sigmuh=Sigmuh, Sigmuh.inv=Sigmuh.inv, zeta=zeta, ntrials = ntrials)
+	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug, nbeta=length(beta.pql), nu.pql=nu.pql, umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star,  cache=cache,  p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star, Sigmuh=Sigmuh, Sigmuh.inv=Sigmuh.inv, zeta=zeta, ntrials = ntrials, no_core=no_cores)
 
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]
@@ -290,5 +292,5 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	trust.converged=trust.out$converged,  mod.mcml=mod.mcml,
 	 fixedcall=fixed,randcall=randcall, x=x,y=y, z=random,
 	family.glmm=family.glmm, call=call, varcomps.names=varcomps.names, 
-	varcomps.equal=varcomps.equal, umat=umat, pvec=c(p1, p2, p3), beta.pql=beta.pql, nu.pql=nu.pql, u.pql=u.star, zeta=zeta, debug=debug), class="glmm"))
+	varcomps.equal=varcomps.equal, umat=umat, pvec=c(p1, p2, p3), beta.pql=beta.pql, nu.pql=nu.pql, u.pql=u.star, zeta=zeta, cores=no_cores, debug=debug), class="glmm"))
 }

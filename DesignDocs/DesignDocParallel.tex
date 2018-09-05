@@ -1,0 +1,183 @@
+\documentclass{article}
+
+ \usepackage{url} 
+\usepackage{amsthm,amsmath,amssymb,indentfirst,float}
+\usepackage{verbatim}
+\usepackage[sort,longnamesfirst]{natbib}
+\newcommand{\pcite}[1]{\citeauthor{#1}'s \citeyearpar{#1}}
+\newcommand{\ncite}[1]{\citeauthor{#1}, \citeyear{#1}}
+\DeclareMathOperator{\logit}{logit}
+    \DeclareMathOperator{\var}{Var}
+   %  \DeclareMathOperator{\det}{det}
+     \DeclareMathOperator{\diag}{diag}
+
+\usepackage{geometry}
+%\geometry{hmargin=1.025in,vmargin={1.25in,2.5in},nohead,footskip=0.5in} 
+%\geometry{hmargin=1.025in,vmargin={1.25in,0.75in},nohead,footskip=0.5in} 
+%\geometry{hmargin=2.5cm,vmargin={2.5cm,2.5cm},nohead,footskip=0.5in}
+
+\renewcommand{\baselinestretch}{1.25}
+
+\usepackage{amsbsy,amsmath,amsthm,amssymb,graphicx}
+
+\setlength{\baselineskip}{0.3in} \setlength{\parskip}{.05in}
+
+
+\newcommand{\cvgindist}{\overset{\text{d}}{\longrightarrow}}
+\DeclareMathOperator{\PR}{Pr} 
+\DeclareMathOperator{\cov}{Cov}
+
+
+\newcommand{\sX}{{\mathsf X}}
+\newcommand{\tQ}{\tilde Q}
+\newcommand{\cU}{{\cal U}}
+\newcommand{\cX}{{\cal X}}
+\newcommand{\tbeta}{\tilde{\beta}}
+\newcommand{\tlambda}{\tilde{\lambda}}
+\newcommand{\txi}{\tilde{\xi}}
+
+
+
+
+\title{Design Document for Parallelization R Package glmm}
+
+\author{Sydney Benson}
+
+\begin{document}
+\maketitle{}
+
+\begin{abstract}
+This design document will give an overview of the changes made to the R package \texttt{glmm} with respect to parallel computing. We use parallel computing in this package to increase the speed of the calculation of the value of the log-likelihood approximation, gradient and hessian for use with MCLA. 
+\end{abstract}
+
+\section{Introduction}
+This project is meant to increase the overall speed of computation for the \texttt{glmm} R package using a parallel computing structure. The parallel computing structure will be responsible for producing the value of the log-likelihood approximation, gradient and hessian for each section of a divided $u$ matrix. We'll start this design document by discussing the various packages being used for this project. Then, the parallel computing process is given; the first cluster of processing cores is created, required packages and variables are added to the cluster, the $u$ matrix is separated and processed and the returned values are recombined to create the true value of the log-likelihood approximation and gradient for the full $u$ matrix. A similar process is then repeated to calculate the true value of the hessian, using information from the first process.
+
+\section{The Packages}
+\subsection{\texttt{parallel}}
+The first package we use for this parallelization is the R package \texttt{parallel}. This package allows for the detection of the number of cores in a computing device and the creation of clusters which allows us to access all of the available cores in the device.
+
+\subsection{\texttt{doParallel}}
+\texttt{doParallel} is utilized in the parallelization process to allow the use of the \texttt{foreach} function within the parallel package. This package allows the function to use the cluster created by \texttt{parallel}. 
+
+\subsection{\texttt{itertools}}
+\texttt{itertools} is used in the parallelization process to divide the \u matrix into even parts, with the number of parts depending on the number of cores in the cluster. 
+
+\section{The Process}
+The parallelization of the function will be completed in two steps. First, the value of the log-likelihood approximation and the gradient will be calculated in one parallelized function. Then, this information will be used to calculate the hessian in a second, separate, parallelized function. Therefore, the cluster will need to be prepared and closed, and the matrix will need to be divided two separate times. 
+
+\subsection{Preparing the Cluster}
+\subsubsection{\texttt{detectCores}}
+We begin by using the \texttt{detectCores} command in order to find the number of cores available in the computing device being used. The actual number of cores we will use for calculations is the number of cores in the device minus one. This enables the user to continue using the device while the function is being completed. 
+
+\subsubsection{\texttt{makeCluster}}
+After detecting how many cores we have available for our cluster, we can create a cluster of our cores using \texttt{makeCluster} where the only argument is the number of cores available for use. 
+
+\subsubsection{\texttt{registerDoParallel}}
+Now that we have our cluster made, we can register the cluster for use with the \texttt{foreach} function.
+
+\subsubsection{\texttt{clusterEvalQ}}
+The \texttt{clusterEvalQ} function allows us to download any necessary packages to work within our cluster. The package that will need to be downloaded within our cluster is \texttt{itertools}.
+
+\subsubsection{\texttt{clusterExport}}
+The final function we need to use to set up our cluster is the \texttt{clusterExport} function. This function allows us to bring any variable from the global environment into the cluster environment for use there. We will need to use this to bring all necessary variables for the \texttt{.C} function into the cluster environment.
+
+\subsection{Separating the Matrix}
+Next, we separate our calculations between our available cores. This separation will be done using the \texttt{isplitRows} function. Using this function, we will split our $u$ matrix row-wise into parts, the number of parts being determined by the number of cores in our cluster.
+
+\subsection{Calculating the Value, Hessian and Gradient}
+To calculate the value and gradient, we have to send each of our chunks of the $u$ matrix through the \texttt{.C} function, which allows us to run the objective function \texttt{C} function. We can do this using the \texttt{foreach} function and the \texttt{\%dopar\%} operator. We then have the value of the log-likelihood approximation and gradient values from each chunk of the $u$ matrix returned to us as part of a list.
+
+\subsubsection{The Value}
+We begin by thinking about combining the values given by each core in the simple case, not accounting for any overflow issues or uneven division of the $u$ matrix among the cores. We can find the value for the entire $u$ matrix using
+
+\begin{align}
+l_m(\theta|y) = \log\left(\dfrac{1}{r}\sum\limits_{i=1}^r e^{v_i}\right)
+\end{align}
+
+\noindent where $r$ is the number of cores being used and $v_i$ is the value obtained from each core. However, we might face the issue of an uneven distribution of the $u$ matrix among the cores because the number of rows in the $u$ matrix is not divisible by the number of cores being utilized. In this case, we need to alter equation 1 to be
+
+\begin{align}
+l_m(\theta|y) = \log\left(\dfrac{1}{m}\sum\limits_{i=1}^r j_i \ e^{v_i}\right)
+\end{align}
+
+\noindent where $m$ is the number of rows of the $u$ matrix, $j_i$ is the number of rows of the chunk of the $u$ matrix being processed by the $i$th core. Finally, we might run into an overflow problem. This occurs when a number becomes so great that it is stored as infinity by \texttt{R}. Thus, the equation changes to 
+
+\begin{align}
+l_m(\theta|y) = a + \log\left(\dfrac{1}{m}\sum\limits_{i=1}^r j_i \ e^{v_i - a}\right)
+\end{align}
+
+\noindent where $a = \max{v_i}$.
+
+\subsubsection{The Gradient}
+Recombining the gradient from each core requires slightly more work than the recombination of the values. We'll understand the complexity of this equation using the simplest case possible, one with no computational instability and an even distribution of the portions of the $u$ matrix among the cores. First, the gradient we get from processing the $u$ matrix on a single core follows this equation: 
+
+\begin{align}
+\nabla l_m(\theta|y)=
+\dfrac{\sum_{k=1}^m   \left[  \nabla  \log f_\theta(u_k,y) \right]  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)} }{\sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}  } 
+\end{align}
+
+\noindent where $m$ is the number of rows in the $u$ matrix. This means that the gradient received from each core via parallel processing will follow this equation. Thus, we face the issue of having an incorrect denominator if we simply add the gradients from each core. To fix this, we need to first multiply the gradient from each core by the denominator of that gradient. We can obtain $\sum_{k=1}^m  \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}$ since we know that $l_{m}(\theta|y) = \log \left( \dfrac{1}{m} \sum_{k=1}^m  \dfrac{ f_\theta(u_k,y)   }{\tilde{f}(u_k)} \right)$ and $l_m(\theta|y) = \log\left(\dfrac{1}{r}\sum\limits_{i=1}^r e^{v_i}\right)$. Thus, 
+
+\begin{align}
+\log \left( \dfrac{1}{m} \sum_{k=1}^m  \dfrac{ f_\theta(u_k,y)   }{\tilde{f}(u_k)} \right) &= \log\left(\dfrac{1}{r}\sum\limits_{i=1}^r e^{v_i}\right) \\
+\dfrac{1}{m} \sum_{k=1}^m  \dfrac{ f_\theta(u_k,y)   }{\tilde{f}(u_k)}  &= \dfrac{1}{r}\sum\limits_{i=1}^r e^{v_i} \\
+\sum_{k=1}^m  \dfrac{ f_\theta(u_k,y)   }{\tilde{f}(u_k)}  &= \dfrac{m}{r} \sum\limits_{i=1}^r e^{v_i}
+\end{align}
+
+\noindent therefore, we can combine each the gradient from each core using
+
+\begin{align}
+\nabla l_m(\theta|y) &=\dfrac{\dfrac{m}{r} \sum\limits_{i=1}^r e^{v_i} \ g_{i,k}}{\dfrac{m}{r} \sum\limits_{i=1}^r e^{v_i}} \\
+\nabla l_m(\theta|y) &=\dfrac{ \sum\limits_{i=1}^r e^{v_i} \ g_{i,k}}{\sum\limits_{i=1}^r e^{v_i}}
+\end{align}
+
+\noindent where $g_{i,k}$ is the $k$th element of the gradient vector produced by the $i$th core. To alter this equation for handling an uneven distribution of the $u$ matrix we need to make a change similar to the change made to the value calculation in order to handle this same problem. The new equation is
+
+\begin{align}
+\nabla l_m(\theta|y) =\dfrac{ \sum\limits_{i=1}^r j_i \ e^{v_i} \ g_{i,k}}{\sum\limits_{i=1}^r j_i \ e^{v_i}}
+\end{align}
+
+\noindent where $j_i$ is the number of rows of the chunk of the $u$ matrix being processed by the $i$th core, as mentioned previously. Then, for computational stability, to account for overflow and underflow, we can make a similar alteration to the one made above. Our final equation becomes
+
+\begin{align}
+\nabla l_m(\theta|y) =\dfrac{ \sum\limits_{i=1}^r j_i \ e^{v_i - a} \ g_{i,k}}{\sum\limits_{i=1}^r j_i \ e^{v_i - a}}
+\end{align}
+
+\noindent and $a$ is defined as above. From this we know that
+
+\begin{align}
+\dfrac{m}{r} \sum\limits_{i=1}^r e^{v_i} = \sum\limits_{i=1}^r j_i \ e^{v_i - a}
+\end{align}
+
+\subsubsection{The Hessian}
+Finally, we approach the calculations for the hessian. First, we know that the equation to calculate the hessian is 
+
+\begin{multline}
+\nabla^2 l_m(\theta|y)= \dfrac{   \sum_{k=1}^m \left[ \nabla^2 \log f_\theta(u_k,y)     \right]  \dfrac{ f_\theta(u_k,y)}{\tilde{f}(u_k)}  }{\sum_{k=1}^m  \dfrac{ f_\theta(u_k,y)   }{\tilde{f}(u_k)}}\\
++ \dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(u_k,y)  - \nabla l_m(\theta|y)   \right] \left[ \nabla \log f_\theta(u_k,y)  -\nabla l_m(\theta|y)  \right]^T  \dfrac{ f_\theta(u_k,y)   }{\tilde{f}(u_k)}   }{\sum_{k=1}^m  \dfrac{ f_\theta(u_k,y)   }{\tilde{f}(u_k)}}_.
+\end{multline}
+
+\noindent We also know $\dfrac{f_\theta(u_k, y)}{\tilde{f}(u_k)} = e^{b_k}$ where $b_k = \log f_\theta (u_k) + \log f_\theta (y|u_k) - \log  \tilde{f} (u_k)$. Thus, we have
+
+\begin{multline}
+\nabla^2 l_m(\theta|y)= \dfrac{   \sum_{k=1}^m \left[ \nabla^2 \log f_\theta(u_k,y)     \right]  e^{b_k} }{\sum\limits_{i=1}^m e^{b_k}}\\
++ \dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(u_k,y)  - \nabla l_m(\theta|y)   \right] \left[ \nabla \log f_\theta(u_k,y)  -\nabla l_m(\theta|y)  \right]^T  e^{b_k}   }{\sum\limits_{i=1}^m e^{b_k}}
+\end{multline}
+
+\noindent and so, to account for computational instability, we can multiply the equation by $\dfrac{e^d}{e^d}$ where $d=\max(b_k)$
+
+\begin{multline}
+\nabla^2 l_m(\theta|y)= \dfrac{   \sum_{k=1}^m \left[ \nabla^2 \log f_\theta(u_k,y)     \right]  e^{b_k-d} }{\sum\limits_{i=1}^m e^{b_k-d}}\\
++ \dfrac{   \sum_{k=1}^m \left[ \nabla \log f_\theta(u_k,y)  - \nabla l_m(\theta|y)   \right] \left[ \nabla \log f_\theta(u_k,y)  -\nabla l_m(\theta|y)  \right]^T  e^{b_k-d}   }{\sum\limits_{i=1}^m e^{b_k-d}}
+\end{multline}
+
+\noindent Notice that we can assure that the second part of equation 15 is accurate by providing $\nabla l_m (\theta|y)$, the gradient, to the function which calculates the hessian. Additionally, by collecting the $b_k$'s from each core in the value and gradient calculation, we can assure that the denominator of the equation is the same for each of the cores calculating the hessian. 
+
+Once we have the elements of the hessian from each core me can calculate the final, full hessian for the $u$ matrix. To calculate the final hessian for the complete $u$ matrix we must sum the elements of the hessian produced by each core. 
+
+\subsection{Closing the Cluster}
+The final step we take is to close the cluster. We can use \texttt{stopCluster} to accomplish this. The code then returns to completing computations using a single core. 
+
+
+\end{document}
