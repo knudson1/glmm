@@ -107,22 +107,19 @@ Sung, Y. J. and Geyer, C. J. (2007)  Monte Carlo likelihood inference for missin
 library(glmm)
 data(BoothHobert)
 set.seed(1234)
-mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
-family.glmm=bernoulli.glmm,m=100,doPQL=TRUE,cores=2)
-mod.mcml1$beta
-mod.mcml1$nu
-summary(mod.mcml1)
-coef(mod.mcml1)
+\donttest{mod.mcml1 <- glmm(y~0+x1, list(y~0+z1), varcomps.names=c("z1"), data=BoothHobert,}
+\donttest{family.glmm=bernoulli.glmm, m=100, doPQL=TRUE, cores=2)}
+\donttest{mod.mcml1$beta}
+\donttest{mod.mcml1$nu}
+\donttest{summary(mod.mcml1)}
+\donttest{coef(mod.mcml1)}
 
 #Next, a model setting two variance components equal.
 data(Booth2)
 set.seed(1234)
-mod.mcml3<-glmm(y~0+x1,list(y~0+z1,~0+z2),varcomps.names=c("z"), 
-varcomps.equal=c(1,1), data=Booth2,family.glmm=bernoulli.glmm,
-m=100,doPQL=FALSE,cores=2)
-mod.mcml3$beta
-mod.mcml3$nu
-summary(mod.mcml3)
+\donttest{mod.mcml3<-glmm(y~0+x1, list(y~0+z1,~0+z2), varcomps.names=c("z"), }
+\donttest{varcomps.equal=c(1,1), data=Booth2, family.glmm=bernoulli.glmm, m=100)}
+\donttest{summary(mod.mcml3)}
 
 #Now, a model with crossed random effects. There are two distinct
 #variance components. To get more accurate answers for this model,
@@ -130,15 +127,15 @@ summary(mod.mcml3)
 #and doPQL=TRUE.
 set.seed(1234)
 data(salamander)
-m<-10
-sal<-glmm(Mate~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),
-data=salamander,family.glmm=bernoulli.glmm,m=m,debug=TRUE,doPQL=FALSE,cores=2)
-summary(sal)
+m<-100
+\donttest{sal<-glmm(Mate~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),}
+\donttest{data=salamander,family.glmm=bernoulli.glmm,m=m,debug=TRUE,cores=2)}
+\donttest{summary(sal)}
 
 #The above model (sal) can be redone with binomial.glmm
 set.seed(1234)
-sal<-glmm(cbind(Mate,1-Mate)~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),
-data=salamander,family.glmm=binomial.glmm,m=m,debug=TRUE,doPQL=FALSE,cores=2)
+\donttest{sal<-glmm(cbind(Mate,1-Mate)~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),}
+\donttest{data=salamander,family.glmm=binomial.glmm,m=m,debug=TRUE,cores=2)}
 
 }
 

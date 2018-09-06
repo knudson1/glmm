@@ -1,7 +1,7 @@
 
-R version 3.5.1 (2018-07-02) -- "Feather Spray"
+R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
 Copyright (C) 2018 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -97,11 +97,11 @@ Loading required package: itertools
 [6,]  4.276783e-06  4.276776e-06
 > #how big are the diffs? very small
 > lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
-[1] 4.985172e-11 2.690709e-12 2.140972e-11 1.902570e-11 7.987422e-12
+[1] 4.985350e-11 2.690709e-12 2.140972e-11 1.902570e-11 7.987422e-12
 [6] 6.516001e-12
 > 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  5.020   1.534 102.032 
+  3.064   0.681  47.324 

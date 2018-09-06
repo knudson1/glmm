@@ -2,8 +2,8 @@ Package: glmm
 Type: Package
 Title: Generalized Linear Mixed Models via Monte Carlo Likelihood
         Approximation
-Version: 1.2.4
-Date: 2018-08-02
+Version: 1.3.0
+Date: 2018-09-06
 Authors@R: c(person("Christina", "Knudson", role = c("aut", "cre"),
     email = "knud8583@stthomas.edu"), person("Charles J.", "Geyer", role = "ctb",
     email = "geyer@umn.edu"), person("Sydney", "Benson", role = "ctb", email = "bens0104@stthomas.edu"))
