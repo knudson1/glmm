@@ -49,9 +49,11 @@ This package's importance sampling distribution is a mixture of three distributi
 
 The Monte Carlo sample size \code{m} should be chosen as large as possible. You may want to run the model a couple times to begin to understand the variability inherent to Monte Carlo. There are no hard and fast rules for choosing \code{m}, and more research is needed on this area. For a general idea, I believe the \code{BoothHobert} model produces stable enough estimates at \eqn{m=10^3} and the \code{salamander} model produces stable enough estimates at \eqn{m=10^5}, as long as \code{doPQL} is \code{TRUE}.
 
+To decrease the computation time involved with larger Monte Carlo sample sizes, a parallel computing component has been added to this package. Generally, the larger the Monte Carlo sample size \code{m}, the greater the benefit of utilizing additional cores. By default, \code{glmm} will use one fewer than the total number of cores in the computing device. If a computing device has a single core, then a single core will be used in the computation.  If you would like, you can use the \code{cores} argument to specify the number of cores used.  
+
 To see the summary of the model, use summary().
 
-A parallel computing component has been added to this package and is meant to decrease computation time. The \code{cores} argument  allows you to select the number of cores used to approximate the log-likelihood value, gradient and hessian. By default, \code{glmm} will use one fewer than the total number of cores in the computing device. If a computing device has a single core, then a single core will be used in the computation.  Generally, the larger the Monte Carlo sample size \code{m}, the greater the benefit of utilizing additional cores. 
+
 }
 
 \value{
