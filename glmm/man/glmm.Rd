@@ -24,7 +24,7 @@ rmax=1000,iterlim=1000, par.init, zeta=5, cores=NULL)}
 \item{iterlim}{A positive integer specifying the maximum number of trust iterations to be performed before the trust program is terminated. This is an argument for \code{trust}.}
 \item{par.init}{An optional argument. A single vector that specifies the initial values of the fixed effects and variance components. The parameters should be inputted in the order that \code{\link{summary.glmm}} outputs them, with fixed effects followed by variance components. }
 \item{zeta}{A scalar that specifies the degrees of freedom for the t-distribution from which random effects are generated.}
-\item{cores}{An optional argument. An integer that specifies the number of cores that should be accessed during computation. The integer should be less than the number of cores in the computing device. See "Details" for default value.}
+\item{cores}{An optional argument. An integer that specifies the number of cores that should be accessed during computation. The integer should be less than the number of cores in the computing device. If unspecified, \code{glmm} will detect the number of cores in the computing device and use one fewer. See "Details" for more information on the default value.}
 }
 \details{
 Let \eqn{\beta}{beta} be a vector of fixed effects and let \eqn{u}{u} be a vector of random effects. Let \eqn{X}{X} and \eqn{Z}{Z} be design matrices for the fixed and random effects, respectively. The random effects are assumed to be normally distributed with mean 0 and variance matrix \eqn{D}{D}, where \eqn{D}{D} is diagonal with entries from the unknown vector \eqn{\nu}{nu}. Letting \eqn{g}{g} be the link function, \eqn{g(\mu)=X \beta+ZU}{g(mu)=X beta+ ZU}. If the response type is Bernoulli or Binomial, then the logit function is the link; if the response type is Poisson, then the natural logarithm is the link function.
@@ -51,7 +51,7 @@ The Monte Carlo sample size \code{m} should be chosen as large as possible. You 
 
 To see the summary of the model, use summary().
 
-A parallel computing component has been added to this package and is meant to decrease computation time. The \code{cores} argument will allow you to alter the number of cores accessed during the approximation of the log-likelihood value, gradient and hessian. By default, the optimal number of cores, one less than the total number of cores in the device, will be used for this calculation with a single core being used in the case that the device only has one core. 
+A parallel computing component has been added to this package and is meant to decrease computation time. The \code{cores} argument  allows you to select the number of cores used to approximate the log-likelihood value, gradient and hessian. By default, \code{glmm} will use one fewer than the total number of cores in the computing device. If a computing device has a single core, then a single core will be used in the computation.  Generally, the larger the Monte Carlo sample size \code{m}, the greater the benefit of utilizing additional cores. 
 }
 
 \value{
