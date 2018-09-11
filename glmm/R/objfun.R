@@ -5,7 +5,7 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
   
   vars$nbeta <- nbeta
   
-	beta<-par[1:vars$nbeta]
+	vars$beta<-beta<-par[1:vars$nbeta]
 	nu<-par[-(1:vars$nbeta)]
 	vars$m<-nrow(vars$umat)
 
@@ -16,7 +16,7 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 	return(out)
 	}
 	
-	Z=do.call(cbind,vars$mod.mcml$z)
+	vars$Z=do.call(cbind,vars$mod.mcml$z)
 	T<-length(vars$mod.mcml$z)
 	nrand<-lapply(vars$mod.mcml$z,ncol)
 	nrandom<-unlist(nrand)
@@ -24,25 +24,25 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 
 
 	family.glmm<-getFamily(family.glmm)
-	if(family.glmm$family.glmm=="bernoulli.glmm"){family_glmm=1}	
-	if(family.glmm$family.glmm=="poisson.glmm"){family_glmm=2}	
-	if(family.glmm$family.glmm=="binomial.glmm"){family_glmm=3}	
+	if(family.glmm$family.glmm=="bernoulli.glmm"){vars$family_glmm=1}	
+	if(family.glmm$family.glmm=="poisson.glmm"){vars$family_glmm=2}	
+	if(family.glmm$family.glmm=="binomial.glmm"){vars$family_glmm=3}	
 
 	Dstarinvdiag<-1/diag(D.star)
-	D.star.inv<-diag(Dstarinvdiag)
+	vars$D.star.inv<-diag(Dstarinvdiag)
 
 	logdet.D.star.inv<-	-sum(log(diag(D.star)))
 	logdet.Sigmuh.inv<-sum(log(eigen(Sigmuh.inv,symmetric=TRUE)$values))
- 	vars$myq<-nrow(D.star.inv)
+ 	vars$myq<-nrow(vars$D.star.inv)
 
 	tconst<-tconstant(zeta,vars$myq,Dstarinvdiag)
 
 	#for the particular value of nu we're interested in, need to prep for distRandGenC
 	eek<-getEk(vars$mod.mcml$z)
 	preDinvfornu<-Map("*",eek,(1/nu))
-	Dinvfornu<-addVecs(preDinvfornu)
-	logdetDinvfornu<-sum(log(Dinvfornu))
-	Dinvfornu<-diag(Dinvfornu)
+	vars$Dinvfornu<-addVecs(preDinvfornu)
+	vars$logdetDinvfornu<-sum(log(vars$Dinvfornu))
+	vars$Dinvfornu<-diag(vars$Dinvfornu)
 	
 	meow<-rep(1,T+1)
 	meow[1]<-0
@@ -64,13 +64,7 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 	
 	miniu <- NULL
 	minib <- NULL
-	
-	vars$beta <- beta
-	vars$Z <- Z
-	vars$Dinvfornu <- Dinvfornu
-	vars$logdetDinvfornu <- logdetDinvfornu
-	vars$family_glmm <- family_glmm
-	vars$D.star.inv <- D.star.inv
+
 	vars$logdet.D.star.inv <- logdet.D.star.inv
 	vars$u.star <- u.star
 	vars$logdet.Sigmuh.inv <- logdet.Sigmuh.inv
