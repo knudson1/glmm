@@ -6,6 +6,9 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	if(missing(varcomps.equal)){
 		varcomps.equal<- c(1:length(varcomps.names))}
 	call<-match.call()
+	
+	#vars will store all variables needed for valgrad and hess in objfun
+	vars <- new.env(parent = emptyenv())
 
 	#this much will figure out how to interpret the formula
 	#first the fixed effects part
@@ -144,7 +147,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	}
 	names(z)<-varcomps.names
 
-	mod.mcml<-list(x = x, z=z, y = y, ntrials = ntrials)
+	vars$mod.mcml<-list(x = x, z=z, y = y, ntrials = ntrials)
 
 	
 	#so now the 3 items are x (matrix), z (list), y (vector)
@@ -168,7 +171,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	#if the user wants to do pql, do it and use that as the trust start point
 	if(doPQL==TRUE){
 	      #do PQL
-	      pql.out<-pql(mod.mcml,family.glmm,cache)
+	      pql.out<-pql(vars$mod.mcml,family.glmm,cache)
 	      s.pql<-cache$s.twid	
 	      sigma.pql<-pql.out$sigma
 	      nu.pql<-sigma.pql^2
@@ -180,7 +183,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	#if the user did not provide par.init, then an arbitrary guess is 0 for beta
 	# and 1 for nu
 	if(doPQL==FALSE){
-	    nrand<-lapply(mod.mcml$z,ncol)
+	    nrand<-lapply(vars$mod.mcml$z,ncol)
 	    nrandom<-unlist(nrand)
 	    totnrandom<-sum(nrandom)
 	    s.pql<-rep(0,totnrandom)
@@ -190,18 +193,18 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 			sigma.pql<-sqrt(nu.pql)
 		}
 		if(is.null(par.init)){
-	        sigma.pql<-nu.pql<-rep(1,length(mod.mcml$z))
-	        beta.pql<-rep(0,ncol(mod.mcml$x))
+	        sigma.pql<-nu.pql<-rep(1,length(vars$mod.mcml$z))
+	        beta.pql<-rep(0,ncol(vars$mod.mcml$x))
 		    par.init<-c(beta.pql,nu.pql) 
 		}
 	}
 
 	#calculate A*, D* and u*
-	nrand<-lapply(mod.mcml$z,ncol)
+	nrand<-lapply(vars$mod.mcml$z,ncol)
 	nrandom<-unlist(nrand)
 	q<-sum(nrandom)
 	if(q!=length(s.pql)) stop("Can't happen. Number of random effects returned by PQL must match number of random effects specified by model.")
-	eek<-getEk(mod.mcml$z)
+	eek<-getEk(vars$mod.mcml$z)
 	#if any of the variance components are too close to 0, make them bigger:
 	if(any(sigma.pql<10^-3)){
 		theseguys<-which(sigma.pql<10^-3)
@@ -244,8 +247,8 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 
 	#generate m3 from N(u*,(Z'c''(Xbeta*+zu*)Z+D*^{-1})^-1)
 	if(m3>0){
-		Z=do.call(cbind,mod.mcml$z)
-		eta.star<-as.vector(mod.mcml$x%*%beta.pql+Z%*%u.star)
+		Z=do.call(cbind,vars$mod.mcml$z)
+		eta.star<-as.vector(vars$mod.mcml$x%*%beta.pql+Z%*%u.star)
 		if(family.glmm$family.glmm=="bernoulli.glmm") {cdouble<-family.glmm$cpp(eta.star)}
 		if(family.glmm$family.glmm=="poisson.glmm"){cdouble<-family.glmm$cpp(eta.star)}
 		if(family.glmm$family.glmm=="binomial.glmm"){cdouble<-family.glmm$cpp(eta.star, ntrials)}
@@ -265,12 +268,12 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 #	zeros<-rep(0,length(s.pql))
 #	genData2<-genRand(ones,zeros,mod.mcml$z,m2,distrib="normal",gamm)
 
-	umat<-rbind(genData,genData2,genData3)
+	vars$umat<-rbind(genData,genData2,genData3)
 	
 	no_cores <- min(cores, max(1, detectCores()-1))
 
 	#use trust to max the objfun (monte carlo likelihood)
-	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug, nbeta=length(beta.pql), nu.pql=nu.pql, umat=umat, mod.mcml=mod.mcml, family.glmm=family.glmm, u.star=u.star,  cache=cache,  p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star, Sigmuh=Sigmuh, Sigmuh.inv=Sigmuh.inv, zeta=zeta, ntrials = ntrials, no_core=no_cores)
+	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug, nbeta=length(beta.pql), nu.pql=nu.pql, umat=vars$umat, mod.mcml=vars$mod.mcml, family.glmm=family.glmm, u.star=u.star,  cache=cache,  p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star, Sigmuh=Sigmuh, Sigmuh.inv=Sigmuh.inv, zeta=zeta, ntrials = ntrials, no_core=no_cores, vars=vars)
 
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]
@@ -279,18 +282,18 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 
 #}
 
-	names(beta.trust)<-colnames(mod.mcml$x)
+	names(beta.trust)<-colnames(vars$mod.mcml$x)
 	names(nu.trust)<-varcomps.names
 
 	if(debug==TRUE){
-	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql,  trust.argpath=trust.out$argpath, u.star=u.star, umat=umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=m1,m2=m2,m3=m3,trust.argtry=trust.out$argtry, trust.steptype=trust.out$steptype, trust.accept=trust.out$accept, trust.r=trust.out$r, trust.rho=trust.out$rho, trust.valpath=trust.out$valpath, trust.valtry=trust.out$valtry, trust.preddif=trust.out$preddif, trust.stepnorm=trust.out$stepnorm)
+	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql,  trust.argpath=trust.out$argpath, u.star=u.star, umat=vars$umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=m1,m2=m2,m3=m3,trust.argtry=trust.out$argtry, trust.steptype=trust.out$steptype, trust.accept=trust.out$accept, trust.r=trust.out$r, trust.rho=trust.out$rho, trust.valpath=trust.out$valpath, trust.valtry=trust.out$valtry, trust.preddif=trust.out$preddif, trust.stepnorm=trust.out$stepnorm)
 	}
 	
 
 
 	return(structure(list(beta=beta.trust,nu=nu.trust, likelihood.value=trust.out$value, likelihood.gradient=trust.out$gradient, likelihood.hessian=trust.out$hessian,
-	trust.converged=trust.out$converged,  mod.mcml=mod.mcml,
+	trust.converged=trust.out$converged,  mod.mcml=vars$mod.mcml,
 	 fixedcall=fixed,randcall=randcall, x=x,y=y, z=random,
 	family.glmm=family.glmm, call=call, varcomps.names=varcomps.names, 
-	varcomps.equal=varcomps.equal, umat=umat, pvec=c(p1, p2, p3), beta.pql=beta.pql, nu.pql=nu.pql, u.pql=u.star, zeta=zeta, cores=no_cores, debug=debug), class="glmm"))
+	varcomps.equal=varcomps.equal, umat=vars$umat, pvec=c(p1, p2, p3), beta.pql=beta.pql, nu.pql=nu.pql, u.pql=u.star, zeta=zeta, cores=no_cores, debug=debug), class="glmm"))
 }
