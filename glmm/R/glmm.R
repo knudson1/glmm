@@ -35,7 +35,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 		}	
 	}
 
-	ntrials <- rep(1, length(y)) #used for Poisson and Bern, essentially untouched
+	vars$ntrials <- rep(1, length(y)) #used for Poisson and Bern, essentially untouched
 	if(family.glmm$family.glmm=="binomial.glmm"){
 		#if the response is a vector, then ntrials stays at 1
 		#if the response is a matrix
@@ -44,7 +44,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 			if(ncol(y)!=2) stop("Your response must have two columns: the first column reports the number of successes and the second column reports the number of failures.")
 
 			# make ntrials a vector with each entry the sum of the entries in the corresponding col of y
-			ntrials <- apply(y, MARGIN=1, FUN=sum)
+			vars$ntrials <- apply(y, MARGIN=1, FUN=sum)
 			y <- y[,1] 	#then change y to just be the number of successes
 		}
 
@@ -149,7 +149,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	}
 	names(z)<-varcomps.names
 
-	vars$mod.mcml<-list(x = x, z=z, y = y, ntrials = ntrials)
+	vars$mod.mcml<-list(x = x, z=z, y = y, ntrials = vars$ntrials)
 
 	
 	#so now the 3 items are x (matrix), z (list), y (vector)
@@ -253,11 +253,11 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 		eta.star<-as.vector(vars$mod.mcml$x%*%beta.pql+Z%*%vars$u.star)
 		if(family.glmm$family.glmm=="bernoulli.glmm") {cdouble<-family.glmm$cpp(eta.star)}
 		if(family.glmm$family.glmm=="poisson.glmm"){cdouble<-family.glmm$cpp(eta.star)}
-		if(family.glmm$family.glmm=="binomial.glmm"){cdouble<-family.glmm$cpp(eta.star, ntrials)}
+		if(family.glmm$family.glmm=="binomial.glmm"){cdouble<-family.glmm$cpp(eta.star, vars$ntrials)}
 		 #still a vector
 		cdouble<-Diagonal(length(cdouble),cdouble)
-		Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
-		Sigmuh<-solve(Sigmuh.inv)
+		vars$Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
+		Sigmuh<-solve(vars$Sigmuh.inv)
 		genData3<-genRand(vars$u.star,Sigmuh,m3)
 	}
 	if(m3==0) genData3<-NULL
@@ -275,7 +275,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	no_cores <- min(cores, max(1, detectCores()-1))
 
 	#use trust to max the objfun (monte carlo likelihood)
-	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug, nbeta=length(beta.pql), nu.pql=nu.pql, umat=vars$umat, mod.mcml=vars$mod.mcml, family.glmm=family.glmm, u.star=vars$u.star,  cache=cache,  p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star, Sigmuh=Sigmuh, Sigmuh.inv=Sigmuh.inv, zeta=vars$zeta, ntrials = ntrials, no_core=no_cores, vars=vars)
+	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug, nbeta=length(beta.pql), nu.pql=nu.pql, umat=vars$umat, mod.mcml=vars$mod.mcml, family.glmm=family.glmm, u.star=vars$u.star,  cache=cache,  p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star, Sigmuh=Sigmuh, Sigmuh.inv=vars$Sigmuh.inv, zeta=vars$zeta, ntrials = vars$ntrials, no_core=no_cores, vars=vars)
 
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]

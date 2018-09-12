@@ -4,15 +4,16 @@ objfun <-
 function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2, p3, m1, D.star, Sigmuh, Sigmuh.inv, zeta, ntrials, no_cores, vars){
   
   vars$nbeta <- nbeta
+  vars$par <- par
   
-	vars$beta<-beta<-par[1:vars$nbeta]
-	vars$nu<-par[-(1:vars$nbeta)]
+	vars$beta<-beta<-vars$par[1:vars$nbeta]
+	vars$nu<-vars$par[-(1:vars$nbeta)]
 	vars$m<-nrow(vars$umat)
 
 	if (!missing(cache)) stopifnot(is.environment(cache))
 
 	if(any(vars$nu<=0)){
-		out<-list(value=-Inf,gradient=rep(1,length(par)),hessian=as.matrix(c(rep(1,length(par)^2)),nrow=length(par)))
+		out<-list(value=-Inf,gradient=rep(1,length(vars$par)),hessian=as.matrix(c(rep(1,length(vars$par)^2)),nrow=length(vars$par)))
 	return(out)
 	}
 	
@@ -32,10 +33,10 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 	vars$D.star.inv<-diag(Dstarinvdiag)
 
 	vars$logdet.D.star.inv<-	-sum(log(diag(D.star)))
-	vars$logdet.Sigmuh.inv<-sum(log(eigen(Sigmuh.inv,symmetric=TRUE)$values))
+	vars$logdet.Sigmuh.inv<-sum(log(eigen(vars$Sigmuh.inv,symmetric=TRUE)$values))
  	vars$myq<-nrow(vars$D.star.inv)
 
-	tconst<-tconstant(zeta,vars$myq,Dstarinvdiag)
+	vars$tconst<-tconstant(zeta,vars$myq,Dstarinvdiag)
 
 	#for the particular value of nu we're interested in, need to prep for distRandGenC
 	eek<-getEk(vars$mod.mcml$z)
@@ -64,11 +65,6 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 	
 	miniu <- NULL
 	minib <- NULL
-
-	vars$tconst <- tconst
-	vars$ntrials <- ntrials
-	vars$par <- par
-	vars$Sigmuh.inv <- Sigmuh.inv
 
 	#parallelizing the calculations for the value of the log-likelihood approximation and gradient
 	cl <- makeCluster(no_cores)              #making cluster environment
@@ -143,7 +139,7 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 	weights <- Reduce(c, weight)
   if (!missing(cache)) cache$weights<-weights		
 
-  list(value=value,gradient=gradient,hessian=matrix(hessian,ncol=length(par),byrow=FALSE))
+  list(value=value,gradient=gradient,hessian=matrix(hessian,ncol=length(vars$par),byrow=FALSE))
 	
 }
 
