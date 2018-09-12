@@ -101,16 +101,15 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 	value <- log(sumnbk/vars$m) + a
 	
 	#recalculating the gradient
-	gradient <- c(rep(0, length(out[[1]]$gradient)))
+	vars$gradient <- c(rep(0, length(out[[1]]$gradient)))
 	for(j in 1: length(out[[1]]$gradient)){
 	  gradadd <- 0
 	  for(i in 1:length(normalbk)){
 	    gradadd <- gradadd + normalbk[i]*out[[i]]$gradient[j]
 	  }
-	  gradient[j] <- gradadd/sumnbk
+	  vars$gradient[j] <- gradadd/sumnbk
 	}
 	
-	vars$gradient <- gradient
 	vars$b <- b
 	
 	#parallelizing calculations for the hessian
