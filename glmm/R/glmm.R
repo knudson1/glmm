@@ -9,6 +9,8 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	
 	#vars will store all variables needed for valgrad and hess in objfun
 	vars <- new.env(parent = emptyenv())
+	
+	vars$zeta <- zeta
 
 	#this much will figure out how to interpret the formula
 	#first the fixed effects part
@@ -213,11 +215,11 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	Aks<-Map("*",eek,sigma.pql)
 	A.star<-addVecs(Aks) #at this point still a vector
 	D.star<-A.star*A.star #still a vector
-	u.star<-A.star*s.pql 
+	vars$u.star<-A.star*s.pql 
 	Dstarinvdiag<-1/D.star
 	Dstarnotsparse<-diag(D.star)
-	D.star.inv<-Diagonal(length(u.star),Dstarinvdiag)
-	D.star<-Diagonal(length(u.star),D.star)
+	D.star.inv<-Diagonal(length(vars$u.star),Dstarinvdiag)
+	D.star<-Diagonal(length(vars$u.star),D.star)
 
 	#now D.star.inv and D.star are both diagonal matrices
 	#Diagonal from Matrix package is used bc these are sparse matrices
@@ -237,18 +239,18 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 #	
 
 	#generate m1 from t(0,D*)
-	if(m1>0) genData<-rmvt(m1,sigma=Dstarnotsparse,df=zeta,type=c("shifted"))
+	if(m1>0) genData<-rmvt(m1,sigma=Dstarnotsparse,df=vars$zeta,type=c("shifted"))
 	if(m1==0) genData<-NULL		
 
 	#generate m2 from N(u*,D*)
-	if(m2>0) genData2<-genRand(u.star,D.star,m2)
+	if(m2>0) genData2<-genRand(vars$u.star,D.star,m2)
 	if(m2==0) genData2<-NULL
 
 
 	#generate m3 from N(u*,(Z'c''(Xbeta*+zu*)Z+D*^{-1})^-1)
 	if(m3>0){
 		Z=do.call(cbind,vars$mod.mcml$z)
-		eta.star<-as.vector(vars$mod.mcml$x%*%beta.pql+Z%*%u.star)
+		eta.star<-as.vector(vars$mod.mcml$x%*%beta.pql+Z%*%vars$u.star)
 		if(family.glmm$family.glmm=="bernoulli.glmm") {cdouble<-family.glmm$cpp(eta.star)}
 		if(family.glmm$family.glmm=="poisson.glmm"){cdouble<-family.glmm$cpp(eta.star)}
 		if(family.glmm$family.glmm=="binomial.glmm"){cdouble<-family.glmm$cpp(eta.star, ntrials)}
@@ -256,7 +258,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 		cdouble<-Diagonal(length(cdouble),cdouble)
 		Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
 		Sigmuh<-solve(Sigmuh.inv)
-		genData3<-genRand(u.star,Sigmuh,m3)
+		genData3<-genRand(vars$u.star,Sigmuh,m3)
 	}
 	if(m3==0) genData3<-NULL
 
@@ -273,7 +275,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	no_cores <- min(cores, max(1, detectCores()-1))
 
 	#use trust to max the objfun (monte carlo likelihood)
-	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug, nbeta=length(beta.pql), nu.pql=nu.pql, umat=vars$umat, mod.mcml=vars$mod.mcml, family.glmm=family.glmm, u.star=u.star,  cache=cache,  p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star, Sigmuh=Sigmuh, Sigmuh.inv=Sigmuh.inv, zeta=zeta, ntrials = ntrials, no_core=no_cores, vars=vars)
+	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug, nbeta=length(beta.pql), nu.pql=nu.pql, umat=vars$umat, mod.mcml=vars$mod.mcml, family.glmm=family.glmm, u.star=vars$u.star,  cache=cache,  p1=p1,p2=p2, p3=p3,m1=m1, D.star=D.star, Sigmuh=Sigmuh, Sigmuh.inv=Sigmuh.inv, zeta=vars$zeta, ntrials = ntrials, no_core=no_cores, vars=vars)
 
 	beta.trust<-trust.out$argument[1:length(beta.pql)]
 	nu.trust<-trust.out$argument[-(1:length(beta.pql))]
@@ -286,7 +288,7 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	names(nu.trust)<-varcomps.names
 
 	if(debug==TRUE){
-	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql,  trust.argpath=trust.out$argpath, u.star=u.star, umat=vars$umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=m1,m2=m2,m3=m3,trust.argtry=trust.out$argtry, trust.steptype=trust.out$steptype, trust.accept=trust.out$accept, trust.r=trust.out$r, trust.rho=trust.out$rho, trust.valpath=trust.out$valpath, trust.valtry=trust.out$valtry, trust.preddif=trust.out$preddif, trust.stepnorm=trust.out$stepnorm)
+	debug<-list(beta.pql=beta.pql, nu.pql=nu.pql,  trust.argpath=trust.out$argpath, u.star=vars$u.star, umat=vars$umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=m1,m2=m2,m3=m3,trust.argtry=trust.out$argtry, trust.steptype=trust.out$steptype, trust.accept=trust.out$accept, trust.r=trust.out$r, trust.rho=trust.out$rho, trust.valpath=trust.out$valpath, trust.valtry=trust.out$valtry, trust.preddif=trust.out$preddif, trust.stepnorm=trust.out$stepnorm)
 	}
 	
 
@@ -295,5 +297,5 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	trust.converged=trust.out$converged,  mod.mcml=vars$mod.mcml,
 	 fixedcall=fixed,randcall=randcall, x=x,y=y, z=random,
 	family.glmm=family.glmm, call=call, varcomps.names=varcomps.names, 
-	varcomps.equal=varcomps.equal, umat=vars$umat, pvec=c(p1, p2, p3), beta.pql=beta.pql, nu.pql=nu.pql, u.pql=u.star, zeta=zeta, cores=no_cores, debug=debug), class="glmm"))
+	varcomps.equal=varcomps.equal, umat=vars$umat, pvec=c(p1, p2, p3), beta.pql=beta.pql, nu.pql=nu.pql, u.pql=vars$u.star, zeta=vars$zeta, cores=no_cores, debug=debug), class="glmm"))
 }

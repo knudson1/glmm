@@ -6,20 +6,20 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
   vars$nbeta <- nbeta
   
 	vars$beta<-beta<-par[1:vars$nbeta]
-	nu<-par[-(1:vars$nbeta)]
+	vars$nu<-par[-(1:vars$nbeta)]
 	vars$m<-nrow(vars$umat)
 
 	if (!missing(cache)) stopifnot(is.environment(cache))
 
-	if(any(nu<=0)){
+	if(any(vars$nu<=0)){
 		out<-list(value=-Inf,gradient=rep(1,length(par)),hessian=as.matrix(c(rep(1,length(par)^2)),nrow=length(par)))
 	return(out)
 	}
 	
 	vars$Z=do.call(cbind,vars$mod.mcml$z)
-	T<-length(vars$mod.mcml$z)
+	vars$T<-length(vars$mod.mcml$z)
 	nrand<-lapply(vars$mod.mcml$z,ncol)
-	nrandom<-unlist(nrand)
+	vars$nrandom<-unlist(nrand)
 
 
 
@@ -31,25 +31,25 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 	Dstarinvdiag<-1/diag(D.star)
 	vars$D.star.inv<-diag(Dstarinvdiag)
 
-	logdet.D.star.inv<-	-sum(log(diag(D.star)))
-	logdet.Sigmuh.inv<-sum(log(eigen(Sigmuh.inv,symmetric=TRUE)$values))
+	vars$logdet.D.star.inv<-	-sum(log(diag(D.star)))
+	vars$logdet.Sigmuh.inv<-sum(log(eigen(Sigmuh.inv,symmetric=TRUE)$values))
  	vars$myq<-nrow(vars$D.star.inv)
 
 	tconst<-tconstant(zeta,vars$myq,Dstarinvdiag)
 
 	#for the particular value of nu we're interested in, need to prep for distRandGenC
 	eek<-getEk(vars$mod.mcml$z)
-	preDinvfornu<-Map("*",eek,(1/nu))
+	preDinvfornu<-Map("*",eek,(1/vars$nu))
 	vars$Dinvfornu<-addVecs(preDinvfornu)
 	vars$logdetDinvfornu<-sum(log(vars$Dinvfornu))
 	vars$Dinvfornu<-diag(vars$Dinvfornu)
 	
-	meow<-rep(1,T+1)
-	meow[1]<-0
-	throwaway<-T+1
-	meow[2:throwaway]<-cumsum(nrandom)
+	vars$meow<-rep(1,vars$T+1)
+	vars$meow[1]<-0
+	throwaway<-vars$T+1
+	vars$meow[2:throwaway]<-cumsum(vars$nrandom)
 	
-	pea<-c(p1,p2,p3)
+	vars$pea<-c(p1,p2,p3)
 	vars$n<-nrow(vars$mod.mcml$x)
 
 ##need to scale first m1 vectors of generated random effects by multiplying by A
@@ -65,15 +65,6 @@ function(par, nbeta, nu.pql, umat, u.star, mod.mcml, family.glmm, cache, p1, p2,
 	miniu <- NULL
 	minib <- NULL
 
-	vars$logdet.D.star.inv <- logdet.D.star.inv
-	vars$u.star <- u.star
-	vars$logdet.Sigmuh.inv <- logdet.Sigmuh.inv
-	vars$pea <- pea
-	vars$T <- T
-	vars$nrandom <- nrandom
-	vars$meow <- meow
-	vars$nu <- nu
-	vars$zeta <- zeta
 	vars$tconst <- tconst
 	vars$ntrials <- ntrials
 	vars$par <- par
