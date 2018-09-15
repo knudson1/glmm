@@ -4,17 +4,18 @@ data(BoothHobert)
 set.seed(1234)
 out<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
 family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE, cores=2)
-mod.mcml<-out$mod.mcml
+vars <- new.env(parent = emptyenv())
+vars$mod.mcml<-out$mod.mcml
 debug<-out$debug
-nu.pql<-debug$nu.pql
-nu.pql
+vars$nu.pql<-debug$nu.pql
+vars$nu.pql
 beta.pql<-debug$beta.pql
 beta.pql
-family.glmm<-out$family.glmm
-umat<-debug$umat
+vars$family.glmm<-out$family.glmm
+vars$umat<-debug$umat
 u.pql<-debug$u.star
-m1<-debug$m1
-ntrials<-1
+vars$m1<-debug$m1
+vars$ntrials<-1
 
 par<-c(6,1.5)
 del<-rep(10^-8,2)
@@ -24,29 +25,32 @@ getEk<-glmm:::getEk
 addVecs<-glmm:::addVecs
 
 #need to get D*
-eek<-getEk(mod.mcml$z)
-Aks<-Map("*",eek,nu.pql)
-D.star<-addVecs(Aks) 
-D.star<-diag(D.star)
-D.star.inv<-solve(D.star)
+eek<-getEk(vars$mod.mcml$z)
+Aks<-Map("*",eek,vars$nu.pql)
+vars$D.star<-addVecs(Aks) 
+vars$D.star<-diag(vars$D.star)
+D.star.inv<-solve(vars$D.star)
 
 
 #need to also recreate the variance matrix of last imp sampling distribution
-Z=do.call(cbind,mod.mcml$z)
-eta.star<-as.vector(mod.mcml$x%*%beta.pql+Z%*%u.pql)
+Z=do.call(cbind,vars$mod.mcml$z)
+eta.star<-as.vector(vars$mod.mcml$x%*%beta.pql+Z%*%u.pql)
 cdouble<-bernoulli.glmm()$cpp(eta.star) #still a vector
 cdouble<-diag(cdouble)
-Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
-Sigmuh<-solve(Sigmuh.inv)
+vars$Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
+vars$Sigmuh<-solve(vars$Sigmuh.inv)
 
-p1=p2=p3=1/3
-zeta=5
+vars$p1=vars$p2=vars$p3=1/3
+vars$zeta=5
 
-no_cores <- out$cores
+vars$no_cores <- out$cores
+
+vars$nbeta <- 1
+vars$u.star <- u.pql
 
 # define a few things that will be used for finite differences
-lth<-objfun(par=par, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh, D.star=D.star, Sigmuh.inv= Sigmuh.inv, zeta=zeta, ntrials=ntrials, no_cores=no_cores)
-lthdel<-objfun(par=par+del, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3,m1=m1, Sigmuh=Sigmuh, D.star=D.star, Sigmuh.inv=Sigmuh.inv, zeta=zeta, ntrials=ntrials, no_cores=no_cores)
+lth<-objfun(par=par, vars=vars)
+lthdel<-objfun(par=par+del, vars=vars)
 
 all.equal(as.vector(lth$gradient%*%del),lthdel$value-lth$value)
 all.equal(as.vector(lth$hessian%*%del),lthdel$gradient-lth$gradient)
@@ -262,5 +266,5 @@ function(nu,U,z.list,mu){
 
 #finally, compare objfun and objfunNOC for B+H example
 
-that<-objfunNOC(par=par, nbeta=1, nu.pql=nu.pql, umat=umat, u.star=u.pql, mod.mcml=mod.mcml, family.glmm=family.glmm,p1=p1,p2=p2,p3=p3, Sigmuh=Sigmuh,D.star=D.star, zeta=zeta)
+that<-objfunNOC(par=par, nbeta=1, nu.pql=vars$nu.pql, umat=vars$umat, u.star=u.pql, mod.mcml=vars$mod.mcml, family.glmm=vars$family.glmm,p1=vars$p1,p2=vars$p2,p3=vars$p3, Sigmuh=vars$Sigmuh,D.star=vars$D.star, zeta=vars$zeta)
 all.equal(that,lth)

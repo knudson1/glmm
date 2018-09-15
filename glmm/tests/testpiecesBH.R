@@ -190,8 +190,23 @@ piece3<-rep(0,3)
 
 #calculate objfun's value for comparison
 cache<-new.env(parent = emptyenv())
+vars <- new.env(parent = emptyenv())
 objfun<-glmm:::objfun
-that<-objfun(c(beta,nu), nbeta=1, nu.pql=nu.pql, u.star=u.star, mod.mcml=mod.mcml, family.glmm=bernoulli.glmm,cache=cache,umat=umat, p1=1/3, p2=1/3, p3=1/3, m1=m1, D.star=D.star, Sigmuh=Sigmuh, Sigmuh.inv=Sigmuh.inv, zeta=5, ntrials=1, no_cores=no_cores)
+vars$nbeta <- 1
+vars$nu.pql <- nu.pql
+vars$u.star <- u.star
+vars$mod.mcml <- mod.mcml
+vars$family.glmm <- bernoulli.glmm
+vars$umat <- umat
+vars$p1<-vars$p2<-vars$p3<-1/3
+vars$m1 <- m1
+vars$D.star <- D.star
+vars$Sigmuh <- Sigmuh
+vars$Sigmuh.inv <- Sigmuh.inv
+vars$zeta <- 5
+vars$ntrials <- 1
+vars$no_cores <- no_cores
+that<-objfun(c(beta,nu), cache=cache,vars=vars)
 
 #get t stuff ready
 tconstant<-glmm:::tconstant
