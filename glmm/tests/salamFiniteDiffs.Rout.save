@@ -99,4 +99,4 @@ Loading required package: Matrix
 > 
 > proc.time()
    user  system elapsed 
-  3.339   0.671  58.076 
+  3.749   0.993  71.075 

@@ -24,7 +24,7 @@ rmax=1000,iterlim=1000, par.init, zeta=5, cores=NULL)}
 \item{iterlim}{A positive integer specifying the maximum number of trust iterations to be performed before the trust program is terminated. This is an argument for \code{trust}.}
 \item{par.init}{An optional argument. A single vector that specifies the initial values of the fixed effects and variance components. The parameters should be inputted in the order that \code{\link{summary.glmm}} outputs them, with fixed effects followed by variance components. }
 \item{zeta}{A scalar that specifies the degrees of freedom for the t-distribution from which random effects are generated.}
-\item{cores}{An optional argument. An integer that specifies the number of cores that should be accessed during computation. The integer should be less than the number of cores in the computing device. See "Details" for default value.}
+\item{cores}{An optional argument. An integer that specifies the number of cores that should be accessed during computation. The integer should be less than the number of cores in the computing device. If unspecified, \code{glmm} will detect the number of cores in the computing device and use one fewer. See "Details" for more information on the default value.}
 }
 \details{
 Let \eqn{\beta}{beta} be a vector of fixed effects and let \eqn{u}{u} be a vector of random effects. Let \eqn{X}{X} and \eqn{Z}{Z} be design matrices for the fixed and random effects, respectively. The random effects are assumed to be normally distributed with mean 0 and variance matrix \eqn{D}{D}, where \eqn{D}{D} is diagonal with entries from the unknown vector \eqn{\nu}{nu}. Letting \eqn{g}{g} be the link function, \eqn{g(\mu)=X \beta+ZU}{g(mu)=X beta+ ZU}. If the response type is Bernoulli or Binomial, then the logit function is the link; if the response type is Poisson, then the natural logarithm is the link function.
@@ -49,9 +49,11 @@ This package's importance sampling distribution is a mixture of three distributi
 
 The Monte Carlo sample size \code{m} should be chosen as large as possible. You may want to run the model a couple times to begin to understand the variability inherent to Monte Carlo. There are no hard and fast rules for choosing \code{m}, and more research is needed on this area. For a general idea, I believe the \code{BoothHobert} model produces stable enough estimates at \eqn{m=10^3} and the \code{salamander} model produces stable enough estimates at \eqn{m=10^5}, as long as \code{doPQL} is \code{TRUE}.
 
+To decrease the computation time involved with larger Monte Carlo sample sizes, a parallel computing component has been added to this package. Generally, the larger the Monte Carlo sample size \code{m}, the greater the benefit of utilizing additional cores. By default, \code{glmm} will use one fewer than the total number of cores in the computing device. If a computing device has a single core, then a single core will be used in the computation.  If you would like, you can use the \code{cores} argument to specify the number of cores used.  
+
 To see the summary of the model, use summary().
 
-A parallel computing component has been added to this package and is meant to decrease computation time. The \code{cores} argument will allow you to alter the number of cores accessed during the approximation of the log-likelihood value, gradient and hessian. By default, the optimal number of cores, one less than the total number of cores in the device, will be used for this calculation with a single core being used in the case that the device only has one core. 
+
 }
 
 \value{
@@ -107,22 +109,19 @@ Sung, Y. J. and Geyer, C. J. (2007)  Monte Carlo likelihood inference for missin
 library(glmm)
 data(BoothHobert)
 set.seed(1234)
-mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
-family.glmm=bernoulli.glmm,m=100,doPQL=TRUE,cores=2)
-mod.mcml1$beta
-mod.mcml1$nu
-summary(mod.mcml1)
-coef(mod.mcml1)
+\donttest{mod.mcml1 <- glmm(y~0+x1, list(y~0+z1), varcomps.names=c("z1"), data=BoothHobert,}
+\donttest{family.glmm=bernoulli.glmm, m=100, doPQL=TRUE, cores=2)}
+\donttest{mod.mcml1$beta}
+\donttest{mod.mcml1$nu}
+\donttest{summary(mod.mcml1)}
+\donttest{coef(mod.mcml1)}
 
 #Next, a model setting two variance components equal.
 data(Booth2)
 set.seed(1234)
-mod.mcml3<-glmm(y~0+x1,list(y~0+z1,~0+z2),varcomps.names=c("z"), 
-varcomps.equal=c(1,1), data=Booth2,family.glmm=bernoulli.glmm,
-m=100,doPQL=FALSE,cores=2)
-mod.mcml3$beta
-mod.mcml3$nu
-summary(mod.mcml3)
+\donttest{mod.mcml3<-glmm(y~0+x1, list(y~0+z1,~0+z2), varcomps.names=c("z"), }
+\donttest{varcomps.equal=c(1,1), data=Booth2, family.glmm=bernoulli.glmm, m=100)}
+\donttest{summary(mod.mcml3)}
 
 #Now, a model with crossed random effects. There are two distinct
 #variance components. To get more accurate answers for this model,
@@ -130,15 +129,15 @@ summary(mod.mcml3)
 #and doPQL=TRUE.
 set.seed(1234)
 data(salamander)
-m<-10
-sal<-glmm(Mate~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),
-data=salamander,family.glmm=bernoulli.glmm,m=m,debug=TRUE,doPQL=FALSE,cores=2)
-summary(sal)
+m<-100
+\donttest{sal<-glmm(Mate~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),}
+\donttest{data=salamander,family.glmm=bernoulli.glmm,m=m,debug=TRUE,cores=2)}
+\donttest{summary(sal)}
 
 #The above model (sal) can be redone with binomial.glmm
 set.seed(1234)
-sal<-glmm(cbind(Mate,1-Mate)~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),
-data=salamander,family.glmm=binomial.glmm,m=m,debug=TRUE,doPQL=FALSE,cores=2)
+\donttest{sal<-glmm(cbind(Mate,1-Mate)~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),}
+\donttest{data=salamander,family.glmm=binomial.glmm,m=m,debug=TRUE,cores=2)}
 
 }
 
