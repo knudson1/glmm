@@ -1,7 +1,7 @@
 
 R version 3.5.1 (2018-07-02) -- "Feather Spray"
 Copyright (C) 2018 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -71,32 +71,30 @@ Loading required package: Matrix
 > 
 > lthetadel<-objfun(par+del, cache, vars=vars)
 > 
+> # Charlie:
+> # CRAN do not like numbers that vary on different unices and different boxen
+> # so I am commenting out
+> # only print TRUE or FALSE
+> 
 > #do finite diffs to check value --> gradient
-> c(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value)
-[1] -5.137664e-05 -5.137676e-05
-> as.vector(ltheta$gradient%*%del)-(lthetadel$value-ltheta$value)
-[1] 1.131129e-10
+> # c(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value)
+> # as.vector(ltheta$gradient%*%del)-(lthetadel$value-ltheta$value)
 > all.equal(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value,tolerance=10^-5)
 [1] TRUE
 > 
 > #do finite diffs to check gradient --> hessian 
 > all.equal(lthetadel$gradient-ltheta$gradient,as.vector(ltheta$hessian%*%del),tolerance=10^-6)
 [1] TRUE
-> cbind(lthetadel$gradient-ltheta$gradient,as.vector(ltheta$hessian%*%del))
-              [,1]          [,2]
-[1,] -1.269181e-04 -1.269182e-04
-[2,] -3.673015e-05 -3.673015e-05
-[3,] -3.618855e-05 -3.618857e-05
-[4,] -3.591007e-05 -3.591009e-05
-[5,]  4.373356e-06  4.373348e-06
-[6,]  4.276783e-06  4.276776e-06
+> # cbind(lthetadel$gradient-ltheta$gradient,as.vector(ltheta$hessian%*%del))
 > #how big are the diffs? very small
-> lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
-[1] 4.985172e-11 2.690709e-12 2.140972e-11 1.902570e-11 7.987422e-12
-[6] 6.516001e-12
+> # lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
+> foo <- lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
+> all.equal(foo, 0 * foo)
+[1] TRUE
+> 
 > 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  3.749   0.993  71.075 
+  2.025   0.572  38.849 
