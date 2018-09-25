@@ -19,9 +19,11 @@ Type 'q()' to quit R.
 Loading required package: trust
 Loading required package: mvtnorm
 Loading required package: Matrix
+Loading required package: parallel
 > data(BoothHobert)
+> clust <- makeCluster(2)
 > set.seed(1234)
-> mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, cores=2)
+> mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, cluster=clust)
 > 
 > mod.mcml<-mod.mcml1$mod.mcml
 > z<-mod.mcml$z[[1]]
@@ -40,8 +42,6 @@ Loading required package: Matrix
 > objfun<-glmm:::objfun
 > getEk<-glmm:::getEk
 > addVecs<-glmm:::addVecs
-> 
-> no_cores <- mod.mcml1$cores
 > 
 > ############################################
 > #this should be the same as elc
@@ -240,7 +240,7 @@ Loading required package: Matrix
 > vars$Sigmuh.inv <- Sigmuh.inv
 > vars$zeta <- 5
 > vars$ntrials <- 1
-> vars$no_cores <- no_cores
+> vars$cl <- mod.mcml1$cluster
 > that<-objfun(c(beta,nu), cache=cache,vars=vars)
 > 
 > #get t stuff ready
@@ -281,10 +281,10 @@ Loading required package: Matrix
 > #Given generated random effects, the value of the objective function is correct.
 > #This plus the test of finite diffs for objfun should be enough.
 > 
-> 
+> stopCluster(clust)
 > 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  2.653   0.473  28.343 
+  2.396   0.222   4.525 

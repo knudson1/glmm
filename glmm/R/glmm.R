@@ -1,5 +1,5 @@
 glmm <-
-function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000,par.init=NULL,zeta=5, cores=NULL)
+function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000,par.init=NULL,zeta=5, cluster=NULL)
 	{
 	if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
 	if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
@@ -14,6 +14,12 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	vars$p1 <- p1
 	vars$p2 <- p2
 	vars$p3 <- p3
+	
+	if(is.null(cluster)){
+	  vars$cl <- makeCluster(1)
+	} else{
+	  vars$cl <- cluster
+	}
 
 	#this much will figure out how to interpret the formula
 	#first the fixed effects part
@@ -275,10 +281,8 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 
 	vars$umat<-rbind(genData,genData2,genData3)
 	
-	vars$no_cores <- min(cores, max(1, detectCores()-1))
-	
 	vars$nbeta <- length(beta.pql)
-
+	
 	#use trust to max the objfun (monte carlo likelihood)
 	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug,  cache=cache, vars=vars)
 
@@ -302,5 +306,5 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	trust.converged=trust.out$converged,  mod.mcml=vars$mod.mcml,
 	 fixedcall=fixed,randcall=randcall, x=x,y=y, z=random,
 	family.glmm=vars$family.glmm, call=call, varcomps.names=varcomps.names, 
-	varcomps.equal=varcomps.equal, umat=vars$umat, pvec=c(vars$p1, vars$p2, vars$p3), beta.pql=beta.pql, nu.pql=vars$nu.pql, u.pql=vars$u.star, zeta=vars$zeta, cores=vars$no_cores, debug=debug), class="glmm"))
+	varcomps.equal=varcomps.equal, umat=vars$umat, pvec=c(vars$p1, vars$p2, vars$p3), beta.pql=beta.pql, nu.pql=vars$nu.pql, u.pql=vars$u.star, zeta=vars$zeta, cluster=vars$cl, debug=debug), class="glmm"))
 }

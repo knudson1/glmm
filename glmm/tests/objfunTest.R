@@ -1,9 +1,10 @@
 #check objfun using finite differences
 library(glmm)
 data(BoothHobert)
+clust <- makeCluster(2)
 set.seed(1234)
 out<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
-family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE, cores=2)
+family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE, cluster=clust)
 vars <- new.env(parent = emptyenv())
 vars$mod.mcml<-out$mod.mcml
 debug<-out$debug
@@ -43,7 +44,7 @@ vars$Sigmuh<-solve(vars$Sigmuh.inv)
 vars$p1=vars$p2=vars$p3=1/3
 vars$zeta=5
 
-vars$no_cores <- out$cores
+vars$cl <- out$cluster
 
 vars$nbeta <- 1
 vars$u.star <- u.pql
@@ -268,3 +269,5 @@ function(nu,U,z.list,mu){
 
 that<-objfunNOC(par=par, nbeta=1, nu.pql=vars$nu.pql, umat=vars$umat, u.star=u.pql, mod.mcml=vars$mod.mcml, family.glmm=vars$family.glmm,p1=vars$p1,p2=vars$p2,p3=vars$p3, Sigmuh=vars$Sigmuh,D.star=vars$D.star, zeta=vars$zeta)
 all.equal(that,lth)
+
+stopCluster(clust)

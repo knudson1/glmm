@@ -22,13 +22,10 @@ Loading required package: trust
 Loading required package: mvtnorm
 Loading required package: Matrix
 Loading required package: parallel
-Loading required package: doParallel
-Loading required package: foreach
-Loading required package: iterators
-Loading required package: itertools
 > data(BoothHobert)
+> clust <- makeCluster(2)
 > set.seed(1234)
-> mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, cores=2)
+> mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, cluster=clust)
 > 
 > mod.mcml<-mod.mcml1$mod.mcml
 > z<-mod.mcml$z[[1]]
@@ -97,9 +94,9 @@ Loading required package: itertools
 > all.equal(as.numeric(that$hessian),elGHout$hessian)
 [1] TRUE
 > 
-> 
+> stopCluster(clust)
 > 
 > 
 > proc.time()
    user  system elapsed 
-  3.481   0.686  37.641 
+  2.309   0.226   4.521 

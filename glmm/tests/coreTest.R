@@ -1,8 +1,9 @@
 library(glmm)
 data(BoothHobert)
+clust <- makeCluster(2)
 set.seed(1234)
 out<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
-          family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE, cores=2)
+          family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE, cluster=clust)
 vars <- new.env(parent = emptyenv())
 vars$mod.mcml<-out$mod.mcml
 debug<-out$debug
@@ -42,15 +43,19 @@ vars$Sigmuh<-solve(vars$Sigmuh.inv)
 vars$p1=vars$p2=vars$p3=1/3
 vars$zeta=5
 
-vars$no_cores <- 1
+vars$cl <- out$cluster
 
 vars$nbeta <- 1
 vars$u.star <- u.pql
 
-core1<-objfun(par=par, vars=vars)
-
-vars$no_cores <- out$cores
-
 core2<-objfun(par=par, vars=vars)
 
+stopCluster(clust)
+
+vars$cl <- makeCluster(1)
+
+core1<-objfun(par=par, vars=vars)
+
 all.equal(core1, core2)
+
+stopCluster(vars$cl)

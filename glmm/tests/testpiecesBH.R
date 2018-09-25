@@ -1,7 +1,8 @@
 library(glmm)
 data(BoothHobert)
+clust <- makeCluster(2)
 set.seed(1234)
-mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, cores=2)
+mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, cluster=clust)
 
 mod.mcml<-mod.mcml1$mod.mcml
 z<-mod.mcml$z[[1]]
@@ -20,8 +21,6 @@ family.glmm<-bernoulli.glmm
 objfun<-glmm:::objfun
 getEk<-glmm:::getEk
 addVecs<-glmm:::addVecs
-
-no_cores <- mod.mcml1$cores
 
 ############################################
 #this should be the same as elc
@@ -205,7 +204,7 @@ vars$Sigmuh <- Sigmuh
 vars$Sigmuh.inv <- Sigmuh.inv
 vars$zeta <- 5
 vars$ntrials <- 1
-vars$no_cores <- no_cores
+vars$cl <- mod.mcml1$cluster
 that<-objfun(c(beta,nu), cache=cache,vars=vars)
 
 #get t stuff ready
@@ -245,6 +244,6 @@ all.equal(value,that$value)
 #Given generated random effects, the value of the objective function is correct.
 #This plus the test of finite diffs for objfun should be enough.
 
-
+stopCluster(clust)
 
 

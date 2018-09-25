@@ -19,9 +19,11 @@ Type 'q()' to quit R.
 Loading required package: trust
 Loading required package: mvtnorm
 Loading required package: Matrix
+Loading required package: parallel
+> clust <- makeCluster(2)
 > set.seed(1234)
 > data(salamander)
-> sal<-glmm(Mate~Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"), data=salamander,family.glmm=bernoulli.glmm,m=100,debug=TRUE,doPQL=FALSE, cores=2)
+> sal<-glmm(Mate~Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"), data=salamander,family.glmm=bernoulli.glmm,m=100,debug=TRUE,doPQL=FALSE, cluster=clust)
 > 
 > vars <- new.env(parent = emptyenv())
 > objfun<-glmm:::objfun
@@ -65,7 +67,7 @@ Loading required package: Matrix
 > del<-rep(10^-6,6)
 > vars$ntrials<-1
 > 
-> vars$no_cores <- sal$cores
+> vars$cl <- sal$cluster
 > 
 > ltheta<-objfun(par, cache, vars=vars)
 > 
@@ -95,8 +97,8 @@ Loading required package: Matrix
 [1] 4.985172e-11 2.690709e-12 2.140972e-11 1.902570e-11 7.987422e-12
 [6] 6.516001e-12
 > 
-> 
+> stopCluster(clust)
 > 
 > proc.time()
    user  system elapsed 
-  3.749   0.993  71.075 
+  3.144   0.326   6.814 

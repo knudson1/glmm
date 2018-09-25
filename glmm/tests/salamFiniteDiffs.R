@@ -1,7 +1,8 @@
 library(glmm)
+clust <- makeCluster(2)
 set.seed(1234)
 data(salamander)
-sal<-glmm(Mate~Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"), data=salamander,family.glmm=bernoulli.glmm,m=100,debug=TRUE,doPQL=FALSE, cores=2)
+sal<-glmm(Mate~Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"), data=salamander,family.glmm=bernoulli.glmm,m=100,debug=TRUE,doPQL=FALSE, cluster=clust)
 
 vars <- new.env(parent = emptyenv())
 objfun<-glmm:::objfun
@@ -45,7 +46,7 @@ vars$Sigmuh<-solve(vars$Sigmuh.inv)
 del<-rep(10^-6,6)
 vars$ntrials<-1
 
-vars$no_cores <- sal$cores
+vars$cl <- sal$cluster
 
 ltheta<-objfun(par, cache, vars=vars)
 
@@ -62,4 +63,4 @@ cbind(lthetadel$gradient-ltheta$gradient,as.vector(ltheta$hessian%*%del))
 #how big are the diffs? very small
 lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
 
-
+stopCluster(clust)

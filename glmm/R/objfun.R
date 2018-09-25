@@ -3,6 +3,8 @@
 objfun <-
 function(par, cache, vars){
   
+  vars$no_cores <- nrow(summary(vars$cl))
+  
   vars$par <- par
   
 	vars$beta<-beta<-vars$par[1:vars$nbeta]
@@ -66,13 +68,11 @@ function(par, cache, vars){
 	minib <- NULL
 
 	#parallelizing the calculations for the value of the log-likelihood approximation and gradient
-	cl <- makeCluster(vars$no_cores)              #making cluster environment
-	registerDoParallel(cl)                   #making cluster usable with foreach
-	clusterEvalQ(cl, library(itertools))     #installing itertools library on each core
-	clusterExport(cl, c("vars"), envir = environment())     #installing variables on each core
+	registerDoParallel(vars$cl)                   #making cluster usable with foreach
+	clusterEvalQ(vars$cl, library(itertools))     #installing itertools library on each core
+	clusterExport(vars$cl, c("vars"), envir = environment())     #installing variables on each core
 	out <- foreach(miniu=isplitRows(vars$umat, chunks = vars$no_cores)) %dopar% {.C(C_valgrad, as.double(vars$mod.mcml$y),as.double(t(miniu)), as.integer(vars$myq), as.integer(nrow(miniu)), as.double(vars$mod.mcml$x), as.integer(vars$n), as.integer(vars$nbeta), as.double(vars$beta), as.double(vars$Z), as.double(vars$Dinvfornu), as.double(vars$logdetDinvfornu),as.integer(vars$family_glmm), as.double(vars$D.star.inv), as.double(vars$logdet.D.star.inv), as.double(vars$u.star), as.double(vars$Sigmuh.inv), as.double(vars$logdet.Sigmuh.inv), pea=as.double(vars$pea), nps=as.integer(length(vars$pea)), T=as.integer(vars$T), nrandom=as.integer(vars$nrandom), meow=as.integer(vars$meow),nu=as.double(vars$nu), zeta=as.integer(vars$zeta),tconst=as.double(vars$tconst), v=double(vars$m), ntrials=as.integer(vars$ntrials), value=double(1),gradient=double(length(vars$par)), b=double(nrow(miniu)))}
 	#foreach runs loop in parallel, dopar operator sends each chunk of umat to seperate core and runs the .C function
-	stopCluster(cl)     #closing the cluster environment
 	
 	#combining the b's from each core into one vector
 	bs <- as.list(rep(0, vars$no_cores))
@@ -110,12 +110,8 @@ function(par, cache, vars){
 	}
 	
 	#parallelizing calculations for the hessian
-	cl <- makeCluster(vars$no_cores)
-	registerDoParallel(cl)
-	clusterEvalQ(cl, library(itertools))
-	clusterExport(cl, c("vars"), envir = environment())
+	clusterExport(vars$cl, c("vars"), envir = environment())
 	out2 <- foreach(miniu=isplitRows(vars$umat, chunks = vars$no_cores), minib=isplitVector(vars$b, chunks = vars$no_cores)) %dopar% {.C(C_hess, as.double(vars$mod.mcml$y),as.double(t(miniu)), as.integer(vars$myq), as.integer(nrow(miniu)), as.double(vars$mod.mcml$x), as.integer(vars$n), as.integer(vars$nbeta), as.double(vars$beta), as.double(vars$Z), as.double(vars$Dinvfornu), as.double(vars$logdetDinvfornu),as.integer(vars$family_glmm), as.double(vars$D.star.inv), as.double(vars$logdet.D.star.inv), as.double(vars$u.star), as.double(vars$Sigmuh.inv), as.double(vars$logdet.Sigmuh.inv), pea=as.double(vars$pea), nps=as.integer(length(vars$pea)), T=as.integer(vars$T), nrandom=as.integer(vars$nrandom), meow=as.integer(vars$meow),nu=as.double(vars$nu), zeta=as.integer(vars$zeta),tconst=as.double(vars$tconst), v=double(nrow(miniu)), ntrials=as.integer(vars$ntrials),gradient=as.double(vars$gradient),hessian=double((length(vars$par))^2), b=as.double(vars$b), length=as.integer(vars$m), q=as.double(minib))}
-	stopCluster(cl)
 	
 	#adding hessian components
 	hessian <- c(rep(0, length(out2[[1]]$hessian)))
