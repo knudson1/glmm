@@ -3,8 +3,6 @@
 objfun <-
 function(par, cache, vars){
   
-  vars$no_cores <- nrow(summary(vars$cl))
-  
   vars$par <- par
   
 	vars$beta<-beta<-vars$par[1:vars$nbeta]
@@ -66,11 +64,11 @@ function(par, cache, vars){
 	
 	miniu <- NULL
 	minib <- NULL
-
+	
+	clusterExport(vars$cl, c("vars"), envir = environment())
+	newout <- clusterEvalQ(vars$cl, .C(C_valgrad, as.double(vars$mod.mcml$y),as.double(t(umat)), as.integer(vars$myq), as.integer(nrow(umat)), as.double(vars$mod.mcml$x), as.integer(vars$n), as.integer(vars$nbeta), as.double(vars$beta), as.double(vars$Z), as.double(vars$Dinvfornu), as.double(vars$logdetDinvfornu),as.integer(vars$family_glmm), as.double(vars$D.star.inv), as.double(vars$logdet.D.star.inv), as.double(vars$u.star), as.double(vars$Sigmuh.inv), as.double(vars$logdet.Sigmuh.inv), pea=as.double(vars$pea), nps=as.integer(length(vars$pea)), T=as.integer(vars$T), nrandom=as.integer(vars$nrandom), meow=as.integer(vars$meow),nu=as.double(vars$nu), zeta=as.integer(vars$zeta),tconst=as.double(vars$tconst), v=double(vars$m), ntrials=as.integer(vars$ntrials), value=double(1),gradient=double(length(vars$par)), b=double(nrow(umat))))
+	
 	#parallelizing the calculations for the value of the log-likelihood approximation and gradient
-	registerDoParallel(vars$cl)                   #making cluster usable with foreach
-	clusterEvalQ(vars$cl, library(itertools))     #installing itertools library on each core
-	clusterExport(vars$cl, c("vars"), envir = environment())     #installing variables on each core
 	out <- foreach(miniu=isplitRows(vars$umat, chunks = vars$no_cores)) %dopar% {.C(C_valgrad, as.double(vars$mod.mcml$y),as.double(t(miniu)), as.integer(vars$myq), as.integer(nrow(miniu)), as.double(vars$mod.mcml$x), as.integer(vars$n), as.integer(vars$nbeta), as.double(vars$beta), as.double(vars$Z), as.double(vars$Dinvfornu), as.double(vars$logdetDinvfornu),as.integer(vars$family_glmm), as.double(vars$D.star.inv), as.double(vars$logdet.D.star.inv), as.double(vars$u.star), as.double(vars$Sigmuh.inv), as.double(vars$logdet.Sigmuh.inv), pea=as.double(vars$pea), nps=as.integer(length(vars$pea)), T=as.integer(vars$T), nrandom=as.integer(vars$nrandom), meow=as.integer(vars$meow),nu=as.double(vars$nu), zeta=as.integer(vars$zeta),tconst=as.double(vars$tconst), v=double(vars$m), ntrials=as.integer(vars$ntrials), value=double(1),gradient=double(length(vars$par)), b=double(nrow(miniu)))}
 	#foreach runs loop in parallel, dopar operator sends each chunk of umat to seperate core and runs the .C function
 	
@@ -131,7 +129,6 @@ function(par, cache, vars){
 	weights <- Reduce(c, weight)
   if (!missing(cache)) cache$weights<-weights		
 
-  list(value=value,gradient=vars$gradient,hessian=matrix(hessian,ncol=length(vars$par),byrow=FALSE))
-	
+  list(value=value,gradient=vars$gradient,hessian=matrix(hessian,ncol=length(vars$par),byrow=FALSE), newout=newout)
 }
 
