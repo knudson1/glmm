@@ -20,7 +20,12 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	} else{
 	  vars$cl <- cluster
 	}
-
+	
+	vars$no_cores <- nrow(summary(vars$cl))
+	
+	registerDoParallel(vars$cl)                   #making cluster usable with foreach
+	clusterEvalQ(vars$cl, library(itertools))     #installing itertools library on each core
+	
 	#this much will figure out how to interpret the formula
 	#first the fixed effects part
 	stopifnot(inherits(fixed, "formula"))
@@ -246,6 +251,43 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 #	ident<-Diagonal(length(u.star),ones)
 #	genData<-genRand(zeros,ident,m1)
 #	
+	
+	simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
+	  #generate m1 from t(0,D*)
+	  if(vars$m1>0) genData<-rmvt(ceiling(vars$m1/vars$no_cores),sigma=Dstarnotsparse,df=vars$zeta,type=c("shifted"))
+	  if(vars$m1==0) genData<-NULL		
+	  
+	  #generate m2 from N(u*,D*)
+	  if(m2>0) genData2<-genRand(vars$u.star,vars$D.star,ceiling(m2/vars$no_cores))
+	  if(m2==0) genData2<-NULL
+	  
+	  
+	  #generate m3 from N(u*,(Z'c''(Xbeta*+zu*)Z+D*^{-1})^-1)
+	  if(m3>0){
+	    Z=do.call(cbind,vars$mod.mcml$z)
+	    eta.star<-as.vector(vars$mod.mcml$x%*%beta.pql+Z%*%vars$u.star)
+	    if(vars$family.glmm$family.glmm=="bernoulli.glmm") {cdouble<-vars$family.glmm$cpp(eta.star)}
+	    if(vars$family.glmm$family.glmm=="poisson.glmm"){cdouble<-vars$family.glmm$cpp(eta.star)}
+	    if(vars$family.glmm$family.glmm=="binomial.glmm"){cdouble<-vars$family.glmm$cpp(eta.star, vars$ntrials)}
+	    #still a vector
+	    cdouble<-Diagonal(length(cdouble),cdouble)
+	    vars$Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
+	    vars$Sigmuh<-solve(vars$Sigmuh.inv)
+	    genData3<-genRand(vars$u.star,vars$Sigmuh,ceiling(m3/vars$no_cores))
+	  }
+	  if(m3==0) genData3<-NULL
+	  
+	  #	#these are from distribution based on data
+	  #	if(distrib=="tee")genData<-genRand(sigma.gen,s.pql,mod.mcml$z,m1,distrib="tee",gamm)
+	  #	if(distrib=="normal")genData<-genRand(sigma.pql,s.pql,mod.mcml$z,m1,distrib="normal",gamm)
+	  #	#these are from standard normal
+	  #	ones<-rep(1,length(sigma.pql))
+	  #	zeros<-rep(0,length(s.pql))
+	  #	genData2<-genRand(ones,zeros,mod.mcml$z,m2,distrib="normal",gamm)
+	  
+	  umat<-rbind(genData,genData2,genData3)
+	  return(umat)
+	}
 
 	#generate m1 from t(0,D*)
 	if(vars$m1>0) genData<-rmvt(vars$m1,sigma=Dstarnotsparse,df=vars$zeta,type=c("shifted"))
@@ -283,6 +325,9 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	
 	vars$nbeta <- length(beta.pql)
 	
+	clusterExport(vars$cl, c("vars", "Dstarnotsparse", "m2", "m3", "beta.pql", "D.star.inv", "simulate"), envir = environment())     #installing variables on each core
+	clusterEvalQ(vars$cl, umat <- simulate(vars=vars, Dstarnotsparse=Dstarnotsparse, m2=m2, m3=m3, beta.pql=beta.pql, D.star.inv=D.star.inv))
+	
 	#use trust to max the objfun (monte carlo likelihood)
 	trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug,  cache=cache, vars=vars)
 
@@ -306,5 +351,5 @@ function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL
 	trust.converged=trust.out$converged,  mod.mcml=vars$mod.mcml,
 	 fixedcall=fixed,randcall=randcall, x=x,y=y, z=random,
 	family.glmm=vars$family.glmm, call=call, varcomps.names=varcomps.names, 
-	varcomps.equal=varcomps.equal, umat=vars$umat, pvec=c(vars$p1, vars$p2, vars$p3), beta.pql=beta.pql, nu.pql=vars$nu.pql, u.pql=vars$u.star, zeta=vars$zeta, cluster=vars$cl, debug=debug), class="glmm"))
+	varcomps.equal=varcomps.equal, umat=vars$umat, pvec=c(vars$p1, vars$p2, vars$p3), beta.pql=beta.pql, nu.pql=vars$nu.pql, u.pql=vars$u.star, zeta=vars$zeta, cluster=vars$cl, cores=vars$no_cores, newout=trust.out$newout, debug=debug), class="glmm"))
 }
