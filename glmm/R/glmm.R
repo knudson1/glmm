@@ -290,12 +290,15 @@ glmm <-
     
     vars$nbeta <- length(beta.pql)
     
+    umatparams <- NULL
+    
     clusterSetRNGStream(vars$cl, 1234)
     
     clusterExport(vars$cl, c("vars", "Dstarnotsparse", "m2", "m3", "beta.pql", "D.star.inv", "simulate"), envir = environment())     #installing variables on each core
     clusterEvalQ(vars$cl, umatparams <- simulate(vars=vars, Dstarnotsparse=Dstarnotsparse, m2=m2, m3=m3, beta.pql=beta.pql, D.star.inv=D.star.inv))
     
     umats <- clusterEvalQ(vars$cl, umatparams$umat)
+    umat <- Reduce(rbind, umats)
     
     #use trust to max the objfun (monte carlo likelihood)
     trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug,  cache=cache, vars=vars)
@@ -311,7 +314,7 @@ glmm <-
     names(nu.trust)<-varcomps.names
     
     if(debug==TRUE){
-      debug<-list(beta.pql=beta.pql, nu.pql=vars$nu.pql,  trust.argpath=trust.out$argpath, u.star=vars$u.star, umat=umats,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=vars$m1,m2=m2,m3=m3,trust.argtry=trust.out$argtry, trust.steptype=trust.out$steptype, trust.accept=trust.out$accept, trust.r=trust.out$r, trust.rho=trust.out$rho, trust.valpath=trust.out$valpath, trust.valtry=trust.out$valtry, trust.preddif=trust.out$preddif, trust.stepnorm=trust.out$stepnorm)
+      debug<-list(beta.pql=beta.pql, nu.pql=vars$nu.pql,  trust.argpath=trust.out$argpath, u.star=vars$u.star, umat=umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=vars$m1,m2=m2,m3=m3,trust.argtry=trust.out$argtry, trust.steptype=trust.out$steptype, trust.accept=trust.out$accept, trust.r=trust.out$r, trust.rho=trust.out$rho, trust.valpath=trust.out$valpath, trust.valtry=trust.out$valtry, trust.preddif=trust.out$preddif, trust.stepnorm=trust.out$stepnorm)
     }
     
     
@@ -319,5 +322,5 @@ glmm <-
                           trust.converged=trust.out$converged,  mod.mcml=vars$mod.mcml,
                           fixedcall=fixed,randcall=randcall, x=x,y=y, z=random,
                           family.glmm=vars$family.glmm, call=call, varcomps.names=varcomps.names, 
-                          varcomps.equal=varcomps.equal, umat=umats, pvec=c(vars$p1, vars$p2, vars$p3), beta.pql=beta.pql, nu.pql=vars$nu.pql, u.pql=vars$u.star, zeta=vars$zeta, cluster=vars$cl, cores=vars$no_cores, debug=debug), class="glmm"))
+                          varcomps.equal=varcomps.equal, umat=umat, pvec=c(vars$p1, vars$p2, vars$p3), beta.pql=beta.pql, nu.pql=vars$nu.pql, u.pql=vars$u.star, zeta=vars$zeta, cluster=vars$cl, cores=vars$no_cores, debug=debug), class="glmm"))
   }
