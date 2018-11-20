@@ -163,9 +163,6 @@ bincum <- .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.in
 berncum <- ntrials* .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(1), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 all.equal(bincum, berncum)
 doublecheck <- cumR(eta, ntrials)
-bincum
-berncum
-doublecheck
 all.equal(bincum, doublecheck)
 
 eta <- -1
@@ -174,10 +171,8 @@ bincum <- .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.in
 berncum <- ntrials* .C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(1), typein=as.integer(1), ntrials=as.integer(ntrials), out=as.double(0.0))$out
 all.equal(bincum, berncum)
 doublecheck <- cumR(eta, ntrials)
-bincum
-berncum
-doublecheck
 all.equal(bincum, doublecheck)
+
 
 #compare cumulant's derivative (R vs C)
 eta <- 1
@@ -202,8 +197,6 @@ that <- 0
 for(i in 1:neta){
 	that <- that + cumR(eta[i], ntrials[i])
 }
-this
-that
 all.equal(this, that)
 #no segfault errors and the same answer. Yay!
 
