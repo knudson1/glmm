@@ -17,8 +17,6 @@ vars$cl <- sal$cluster
 registerDoParallel(vars$cl)                   #making cluster usable with foreach
 vars$no_cores <- length(vars$cl)
 
-#vars$u.star <- debug$u.star
-
 vars$mod.mcml<-sal$mod.mcml
 
 vars$nu.pql <- debug$nu.pql
@@ -48,14 +46,6 @@ Dstarinvdiag<-1/vars$D.star
 Dstarnotsparse<-diag(vars$D.star)
 D.star.inv<-Diagonal(length(vars$u.star),Dstarinvdiag)
 vars$D.star<-Diagonal(length(vars$u.star),vars$D.star)
-
-#eek<-getEk(vars$mod.mcml$z)
-#Aks<-Map("*",eek,vars$nu.pql)
-#vars$D.star<-addVecs(Aks) 
-#vars$D.star<-diag(vars$D.star)
-#D.star.inv<-solve(vars$D.star)
-
-#Dstarnotsparse<-diag(vars$D.star)
 
 vars$family.glmm<-sal$family.glmm
 

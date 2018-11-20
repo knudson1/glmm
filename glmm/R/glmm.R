@@ -1,3 +1,5 @@
+utils::globalVariables("umatparams")
+
 glmm <-
   function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000,par.init=NULL,zeta=5, cluster=NULL)
   {
@@ -290,10 +292,10 @@ glmm <-
     
     vars$nbeta <- length(beta.pql)
     
-    umatparams <- NULL
+    parallel::clusterSetRNGStream(vars$cl, 1234)
     
-    clusterSetRNGStream(vars$cl, 1234)
-    
+    clusterEvalQ(vars$cl, library(Matrix))
+    clusterEvalQ(vars$cl, library(mvtnorm))
     clusterExport(vars$cl, c("vars", "Dstarnotsparse", "m2", "m3", "beta.pql", "D.star.inv", "simulate"), envir = environment())     #installing variables on each core
     clusterEvalQ(vars$cl, umatparams <- simulate(vars=vars, Dstarnotsparse=Dstarnotsparse, m2=m2, m3=m3, beta.pql=beta.pql, D.star.inv=D.star.inv))
     
