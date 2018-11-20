@@ -1,7 +1,7 @@
 
 R version 3.5.1 (2018-07-02) -- "Feather Spray"
 Copyright (C) 2018 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -137,6 +137,11 @@ Loading required package: iterators
 > 
 > lthetadel<-objfun(par+del, cache, vars=vars)
 > 
+> # Charlie:
+> # CRAN do not like numbers that vary on different unices and different boxen
+> # so I am commenting out
+> # only print TRUE or FALSE
+> 
 > #do finite diffs to check value --> gradient
 > c(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value)
 [1] -1.920534e-05 -1.920544e-05
@@ -166,3 +171,4 @@ Loading required package: iterators
 > proc.time()
    user  system elapsed 
 111.446  12.502 238.002 
+
