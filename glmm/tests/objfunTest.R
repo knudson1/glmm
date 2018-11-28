@@ -3,14 +3,12 @@ library(glmm)
 data(BoothHobert)
 set.seed(1234)
 out<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
-family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE, cores=2)
+family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE, cores=1)
 vars <- new.env(parent = emptyenv())
 vars$mod.mcml<-out$mod.mcml
 debug<-out$debug
 vars$nu.pql<-debug$nu.pql
-vars$nu.pql
 beta.pql<-debug$beta.pql
-beta.pql
 vars$family.glmm<-out$family.glmm
 vars$umat<-debug$umat
 u.pql<-debug$u.star
@@ -56,14 +54,14 @@ all.equal(as.vector(lth$gradient%*%del),lthdel$value-lth$value)
 all.equal(as.vector(lth$hessian%*%del),lthdel$gradient-lth$gradient)
 
 #see exactly how big the difference is
-as.vector(lth$gradient%*%del)-(lthdel$value-lth$value)
-as.vector(lth$hessian%*%del)-(lthdel$gradient-lth$gradient)
+#as.vector(lth$gradient%*%del)-(lthdel$value-lth$value)
+#as.vector(lth$hessian%*%del)-(lthdel$gradient-lth$gradient)
 
 #we know these differences are small when we compare it to the actual values
-lthdel$value-lth$value
-as.vector(lth$gradient%*%del)
-as.vector(lth$hessian%*%del)
-lthdel$gradient-lth$gradient
+# lthdel$value-lth$value
+# as.vector(lth$gradient%*%del)
+# as.vector(lth$hessian%*%del)
+# lthdel$gradient-lth$gradient
 
 ##########################################
 ##### to make sure that the objfun function is correct, compare it against the version without any C code. here is objfun without c:
