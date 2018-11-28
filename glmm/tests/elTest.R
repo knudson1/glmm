@@ -2,8 +2,9 @@
 
 library(glmm)
 data(BoothHobert)
+clust <- makeCluster(2)
 set.seed(1234)
-mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, cores=2)
+mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, cluster=clust)
 
 mod.mcml<-mod.mcml1$mod.mcml
 z<-mod.mcml$z[[1]]
@@ -66,5 +67,5 @@ elGHout<-.C(glmm:::C_elGH,as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer
 all.equal(as.numeric(that$gradient),elGHout$gradient)
 all.equal(as.numeric(that$hessian),elGHout$hessian)
 
-
+stopCluster(clust)
 

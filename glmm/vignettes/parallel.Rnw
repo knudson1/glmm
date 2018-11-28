@@ -24,32 +24,34 @@ The R package \texttt{glmm} approximates the likelihood function for generalized
 In version 1.2.4, the R package \texttt{glmm} has been revised to calculate the value, gradient vector and Hessian matrix in parallel. This addition has incorporated an optional argument to the \texttt{glmm} command, an increased number of outputs, and has decreased the time it takes to fit the model in most cases. \\
 
 \section{Additional Model-Fitting Arguments}
-In the following code, we fit the model using the \texttt{glmm} command and save the model under the name  \texttt{sal}. The final argument for the \texttt{glmm} command is \texttt{cores}. The \texttt{cores} argument is optional and, by default, R will calculate the maximum number of cores, without restricting device use, to use for the parallel calculations if \texttt{cores} is not specified. The optimal number of cores is one less than the number of cores available in the device. However, if you choose to specify a different number of cores, you may do that using the \texttt{cores} argument. In this example, we will use two cores. \\
+In the following code, we fit the model using the \texttt{glmm} command and save the model under the name  \texttt{sal}. The final argument for the \texttt{glmm} command is \texttt{cluster}. The \texttt{cluster} argument is optional and, by default, R will create a cluster that uses only a single core. This will force the calculations for the value, gradient vector and Hessian matrix to be done sequentially instead of simultaneously. However, if you choose to specify a cluster using a different number of cores, you may do that using the \texttt{cluster} argument. In this example, we will use a cluster with two cores. \\
 
-Note: you may only specify the number of cores you want to use if it is less than or equal to the optimal number of cores that R defines. If you specify a number greater than the optimal number defined by R, the number of cores used will default to R's optimal number. \\
-
-Using multiple cores is useful for reducing the time the \texttt{glmm} command takes to run, thus allowing for an increased \texttt{m} without additional computational expense. An increased \texttt{m} allows the model to provide more accurate estimates, but can also increase the model-fitting time exponentially. Using multiple cores can help mitigate this problem.  We can see the time reduction made by running the calculations in parallel using the \texttt{proc.time} command. First, the model-fitting time for the command using one core and $m=10^4$ is given. 
+Using a cluster with multiple cores is useful for reducing the time the \texttt{glmm} command takes to run, thus allowing for an increased \texttt{m} without additional computational expense. An increased \texttt{m} allows the model to provide more accurate estimates, but can also increase the model-fitting time exponentially. Using multiple cores can help mitigate this problem.  We can see the time reduction made by running the calculations in parallel using the \texttt{proc.time} command. First, the model-fitting time for the command using one core and $m=10^4$ is given. 
 
 <<timing1>>=
 library(glmm)
 data(salamander)
+clust <- makeCluster(1)
 set.seed(1234) 
 start <- proc.time()
 sal <- glmm(Mate ~ 0 + Cross, random = list(~ 0 + Female, 
 ~ 0 + Male), varcomps.names = c("F", "M"), data = salamander, 
-family.glmm = bernoulli.glmm, m = 10^4, debug = TRUE, cores = 1)
+family.glmm = bernoulli.glmm, m = 10^4, debug = TRUE, cluster = clust)
 proc.time() - start
+stopCluster(clust)
 @
 
 Next, the model-fitting time for the command using two cores with the same Monte Carlo sample size is found.
 
 <<timing2>>=
+clust <- makeCluster(2)
 set.seed(1234) 
 start <- proc.time()
 sal <- glmm(Mate ~ 0 + Cross, random = list(~ 0 + Female, 
 ~ 0 + Male), varcomps.names = c("F", "M"), data = salamander, 
-family.glmm = bernoulli.glmm, m = 10^4, debug = TRUE, cores = 2)
+family.glmm = bernoulli.glmm, m = 10^4, debug = TRUE, cluster = clust)
 proc.time() - start
+stopCluster(clust)
 @
 
 To read about the other arguments in the \texttt{glmm} command, please read \href{https://cran.r-project.org/web/packages/glmm/vignettes/intro.pdf}{``An Introduction to Model-Fitting with the R package \texttt{glmm}"}. \\
