@@ -22,6 +22,7 @@ importFrom(doParallel, registerDoParallel)
 importFrom(foreach, foreach, "%dopar%")
 importFrom(itertools, isplitRows, isplitVector)
 importFrom(stats, coef, pnorm, qnorm, rnorm, lm, model.matrix, model.response, runif, optim, printCoefmat)
+importFrom(utils, globalVariables)
 
 S3method(print, summary.glmm)
 S3method(summary, glmm)

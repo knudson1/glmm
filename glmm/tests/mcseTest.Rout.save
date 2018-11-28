@@ -21,10 +21,6 @@ Loading required package: trust
 Loading required package: mvtnorm
 Loading required package: Matrix
 Loading required package: parallel
-Loading required package: doParallel
-Loading required package: foreach
-Loading required package: iterators
-Loading required package: itertools
 > getFamily <- glmm:::getFamily
 > getEk<-glmm:::getEk
 > addVecs<-glmm:::addVecs
@@ -247,12 +243,14 @@ Loading required package: itertools
 > 
 > 
 > data(BoothHobert)
+> clust <- makeCluster(2)
 > set.seed(123)
-> mod.mcml1<-glmm(y~0+x1, list(y~0+z1), varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=1000, doPQL=TRUE, cores=2)
+> mod.mcml1<-glmm(y~0+x1, list(y~0+z1), varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=1000, doPQL=TRUE, cluster=clust)
 > all.equal(mcseTEST(mod.mcml1), as.numeric(mcse(mod.mcml1)))
 [1] TRUE
 > 
+> stopCluster(clust)
 > 
 > proc.time()
    user  system elapsed 
-  5.021   1.013  50.344 
+  3.656   0.494   7.104 

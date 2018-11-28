@@ -4,7 +4,7 @@
 \description{This function fits generalized linear mixed models (GLMMs) by approximating the likelihood with ordinary Monte Carlo, then maximizing the approximated likelihood. }
 \usage{glmm(fixed, random, varcomps.names, data, family.glmm, m, 
 varcomps.equal, doPQL = TRUE,debug=FALSE, p1=1/3,p2=1/3, p3=1/3,
-rmax=1000,iterlim=1000, par.init, zeta=5, cores=NULL)}
+rmax=1000,iterlim=1000, par.init, zeta=5, cluster=NULL)}
 
 
 \arguments{
@@ -24,7 +24,7 @@ rmax=1000,iterlim=1000, par.init, zeta=5, cores=NULL)}
 \item{iterlim}{A positive integer specifying the maximum number of trust iterations to be performed before the trust program is terminated. This is an argument for \code{trust}.}
 \item{par.init}{An optional argument. A single vector that specifies the initial values of the fixed effects and variance components. The parameters should be inputted in the order that \code{\link{summary.glmm}} outputs them, with fixed effects followed by variance components. }
 \item{zeta}{A scalar that specifies the degrees of freedom for the t-distribution from which random effects are generated.}
-\item{cores}{An optional argument. An integer that specifies the number of cores that should be accessed during computation. The integer should be less than the number of cores in the computing device. If unspecified, \code{glmm} will detect the number of cores in the computing device and use one fewer. See "Details" for more information on the default value.}
+\item{cluster}{An optional argument. A cluster created by the user to enable computations to be done in parallel. See "Details" for more information on the default value.}
 }
 \details{
 Let \eqn{\beta}{beta} be a vector of fixed effects and let \eqn{u}{u} be a vector of random effects. Let \eqn{X}{X} and \eqn{Z}{Z} be design matrices for the fixed and random effects, respectively. The random effects are assumed to be normally distributed with mean 0 and variance matrix \eqn{D}{D}, where \eqn{D}{D} is diagonal with entries from the unknown vector \eqn{\nu}{nu}. Letting \eqn{g}{g} be the link function, \eqn{g(\mu)=X \beta+ZU}{g(mu)=X beta+ ZU}. If the response type is Bernoulli or Binomial, then the logit function is the link; if the response type is Poisson, then the natural logarithm is the link function.
@@ -49,7 +49,7 @@ This package's importance sampling distribution is a mixture of three distributi
 
 The Monte Carlo sample size \code{m} should be chosen as large as possible. You may want to run the model a couple times to begin to understand the variability inherent to Monte Carlo. There are no hard and fast rules for choosing \code{m}, and more research is needed on this area. For a general idea, I believe the \code{BoothHobert} model produces stable enough estimates at \eqn{m=10^3} and the \code{salamander} model produces stable enough estimates at \eqn{m=10^5}, as long as \code{doPQL} is \code{TRUE}.
 
-To decrease the computation time involved with larger Monte Carlo sample sizes, a parallel computing component has been added to this package. Generally, the larger the Monte Carlo sample size \code{m}, the greater the benefit of utilizing additional cores. By default, \code{glmm} will use one fewer than the total number of cores in the computing device. If a computing device has a single core, then a single core will be used in the computation.  If you would like, you can use the \code{cores} argument to specify the number of cores used.  
+To decrease the computation time involved with larger Monte Carlo sample sizes, a parallel computing component has been added to this package. Generally, the larger the Monte Carlo sample size \code{m}, the greater the benefit of utilizing additional cores. By default, \code{glmm} will create a cluster that uses a single core. This forces all computations to be done sequentially rather than simultaneously. 
 
 To see the summary of the model, use summary().
 
@@ -80,7 +80,7 @@ To see the summary of the model, use summary().
 \item{nu.pql}{PQL estimate of \eqn{\nu}{nu}, when \code{doPQL} is \code{TRUE}.}
 \item{u.pql}{PQL predictions of the random effects.}
 \item{zeta}{The number of degrees of freedom used in the t component of the importance sampling distribution.}
-\item{cores}{An integer specifying the number of cores accessed during the approximation of the log-likelihood value, gradient and hessian.}
+\item{cluster}{A cluster created by the user for use during the approximation of the log-likelihood value, gradient and hessian.}
   \item{debug}{If \code{TRUE} extra output useful for testing.}
   The function \code{\link{summary}} (i.e., \code{\link{summary.glmm}}) can
   be used to obtain or print a summary of the results. The generic accessor function \code{\link{coef}} (i.e., \code{\link{coef.glmm}}) can be used to extract the coefficients.
@@ -110,7 +110,7 @@ library(glmm)
 data(BoothHobert)
 set.seed(1234)
 \donttest{mod.mcml1 <- glmm(y~0+x1, list(y~0+z1), varcomps.names=c("z1"), data=BoothHobert,}
-\donttest{family.glmm=bernoulli.glmm, m=100, doPQL=TRUE, cores=2)}
+\donttest{family.glmm=bernoulli.glmm, m=100, doPQL=TRUE, cluster=clust)}
 \donttest{mod.mcml1$beta}
 \donttest{mod.mcml1$nu}
 \donttest{summary(mod.mcml1)}
@@ -131,13 +131,13 @@ set.seed(1234)
 data(salamander)
 m<-100
 \donttest{sal<-glmm(Mate~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),}
-\donttest{data=salamander,family.glmm=bernoulli.glmm,m=m,debug=TRUE,cores=2)}
+\donttest{data=salamander,family.glmm=bernoulli.glmm,m=m,debug=TRUE,cluster=clust)}
 \donttest{summary(sal)}
 
 #The above model (sal) can be redone with binomial.glmm
 set.seed(1234)
 \donttest{sal<-glmm(cbind(Mate,1-Mate)~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),}
-\donttest{data=salamander,family.glmm=binomial.glmm,m=m,debug=TRUE,cores=2)}
+\donttest{data=salamander,family.glmm=binomial.glmm,m=m,debug=TRUE,cluster=clust)}
 
 }
 
