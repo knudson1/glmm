@@ -25,29 +25,29 @@ Loading required package: foreach
 Loading required package: iterators
 Loading required package: itertools
 > theta<-1
-> delta<-.01
+> delta<-1E-8
 > 
 > #check derivatives for bernoulli using finite differences
 > this<-bernoulli.glmm()$cp(theta)*delta
 > that<-bernoulli.glmm()$cum(theta+delta)-bernoulli.glmm()$cum(theta)
 > all.equal(this,that)
-[1] "Mean relative difference: 0.001342634"
+[1] TRUE
 > 
 > this<-bernoulli.glmm()$cpp(theta)*delta
 > that<-bernoulli.glmm()$cp(theta+delta)-bernoulli.glmm()$cp(theta)
 > all.equal(this,that)
-[1] "Mean relative difference: 0.002313554"
+[1] TRUE
 > 
 > #check derivatives for poisson using finite differences
 > this<-poisson.glmm()$cp(theta)*delta
 > that<-poisson.glmm()$cum(theta+delta)-poisson.glmm()$cum(theta)
 > all.equal(this,that)
-[1] "Mean relative difference: 0.005016708"
+[1] TRUE
 > 
 > this<-poisson.glmm()$cpp(theta)*delta
 > that<-poisson.glmm()$cp(theta+delta)-poisson.glmm()$cp(theta)
 > all.equal(this,that)
-[1] "Mean relative difference: 0.005016708"
+[1] TRUE
 > 
 > 
 > 

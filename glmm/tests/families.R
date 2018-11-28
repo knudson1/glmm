@@ -1,6 +1,6 @@
 library(glmm)
 theta<-1
-delta<-.01
+delta<-1E-8
 
 #check derivatives for bernoulli using finite differences
 this<-bernoulli.glmm()$cp(theta)*delta
