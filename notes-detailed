@@ -1,0 +1,50 @@
+# First check that the R (>= 3.2.0) in DESCRIPTION is not bogus
+\cp ~/.Rprofile ~/.Rprofile.https
+\cp ~/.Rprofile.http ~/.Rprofile
+~/local/3.2.0/bin/R CMD build glmm
+~/local/3.2.0/bin/R CMD check glmm_*.tar.gz --run-donttest
+\cp ~/.Rprofile.https ~/.Rprofile
+
+# Now check against r-current using all compiler warnings
+export R_MAKEVARS_USER=`pwd`/myMakevars
+R CMD build glmm
+R CMD check glmm_*.tar.gz --run-donttest
+sed -n '/gcc/,/installing to/p' glmm.Rcheck/00install.out
+# a lot of complaints about unused arguments.  Fix.
+# now checks OK
+
+# Now check against r-devel with --as-cran
+~/local/devel/bin/R CMD check glmm_*.tar.gz --as-cran --run-donttest
+
+# Now check against r-current with --use-valgrind
+
+########## REVISED DOWN TO HERE ##########
+
+# Notes added by Charlie
+# Do this if want extra gcc checks that are not allowed in Makevars
+# Look in glmm.Rcheck/00install.out to see warning messages
+export R_MAKEVARS_USER=`pwd`/myMakevars
+# Note that file myMakevars must be a copy of glmm/src/Makevars
+#     with extra stuff added
+
+
+rm *.tar.gz # if version number has changed
+R CMD build glmm
+R CMD check glmm_*.tar.gz
+
+# to check with valgrind
+R CMD check --use-valgrind glmm_*.tar.gz
+
+# before submission this should be done using R-devel
+R CMD check --as.cran glmm_*.tar.gz
+
+# old notes, don't need to do this stuff
+\rm -f glmm/src/*.{o,so}
+R CMD build glmm
+R CMD build glmm --no-build-vignettes
+R CMD check glmm --as-cran
+R CMD check glmm --use-valgrind
+R CMD check glmm --use-valgrind -00
+
+R -d valgrind --vanilla
+R -d "valgrind --tool=memcheck --track-origins=yes" --vanilla

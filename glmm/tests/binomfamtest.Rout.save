@@ -1,7 +1,7 @@
 
-R version 3.5.1 (2018-07-02) -- "Feather Spray"
+R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
 Copyright (C) 2018 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -33,11 +33,6 @@ Type 'q()' to quit R.
 Loading required package: trust
 Loading required package: mvtnorm
 Loading required package: Matrix
-Loading required package: parallel
-Loading required package: doParallel
-Loading required package: foreach
-Loading required package: iterators
-Loading required package: itertools
 > 
 > #choose a positive value for eta and compare to 
 > #calc of cum for bernoulli
@@ -207,12 +202,6 @@ Loading required package: itertools
 > all.equal(bincum, berncum)
 [1] TRUE
 > doublecheck <- cumR(eta, ntrials)
-> bincum
-[1] 2.626523
-> berncum
-[1] 2.626523
-> doublecheck
-[1] 2.626523
 > all.equal(bincum, doublecheck)
 [1] TRUE
 > 
@@ -223,14 +212,9 @@ Loading required package: itertools
 > all.equal(bincum, berncum)
 [1] TRUE
 > doublecheck <- cumR(eta, ntrials)
-> bincum
-[1] 0.6265234
-> berncum
-[1] 0.6265234
-> doublecheck
-[1] 0.6265234
 > all.equal(bincum, doublecheck)
 [1] TRUE
+> 
 > 
 > #compare cumulant's derivative (R vs C)
 > eta <- 1
@@ -257,10 +241,6 @@ Loading required package: itertools
 > for(i in 1:neta){
 + 	that <- that + cumR(eta[i], ntrials[i])
 + }
-> this
-[1] 86.06447
-> that
-[1] 86.06447
 > all.equal(this, that)
 [1] TRUE
 > #no segfault errors and the same answer. Yay!
@@ -341,4 +321,4 @@ Loading required package: itertools
 > 
 > proc.time()
    user  system elapsed 
-  1.635   0.154   1.782 
+  1.795   0.057   1.835 

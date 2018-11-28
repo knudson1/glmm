@@ -113,15 +113,23 @@ ltheta<-objfun(par, cache, vars=vars)
 
 lthetadel<-objfun(par+del, cache, vars=vars)
 
+# Charlie:
+# CRAN do not like numbers that vary on different unices and different boxen
+# so I am commenting out
+# only print TRUE or FALSE
+
 #do finite diffs to check value --> gradient
-c(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value)
-as.vector(ltheta$gradient%*%del)-(lthetadel$value-ltheta$value)
+# c(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value)
+# as.vector(ltheta$gradient%*%del)-(lthetadel$value-ltheta$value)
 all.equal(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value,tolerance=10^-5)
 
 #do finite diffs to check gradient --> hessian 
 all.equal(lthetadel$gradient-ltheta$gradient,as.vector(ltheta$hessian%*%del),tolerance=10^-6)
-cbind(lthetadel$gradient-ltheta$gradient,as.vector(ltheta$hessian%*%del))
+# cbind(lthetadel$gradient-ltheta$gradient,as.vector(ltheta$hessian%*%del))
 #how big are the diffs? very small
-lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
+# lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
+foo <- lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
+all.equal(foo, 0 * foo)
+
 
 stopCluster(clust)
