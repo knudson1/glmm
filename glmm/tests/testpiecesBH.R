@@ -3,7 +3,6 @@ data(BoothHobert)
 clust <- makeCluster(2)
 set.seed(1234)
 mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, cluster=clust)
-
 mod.mcml<-mod.mcml1$mod.mcml
 z<-mod.mcml$z[[1]]
 x<-mod.mcml$x
@@ -119,14 +118,14 @@ that<-distRand(2,you,mod.mcml$z,u.pql)
 all.equal(this,that)
 
 #use finite diffs to make sure distRandCheck (and distRand) have correct derivs
-del<-10^(-8)
+del<-10^(-9)
 thisdel<-distRandCheck(2+del,you,u.pql)
 firstthing<-thisdel$value-this$value
 secondthing<-as.vector(this$gradient%*%del)
 all.equal(firstthing,secondthing)
-firstthing
-secondthing
-firstthing-secondthing
+#firstthing
+#secondthing
+#firstthing-secondthing
 
 #compare the gradient and hessian of the C functions by using these functions
 #(the value is checked in distRandGeneral)

@@ -143,21 +143,15 @@ Loading required package: iterators
 > # only print TRUE or FALSE
 > 
 > #do finite diffs to check value --> gradient
-<<<<<<< HEAD
 > c(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value)
 [1] -1.920534e-05 -1.920544e-05
 > as.vector(ltheta$gradient%*%del)-(lthetadel$value-ltheta$value)
 [1] 1.00519e-10
-=======
-> # c(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value)
-> # as.vector(ltheta$gradient%*%del)-(lthetadel$value-ltheta$value)
->>>>>>> upstream/master
 > all.equal(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value,tolerance=10^-5)
 [1] TRUE
 > 
 > #do finite diffs to check gradient --> hessian 
 > all.equal(lthetadel$gradient-ltheta$gradient,as.vector(ltheta$hessian%*%del),tolerance=10^-6)
-<<<<<<< HEAD
 [1] "Mean relative difference: 0.002523132"
 > cbind(lthetadel$gradient-ltheta$gradient,as.vector(ltheta$hessian%*%del))
               [,1]          [,2]
@@ -171,24 +165,10 @@ Loading required package: iterators
 > lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
 [1] 2.612844e-07 7.469377e-08 7.184501e-08 7.874492e-08 1.103170e-08
 [6] 7.319752e-09
-=======
-[1] TRUE
-> # cbind(lthetadel$gradient-ltheta$gradient,as.vector(ltheta$hessian%*%del))
-> #how big are the diffs? very small
-> # lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
-> foo <- lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
-> all.equal(foo, 0 * foo)
-[1] TRUE
-> 
-> 
->>>>>>> upstream/master
 > 
 > stopCluster(clust)
 > 
 > proc.time()
    user  system elapsed 
-<<<<<<< HEAD
 111.446  12.502 238.002 
-=======
-  2.025   0.572  38.849 
->>>>>>> upstream/master
+

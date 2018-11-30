@@ -1,7 +1,7 @@
 
-R version 3.5.1 (2018-07-02) -- "Feather Spray"
+R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
 Copyright (C) 2018 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -26,7 +26,12 @@ Loading required package: iterators
 > data(BoothHobert)
 > clust <- makeCluster(2)
 > set.seed(1234)
+<<<<<<< HEAD
+> mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, 
++                 doPQL=TRUE, debug=TRUE, cores=1)
+=======
 > mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, cluster=clust)
+>>>>>>> 8a3d432ba716ecf769f1dc34b1aed5a506eb532a
 > 
 > mod.mcml<-mod.mcml1$mod.mcml
 > z<-mod.mcml$z[[1]]
@@ -150,18 +155,24 @@ Loading required package: iterators
 [1] TRUE
 > 
 > #use finite diffs to make sure distRandCheck (and distRand) have correct derivs
-> del<-10^(-8)
+> del<-10^(-9)
 > thisdel<-distRandCheck(2+del,you,u.pql)
 > firstthing<-thisdel$value-this$value
 > secondthing<-as.vector(this$gradient%*%del)
 > all.equal(firstthing,secondthing)
 [1] TRUE
+<<<<<<< HEAD
+> #firstthing
+> #secondthing
+> #firstthing-secondthing
+=======
 > firstthing
 [1] -1.285952e-08
 > secondthing
 [1] -1.285952e-08
 > firstthing-secondthing
 [1] 4.898647e-16
+>>>>>>> 8a3d432ba716ecf769f1dc34b1aed5a506eb532a
 > 
 > #compare the gradient and hessian of the C functions by using these functions
 > #(the value is checked in distRandGeneral)
@@ -493,4 +504,8 @@ z110 .        1.677939
 > 
 > proc.time()
    user  system elapsed 
+<<<<<<< HEAD
+  2.092   0.196  15.281 
+=======
   5.697   0.440   9.125 
+>>>>>>> 8a3d432ba716ecf769f1dc34b1aed5a506eb532a

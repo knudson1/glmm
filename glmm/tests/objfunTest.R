@@ -5,9 +5,16 @@ clust <- makeCluster(2)
 set.seed(1234)
 out<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
 family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE, cluster=clust)
-
 vars <- new.env(parent = emptyenv())
 debug<-out$debug
+vars$nu.pql<-debug$nu.pql
+beta.pql<-debug$beta.pql
+vars$family.glmm<-out$family.glmm
+vars$umat<-debug$umat
+u.pql<-debug$u.star
+vars$m1<-debug$m1
+vars$ntrials<-1
+
 
 vars$m1 <- debug$m1
 m2 <- debug$m2
@@ -122,14 +129,14 @@ all.equal(as.vector(lth$gradient%*%del),lthdel$value-lth$value)
 all.equal(as.vector(lth$hessian%*%del),lthdel$gradient-lth$gradient)
 
 #see exactly how big the difference is
-as.vector(lth$gradient%*%del)-(lthdel$value-lth$value)
-as.vector(lth$hessian%*%del)-(lthdel$gradient-lth$gradient)
+#as.vector(lth$gradient%*%del)-(lthdel$value-lth$value)
+#as.vector(lth$hessian%*%del)-(lthdel$gradient-lth$gradient)
 
 #we know these differences are small when we compare it to the actual values
-lthdel$value-lth$value
-as.vector(lth$gradient%*%del)
-as.vector(lth$hessian%*%del)
-lthdel$gradient-lth$gradient
+# lthdel$value-lth$value
+# as.vector(lth$gradient%*%del)
+# as.vector(lth$hessian%*%del)
+# lthdel$gradient-lth$gradient
 
 ##########################################
 ##### to make sure that the objfun function is correct, compare it against the version without any C code. here is objfun without c:

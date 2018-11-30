@@ -1,7 +1,7 @@
 
-R version 3.5.1 (2018-07-02) -- "Feather Spray"
+R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
 Copyright (C) 2018 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -28,10 +28,24 @@ Loading required package: iterators
 > clust <- makeCluster(2)
 > set.seed(1234)
 > out<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
+<<<<<<< HEAD
++ family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE, cores=1)
+=======
 + family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE, cluster=clust)
 > 
+>>>>>>> 8a3d432ba716ecf769f1dc34b1aed5a506eb532a
 > vars <- new.env(parent = emptyenv())
 > debug<-out$debug
+<<<<<<< HEAD
+> vars$nu.pql<-debug$nu.pql
+> beta.pql<-debug$beta.pql
+> vars$family.glmm<-out$family.glmm
+> vars$umat<-debug$umat
+> u.pql<-debug$u.star
+> vars$m1<-debug$m1
+> vars$ntrials<-1
+=======
+>>>>>>> 8a3d432ba716ecf769f1dc34b1aed5a506eb532a
 > 
 > vars$m1 <- debug$m1
 > m2 <- debug$m2
@@ -300,6 +314,16 @@ z110 .    .    .    .    .    .    .    .    .    4.75
 [1] "Mean relative difference: 0.5933629"
 > 
 > #see exactly how big the difference is
+<<<<<<< HEAD
+> #as.vector(lth$gradient%*%del)-(lthdel$value-lth$value)
+> #as.vector(lth$hessian%*%del)-(lthdel$gradient-lth$gradient)
+> 
+> #we know these differences are small when we compare it to the actual values
+> # lthdel$value-lth$value
+> # as.vector(lth$gradient%*%del)
+> # as.vector(lth$hessian%*%del)
+> # lthdel$gradient-lth$gradient
+=======
 > as.vector(lth$gradient%*%del)-(lthdel$value-lth$value)
 [1] 2.195388e-13
 > as.vector(lth$hessian%*%del)-(lthdel$gradient-lth$gradient)
@@ -314,6 +338,7 @@ z110 .    .    .    .    .    .    .    .    .    4.75
 [1]  5.735424e-08 -1.980655e-08
 > lthdel$gradient-lth$gradient
 [1]  2.332236e-08 -8.054082e-09
+>>>>>>> 8a3d432ba716ecf769f1dc34b1aed5a506eb532a
 > 
 > ##########################################
 > ##### to make sure that the objfun function is correct, compare it against the version without any C code. here is objfun without c:
@@ -525,4 +550,8 @@ z110 .    .    .    .    .    .    .    .    .    4.75
 > 
 > proc.time()
    user  system elapsed 
+<<<<<<< HEAD
+  2.210   0.397  34.533 
+=======
  14.431   0.740  19.144 
+>>>>>>> 8a3d432ba716ecf769f1dc34b1aed5a506eb532a
