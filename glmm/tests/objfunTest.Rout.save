@@ -28,15 +28,10 @@ Loading required package: iterators
 > clust <- makeCluster(2)
 > set.seed(1234)
 > out<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
-<<<<<<< HEAD
-+ family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE, cores=1)
-=======
 + family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE, cluster=clust)
 > 
->>>>>>> 8a3d432ba716ecf769f1dc34b1aed5a506eb532a
 > vars <- new.env(parent = emptyenv())
 > debug<-out$debug
-<<<<<<< HEAD
 > vars$nu.pql<-debug$nu.pql
 > beta.pql<-debug$beta.pql
 > vars$family.glmm<-out$family.glmm
@@ -44,8 +39,6 @@ Loading required package: iterators
 > u.pql<-debug$u.star
 > vars$m1<-debug$m1
 > vars$ntrials<-1
-=======
->>>>>>> 8a3d432ba716ecf769f1dc34b1aed5a506eb532a
 > 
 > vars$m1 <- debug$m1
 > m2 <- debug$m2
