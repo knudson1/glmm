@@ -21,6 +21,9 @@ Loading required package: trust
 Loading required package: mvtnorm
 Loading required package: Matrix
 Loading required package: parallel
+Loading required package: doParallel
+Loading required package: foreach
+Loading required package: iterators
 > getFamily <- glmm:::getFamily
 > getEk<-glmm:::getEk
 > addVecs<-glmm:::addVecs
@@ -253,4 +256,4 @@ Loading required package: parallel
 > 
 > proc.time()
    user  system elapsed 
-  3.656   0.494   7.104 
+  3.875   0.478   7.924 

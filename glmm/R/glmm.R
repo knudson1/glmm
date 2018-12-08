@@ -254,15 +254,18 @@ glmm <-
     
     simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
       #generate m1 from t(0,D*)
-      if(vars$m1>0) genData<-rmvt(ceiling(vars$m1/vars$no_cores),sigma=Dstarnotsparse,df=vars$zeta,type=c("shifted"))
+      newm1 <- ceiling(vars$m1/vars$no_cores)
+      if(vars$m1>0) genData<-rmvt(newm1,sigma=Dstarnotsparse,df=vars$zeta,type=c("shifted"))
       if(vars$m1==0) genData<-NULL		
       
       #generate m2 from N(u*,D*)
-      if(m2>0) genData2<-genRand(vars$u.star,vars$D.star,ceiling(m2/vars$no_cores))
+      newm2 <- ceiling(m2/vars$no_cores)
+      if(m2>0) genData2<-genRand(vars$u.star,vars$D.star,newm2)
       if(m2==0) genData2<-NULL
       
       
       #generate m3 from N(u*,(Z'c''(Xbeta*+zu*)Z+D*^{-1})^-1)
+      newm3 <- ceiling(m3/vars$no_cores)
       if(m3>0){
         Z=do.call(cbind,vars$mod.mcml$z)
         eta.star<-as.vector(vars$mod.mcml$x%*%beta.pql+Z%*%vars$u.star)
@@ -273,7 +276,7 @@ glmm <-
         cdouble<-Diagonal(length(cdouble),cdouble)
         Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
         Sigmuh<-solve(Sigmuh.inv)
-        genData3<-genRand(vars$u.star,Sigmuh,ceiling(m3/vars$no_cores))
+        genData3<-genRand(vars$u.star,Sigmuh,newm3)
       }
       if(m3==0) genData3<-NULL
       
@@ -301,6 +304,7 @@ glmm <-
     
     umats <- clusterEvalQ(vars$cl, umatparams$umat)
     umat <- Reduce(rbind, umats)
+    vars$newm <- nrow(umat)
     
     #use trust to max the objfun (monte carlo likelihood)
     trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug,  cache=cache, vars=vars)
@@ -316,7 +320,7 @@ glmm <-
     names(nu.trust)<-varcomps.names
     
     if(debug==TRUE){
-      debug<-list(beta.pql=beta.pql, nu.pql=vars$nu.pql,  trust.argpath=trust.out$argpath, u.star=vars$u.star, umat=umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=vars$m1,m2=m2,m3=m3,trust.argtry=trust.out$argtry, trust.steptype=trust.out$steptype, trust.accept=trust.out$accept, trust.r=trust.out$r, trust.rho=trust.out$rho, trust.valpath=trust.out$valpath, trust.valtry=trust.out$valtry, trust.preddif=trust.out$preddif, trust.stepnorm=trust.out$stepnorm)
+      debug<-list(beta.pql=beta.pql, nu.pql=vars$nu.pql, D.star=vars$D.star, trust.argpath=trust.out$argpath, u.star=vars$u.star, umat=umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=vars$m1,m2=m2,m3=m3,trust.argtry=trust.out$argtry, trust.steptype=trust.out$steptype, trust.accept=trust.out$accept, trust.r=trust.out$r, trust.rho=trust.out$rho, trust.valpath=trust.out$valpath, trust.valtry=trust.out$valtry, trust.preddif=trust.out$preddif, trust.stepnorm=trust.out$stepnorm)
     }
     
     

@@ -11,8 +11,10 @@ vars$nu.pql<-debug$nu.pql
 beta.pql<-debug$beta.pql
 vars$family.glmm<-out$family.glmm
 vars$umat<-debug$umat
-#u.pql<-debug$u.star
+vars$newm <- nrow(vars$umat)
+vars$u.star<-debug$u.star
 vars$ntrials<-1
+D.star.inv <- Dstarnotsparse <- vars$D.star <- as.matrix(debug$D.star)
 
 
 vars$m1 <- debug$m1
@@ -30,34 +32,6 @@ vars$mod.mcml<-out$mod.mcml
 getEk<-glmm:::getEk
 addVecs<-glmm:::addVecs
 genRand<-glmm:::genRand
-
-nrand<-lapply(vars$mod.mcml$z,ncol)
-nrandom<-unlist(nrand)
-q<-sum(nrandom)
-totnrandom<-sum(nrandom)
-s.pql<-rep(0,totnrandom)
-if(q!=length(s.pql)) stop("Can't happen. Number of random effects returned by PQL must match number of random effects specified by model.")
-eek<-getEk(vars$mod.mcml$z)
-sigma.pql<-rep(1,length(vars$mod.mcml$z))
-#if any of the variance components are too close to 0, make them bigger:
-if(any(sigma.pql<10^-3)){
-  theseguys<-which(sigma.pql<10^-3)
-  sigma.pql[theseguys]<-10^-3
-}
-Aks<-Map("*",eek,sigma.pql)
-A.star<-addVecs(Aks) #at this point still a vector
-vars$D.star<-A.star*A.star #still a vector
-vars$u.star<-A.star*s.pql 
-Dstarinvdiag<-1/vars$D.star
-Dstarnotsparse<-diag(vars$D.star)
-D.star.inv<-Diagonal(length(vars$u.star),Dstarinvdiag)
-vars$D.star<-Diagonal(length(vars$u.star),vars$D.star)
-
-eek<-getEk(vars$mod.mcml$z)
-Aks<-Map("*",eek,vars$nu.pql)
-vars$D.star<-addVecs(Aks) 
-vars$D.star<-diag(vars$D.star)
-D.star.inv<-solve(vars$D.star)
 
 simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
   #generate m1 from t(0,D*)
@@ -107,7 +81,7 @@ vars$nbeta <- 1
 vars$p1=vars$p2=vars$p3=1/3
 
 par<-c(6,1.5)
-del<-rep(10^-8,2)
+del<-rep(10^-9,2)
 
 objfun<-glmm:::objfun
 

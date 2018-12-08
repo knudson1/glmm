@@ -6,51 +6,26 @@ sal<-glmm(Mate~Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"), d
 
 vars <- new.env(parent = emptyenv())
 debug<-sal$debug
-
 vars$m1 <- debug$m1
 m2 <- debug$m2
 m3 <- debug$m3
-
 vars$zeta <- 5
-
 vars$cl <- sal$cluster
 registerDoParallel(vars$cl)                   #making cluster usable with foreach
 vars$no_cores <- length(vars$cl)
-
 vars$mod.mcml<-sal$mod.mcml
-
 vars$nu.pql <- debug$nu.pql
+vars$umat<-debug$umat
+vars$newm <- nrow(vars$umat)
+vars$u.star<-debug$u.star
+D.star.inv <- Dstarnotsparse <- vars$D.star <- as.matrix(debug$D.star)
 
 getEk<-glmm:::getEk
 addVecs<-glmm:::addVecs
 genRand<-glmm:::genRand
 
-nrand<-lapply(vars$mod.mcml$z,ncol)
-nrandom<-unlist(nrand)
-q<-sum(nrandom)
-totnrandom<-sum(nrandom)
-s.pql<-rep(0,totnrandom)
-if(q!=length(s.pql)) stop("Can't happen. Number of random effects returned by PQL must match number of random effects specified by model.")
-eek<-getEk(vars$mod.mcml$z)
-sigma.pql<-rep(1,length(vars$mod.mcml$z))
-#if any of the variance components are too close to 0, make them bigger:
-if(any(sigma.pql<10^-3)){
-  theseguys<-which(sigma.pql<10^-3)
-  sigma.pql[theseguys]<-10^-3
-}
-Aks<-Map("*",eek,sigma.pql)
-A.star<-addVecs(Aks) #at this point still a vector
-vars$D.star<-A.star*A.star #still a vector
-vars$u.star<-A.star*s.pql 
-Dstarinvdiag<-1/vars$D.star
-Dstarnotsparse<-diag(vars$D.star)
-D.star.inv<-Diagonal(length(vars$u.star),Dstarinvdiag)
-vars$D.star<-Diagonal(length(vars$u.star),vars$D.star)
-
 vars$family.glmm<-sal$family.glmm
-
 vars$ntrials<-1
-
 beta.pql <- debug$beta.pql
 
 simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
@@ -97,9 +72,7 @@ clusterExport(vars$cl, c("vars", "Dstarnotsparse", "m2", "m3", "beta.pql", "D.st
 noprint <- clusterEvalQ(vars$cl, umatparams <- simulate(vars=vars, Dstarnotsparse=Dstarnotsparse, m2=m2, m3=m3, beta.pql=beta.pql, D.star.inv=D.star.inv))
 
 vars$nbeta <- 4
-
 vars$p1=vars$p2=vars$p3=1/3
-
 beta<-rep(0,4)
 nu<-rep(2,2)
 par<-c(beta,nu)
