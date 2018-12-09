@@ -170,50 +170,27 @@ all.equal(that$value,stuff)
 #want to check that the value of objfun is the same for a value of nu and beta
 vars <- new.env(parent = emptyenv())
 debug<-mod.mcml1$debug
-
 vars$m1 <- debug$m1
 m2 <- debug$m2
 m3 <- debug$m3
-
 vars$zeta <- 5
-
 vars$cl <- mod.mcml1$cluster
 registerDoParallel(vars$cl)                   #making cluster usable with foreach
 vars$no_cores <- length(vars$cl)
-
 vars$mod.mcml<-mod.mcml1$mod.mcml
-
 vars$nu.pql <- debug$nu.pql
+vars$umat<-debug$umat
+vars$newm <- nrow(vars$umat)
+vars$u.star<-debug$u.star
+D <- vars$D.star <- Dstarnotsparse<-2*diag(10)
+D.inv <- D.star.inv <-.5*diag(10)
 
 getEk<-glmm:::getEk
 addVecs<-glmm:::addVecs
 genRand<-glmm:::genRand
 
-nrand<-lapply(vars$mod.mcml$z,ncol)
-nrandom<-unlist(nrand)
-q<-sum(nrandom)
-totnrandom<-sum(nrandom)
-s.pql<-rep(0,totnrandom)
-if(q!=length(s.pql)) stop("Can't happen. Number of random effects returned by PQL must match number of random effects specified by model.")
-eek<-getEk(vars$mod.mcml$z)
-sigma.pql<-rep(1,length(vars$mod.mcml$z))
-#if any of the variance components are too close to 0, make them bigger:
-if(any(sigma.pql<10^-3)){
-  theseguys<-which(sigma.pql<10^-3)
-  sigma.pql[theseguys]<-10^-3
-}
-Aks<-Map("*",eek,sigma.pql)
-A.star<-addVecs(Aks) #at this point still a vector
-vars$D.star<-A.star*A.star #still a vector
-vars$u.star<-A.star*s.pql 
-Dstarinvdiag<-1/vars$D.star
-Dstarnotsparse<-diag(vars$D.star)
-vars$D.star<-Diagonal(length(vars$u.star),vars$D.star)
-
 vars$family.glmm<-mod.mcml1$family.glmm
-
 vars$ntrials<-1
-
 beta.pql <- debug$beta.pql
 
 simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
@@ -257,10 +234,9 @@ simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
 clusterSetRNGStream(vars$cl, 1234)
 
 clusterExport(vars$cl, c("vars", "Dstarnotsparse", "m2", "m3", "beta.pql", "D.star.inv", "simulate", "genRand"), envir = environment())     #installing variables on each core
-clusterEvalQ(vars$cl, umatparams <- simulate(vars=vars, Dstarnotsparse=Dstarnotsparse, m2=m2, m3=m3, beta.pql=beta.pql, D.star.inv=D.star.inv))
+noprint <- clusterEvalQ(vars$cl, umatparams <- simulate(vars=vars, Dstarnotsparse=Dstarnotsparse, m2=m2, m3=m3, beta.pql=beta.pql, D.star.inv=D.star.inv))
 
 vars$nbeta <- 1
-
 vars$p1=vars$p2=vars$p3=1/3
 
 objfun<-glmm:::objfun
@@ -272,17 +248,12 @@ Sigmuh.invs <- clusterEvalQ(vars$cl, umatparams$Sigmuh.inv)
 Sigmuh.inv <- Sigmuh.invs[[1]]
 Sigmuh <- solve(Sigmuh.inv)
 
-ms <- clusterEvalQ(vars$cl, umatparams$m)
-m <- ms[[1]]
-
-dbb<-db<-b<-rep(0,m)
+dbb<-db<-b<-rep(0,vars$newm)
 sigsq<-nu<-2
 beta<-6
 Z<-vars$mod.mcml$z[[1]]
-D.star.inv<-.5*diag(10)
 A<-sqrt(2)*diag(10)
-D<-2*diag(10)
-D.inv<-.5*diag(10)
+
 
 eta.star<-x*beta.pql+as.vector(Z%*%u.star)
 cdouble<-as.vector(bernoulli.glmm()$cpp(eta.star)) #still a vector
@@ -308,7 +279,7 @@ tdist2<-function(tconst,u, Dstarinv,zeta,myq){
 
 #now go through row by row of umat 
 #ie go through each vector of gen rand eff
-for(k in 1:m){
+for(k in 1:vars$newm){
 	uvec<-umat[k,]
 	eta<-x*beta+as.vector(Z%*%uvec)
 
@@ -316,8 +287,8 @@ for(k in 1:m){
 	piece2<- distRandCheck(nu,uvec,rep(0,10))$value
 	
 	piece3[1]<-tdist2(tconst,uvec,D.star.inv,zeta,10)
-	piece3[2]<- distRandGeneral(uvec, u.star, D.star.inv)
-	piece3[3]<-distRandGeneral(uvec,u.star,Sigmuh.inv)
+	piece3[2]<- distRandGeneral(uvec, vars$u.star, D.star.inv)
+	piece3[3]<-distRandGeneral(uvec,vars$u.star,Sigmuh.inv)
 
 	damax<-max(piece3)
 	blah<-sum(exp(piece3-damax)/3)

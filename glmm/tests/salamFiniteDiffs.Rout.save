@@ -1,7 +1,7 @@
 
 R version 3.5.1 (2018-07-02) -- "Feather Spray"
 Copyright (C) 2018 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -30,51 +30,26 @@ Loading required package: iterators
 > 
 > vars <- new.env(parent = emptyenv())
 > debug<-sal$debug
-> 
 > vars$m1 <- debug$m1
 > m2 <- debug$m2
 > m3 <- debug$m3
-> 
 > vars$zeta <- 5
-> 
 > vars$cl <- sal$cluster
 > registerDoParallel(vars$cl)                   #making cluster usable with foreach
 > vars$no_cores <- length(vars$cl)
-> 
 > vars$mod.mcml<-sal$mod.mcml
-> 
 > vars$nu.pql <- debug$nu.pql
+> vars$umat<-debug$umat
+> vars$newm <- nrow(vars$umat)
+> vars$u.star<-debug$u.star
+> D.star.inv <- Dstarnotsparse <- vars$D.star <- as.matrix(debug$D.star)
 > 
 > getEk<-glmm:::getEk
 > addVecs<-glmm:::addVecs
 > genRand<-glmm:::genRand
 > 
-> nrand<-lapply(vars$mod.mcml$z,ncol)
-> nrandom<-unlist(nrand)
-> q<-sum(nrandom)
-> totnrandom<-sum(nrandom)
-> s.pql<-rep(0,totnrandom)
-> if(q!=length(s.pql)) stop("Can't happen. Number of random effects returned by PQL must match number of random effects specified by model.")
-> eek<-getEk(vars$mod.mcml$z)
-> sigma.pql<-rep(1,length(vars$mod.mcml$z))
-> #if any of the variance components are too close to 0, make them bigger:
-> if(any(sigma.pql<10^-3)){
-+   theseguys<-which(sigma.pql<10^-3)
-+   sigma.pql[theseguys]<-10^-3
-+ }
-> Aks<-Map("*",eek,sigma.pql)
-> A.star<-addVecs(Aks) #at this point still a vector
-> vars$D.star<-A.star*A.star #still a vector
-> vars$u.star<-A.star*s.pql 
-> Dstarinvdiag<-1/vars$D.star
-> Dstarnotsparse<-diag(vars$D.star)
-> D.star.inv<-Diagonal(length(vars$u.star),Dstarinvdiag)
-> vars$D.star<-Diagonal(length(vars$u.star),vars$D.star)
-> 
 > vars$family.glmm<-sal$family.glmm
-> 
 > vars$ntrials<-1
-> 
 > beta.pql <- debug$beta.pql
 > 
 > simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
@@ -121,9 +96,7 @@ Loading required package: iterators
 > noprint <- clusterEvalQ(vars$cl, umatparams <- simulate(vars=vars, Dstarnotsparse=Dstarnotsparse, m2=m2, m3=m3, beta.pql=beta.pql, D.star.inv=D.star.inv))
 > 
 > vars$nbeta <- 4
-> 
 > vars$p1=vars$p2=vars$p3=1/3
-> 
 > beta<-rep(0,4)
 > nu<-rep(2,2)
 > par<-c(beta,nu)
@@ -143,32 +116,24 @@ Loading required package: iterators
 > # only print TRUE or FALSE
 > 
 > #do finite diffs to check value --> gradient
-> c(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value)
-[1] -1.920534e-05 -1.920544e-05
-> as.vector(ltheta$gradient%*%del)-(lthetadel$value-ltheta$value)
-[1] 1.00519e-10
+> # c(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value)
+> # as.vector(ltheta$gradient%*%del)-(lthetadel$value-ltheta$value)
 > all.equal(as.vector(ltheta$gradient%*%del),lthetadel$value-ltheta$value,tolerance=10^-5)
 [1] TRUE
 > 
 > #do finite diffs to check gradient --> hessian 
 > all.equal(lthetadel$gradient-ltheta$gradient,as.vector(ltheta$hessian%*%del),tolerance=10^-6)
-[1] "Mean relative difference: 0.002523132"
-> cbind(lthetadel$gradient-ltheta$gradient,as.vector(ltheta$hessian%*%del))
-              [,1]          [,2]
-[1,] -1.035542e-04 -1.038155e-04
-[2,] -2.960417e-05 -2.967886e-05
-[3,] -2.847343e-05 -2.854527e-05
-[4,] -3.120918e-05 -3.128792e-05
-[5,] -4.373351e-06 -4.384383e-06
-[6,] -2.901851e-06 -2.909171e-06
+[1] TRUE
+> # cbind(lthetadel$gradient-ltheta$gradient,as.vector(ltheta$hessian%*%del))
 > #how big are the diffs? very small
-> lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
-[1] 2.612844e-07 7.469377e-08 7.184501e-08 7.874492e-08 1.103170e-08
-[6] 7.319752e-09
+> # lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
+> foo <- lthetadel$gradient-ltheta$gradient-as.vector(ltheta$hessian%*%del)
+> all.equal(foo, 0 * foo)
+[1] TRUE
+> 
 > 
 > stopCluster(clust)
 > 
 > proc.time()
    user  system elapsed 
-111.446  12.502 238.002 
-
+  2.980   0.342   7.408 

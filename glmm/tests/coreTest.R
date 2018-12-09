@@ -7,51 +7,26 @@ out<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
 
 vars <- new.env(parent = emptyenv())
 debug<-out$debug
-
 vars$m1 <- debug$m1
 m2 <- debug$m2
 m3 <- debug$m3
-
 vars$zeta <- 5
-
 vars$cl <- clust
 registerDoParallel(vars$cl)                   #making cluster usable with foreach
 vars$no_cores <- length(vars$cl)
-
+vars$umat<-debug$umat
+vars$newm <- nrow(vars$umat)
+vars$u.star<-debug$u.star
 vars$mod.mcml<-out$mod.mcml
-
 vars$nu.pql <- debug$nu.pql
+D.star.inv <- Dstarnotsparse <- vars$D.star <- as.matrix(debug$D.star)
 
 getEk<-glmm:::getEk
 addVecs<-glmm:::addVecs
 genRand<-glmm:::genRand
 
-nrand<-lapply(vars$mod.mcml$z,ncol)
-nrandom<-unlist(nrand)
-q<-sum(nrandom)
-totnrandom<-sum(nrandom)
-s.pql<-rep(0,totnrandom)
-if(q!=length(s.pql)) stop("Can't happen. Number of random effects returned by PQL must match number of random effects specified by model.")
-eek<-getEk(vars$mod.mcml$z)
-sigma.pql<-rep(1,length(vars$mod.mcml$z))
-#if any of the variance components are too close to 0, make them bigger:
-if(any(sigma.pql<10^-3)){
-  theseguys<-which(sigma.pql<10^-3)
-  sigma.pql[theseguys]<-10^-3
-}
-Aks<-Map("*",eek,sigma.pql)
-A.star<-addVecs(Aks) #at this point still a vector
-vars$D.star<-A.star*A.star #still a vector
-vars$u.star<-A.star*s.pql 
-Dstarinvdiag<-1/vars$D.star
-Dstarnotsparse<-diag(vars$D.star)
-D.star.inv<-Diagonal(length(vars$u.star),Dstarinvdiag)
-vars$D.star<-Diagonal(length(vars$u.star),vars$D.star)
-
 vars$family.glmm<-out$family.glmm
-
 vars$ntrials<-1
-
 beta.pql <- debug$beta.pql
 
 simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
@@ -95,12 +70,10 @@ simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
 clusterSetRNGStream(vars$cl, 1234)
 
 clusterExport(vars$cl, c("vars", "Dstarnotsparse", "m2", "m3", "beta.pql", "D.star.inv", "simulate", "genRand"), envir = environment())     #installing variables on each core
-clusterEvalQ(vars$cl, umatparams <- simulate(vars=vars, Dstarnotsparse=Dstarnotsparse, m2=m2, m3=m3, beta.pql=beta.pql, D.star.inv=D.star.inv))
+noprint <- clusterEvalQ(vars$cl, umatparams <- simulate(vars=vars, Dstarnotsparse=Dstarnotsparse, m2=m2, m3=m3, beta.pql=beta.pql, D.star.inv=D.star.inv))
 
 vars$nbeta <- 1
-
 vars$p1=vars$p2=vars$p3=1/3
-
 par<-c(6,1.5)
 del<-rep(10^-8,2)
 
@@ -111,21 +84,17 @@ core2<-objfun(par=par, vars=vars)
 umats <- clusterEvalQ(vars$cl, umatparams$umat)
 umat <- Reduce(rbind, umats)
 
-ms <- clusterEvalQ(vars$cl, umatparams$m)
-m <- ms[[1]]
-
 Sigmuh.invs <- clusterEvalQ(vars$cl, umatparams$Sigmuh.inv)
 Sigmuh.inv <- Sigmuh.invs[[1]]
 
 stopCluster(clust)
 
 vars$cl <- makeCluster(1)
-
 registerDoParallel(vars$cl)                   #making cluster usable with foreach
 vars$no_cores <- length(vars$cl)
 
-clusterExport(vars$cl, c("umat", "m", "Sigmuh.inv"), envir = environment())
-clusterEvalQ(vars$cl, umatparams <- list(umat=umat, m=m, Sigmuh.inv=Sigmuh.inv))
+clusterExport(vars$cl, c("umat", "vars", "Sigmuh.inv"), envir = environment())
+noprint <- clusterEvalQ(vars$cl, umatparams <- list(umat=umat, m=vars$newm, Sigmuh.inv=Sigmuh.inv))
 
 core1<-objfun(par=par, vars=vars)
 
