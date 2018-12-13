@@ -1,0 +1,83 @@
+\documentclass{article}
+
+ \usepackage{url} 
+\usepackage{amsthm,amsmath,amssymb,indentfirst,float}
+\usepackage{verbatim}
+\usepackage[sort,longnamesfirst]{natbib}
+\newcommand{\pcite}[1]{\citeauthor{#1}'s \citeyearpar{#1}}
+\newcommand{\ncite}[1]{\citeauthor{#1}, \citeyear{#1}}
+\DeclareMathOperator{\logit}{logit}
+    \DeclareMathOperator{\var}{Var}
+   %  \DeclareMathOperator{\det}{det}
+     \DeclareMathOperator{\diag}{diag}
+
+\usepackage{geometry}
+%\geometry{hmargin=1.025in,vmargin={1.25in,2.5in},nohead,footskip=0.5in} 
+%\geometry{hmargin=1.025in,vmargin={1.25in,0.75in},nohead,footskip=0.5in} 
+%\geometry{hmargin=2.5cm,vmargin={2.5cm,2.5cm},nohead,footskip=0.5in}
+
+\renewcommand{\baselinestretch}{1.25}
+
+\usepackage{amsbsy,amsmath,amsthm,amssymb,graphicx}
+
+\setlength{\baselineskip}{0.3in} \setlength{\parskip}{.05in}
+
+
+\newcommand{\cvgindist}{\overset{\text{d}}{\longrightarrow}}
+\DeclareMathOperator{\PR}{Pr} 
+\DeclareMathOperator{\cov}{Cov}
+
+
+\newcommand{\sX}{{\mathsf X}}
+\newcommand{\tQ}{\tilde Q}
+\newcommand{\cU}{{\cal U}}
+\newcommand{\cX}{{\cal X}}
+\newcommand{\tbeta}{\tilde{\beta}}
+\newcommand{\tlambda}{\tilde{\lambda}}
+\newcommand{\txi}{\tilde{\xi}}
+
+
+
+
+\title{Design Document for Observation Weights: R Package glmm}
+
+\author{Sydney Benson}
+
+\begin{document}
+\maketitle{}
+
+\begin{abstract}
+This design document will give an overview of the changes made to the R package \texttt{glmm} with respect to observation weighting for the response vector, matrix of fixed effects and matrix of random effects. We use observation weighting to better reflect the real-world occurrence of more or less informative observations.
+\end{abstract}
+
+\section{Introduction}
+This project is meant to enable the user of the \texttt{glmm} function in the \texttt{glmm} R package to include an optional observation weighting scheme. A common assumption of linear models is that each observation in a data set is equally informative and trustworthy; however, in real-world data sets, this is rarely the case. Thus, the optional observation weighting scheme will allow the user to place a heavier weight on the more informative and/or trustworthy observations in their data set so that those data points that are less informative affect the model to a lesser degree.
+
+\section{The Process}
+The weighting scheme for the observations can be implemented in the \texttt{glmm.R} function alone. First, the function will need to establish whether the user has supplied a proper weighting scheme. Next, the weighting scheme will need to be applied to the response vector, fixed effects matrix and random effects matrix. Finally, the model can be run using the weighted vector and matrices. After defining the weighting vector, the remainder of this section will illustrate how this weighting scheme will be applied to the response vector, fixed effects matrix and random effects matrix. 
+
+\subsection{The Weighting Vector}
+This vector, called $W$, must be a vector with the same length as the response vector and must contain all positive values. 
+
+\subsection{Weighted Response Vector}
+Let $W$ be the vector of weights supplied by the user.  Let $Y$ be the response vector. Then, 
+
+\begin{align}
+Y_W = \sqrt{W} \cdot Y
+\end{align}
+
+\subsection{Weighted Fixed Effects Matrix}
+Let $W$ be the vector of weights supplied by the user. Let $X$ be the matrix of fixed effects. Then, 
+
+\begin{align}
+X_W = \sqrt{W} \cdot X
+\end{align}
+
+\subsection{Weighted Random Effects Matrix}
+Let $W$ be the vector of weights supplied by the user. Let $Z$ be the matrix of random effects. Then,
+
+\begin{align}
+Z_W = \sqrt{W} \cdot Z
+\end{align}
+
+\end{document}
