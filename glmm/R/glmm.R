@@ -1,7 +1,7 @@
 utils::globalVariables("umatparams")
 
 glmm <-
-  function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000,par.init=NULL,zeta=5, cluster=NULL)
+  function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, weights = NULL, doPQL=TRUE, debug=FALSE,p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000,par.init=NULL,zeta=5, cluster=NULL)
   {
     if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
     if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
@@ -163,8 +163,47 @@ glmm <-
     }
     names(z)<-varcomps.names
     
-    vars$mod.mcml<-list(x = x, z=z, y = y, ntrials = vars$ntrials)
+    #vars$mod.mcml<-list(x = x, z=z, y = y, ntrials = vars$ntrials)
     
+    if(is.null(weights)){
+      weights <- rep(1, length(y))
+    } else{
+      weights <- weights
+    }
+    
+    #checking weights
+    if(typeof(weights) != "double")stop("weights must be a vector")
+    weights <- as.vector(weights)
+    if(length(weights) != length(y))stop("weights length must match the length of the response vector")
+    if(any(!is.numeric(weights)))stop("weights must be a numeric vector")
+    if(any(weights < 0))stop("Negative weights not allowed")
+    if(any(is.na(weights)))stop("Missing weights not allowed")
+    
+    savedx <- x
+    savedy <- y
+    savedw <- weights
+    
+    if(any(weights == 0)){
+      drop <- which(weights == 0)
+      weights <- weights[-drop]
+      x <- x[-drop, ,drop=FALSE]
+      y <- y[-drop]
+    }
+    
+    w <- sqrt(weights)
+    
+    x <- x*w
+    y <- y*w
+    
+    for(i in 1:length(levs)){
+      if(levs[i]!=i) stop("The numbers in the vector varcomps.equal must be consecutive. You must start at 1 and then each entry must be the next consecutive number or a repeat of a previous number.")
+      these<-varcomps.equal==i
+      thesemats<-random[these]
+      z[[i]]<-do.call(cbind,thesemats)*w[i]
+    }
+    names(z)<-varcomps.names
+    
+    vars$mod.mcml <- list(x=x, y=y, z=z, ntrials=vars$ntrials)
     
     #so now the 3 items are x (matrix), z (list), y (vector)
     #end figuring out how to interpret the formula
@@ -320,13 +359,16 @@ glmm <-
     names(nu.trust)<-varcomps.names
     
     if(debug==TRUE){
-      debug<-list(beta.pql=beta.pql, nu.pql=vars$nu.pql, D.star=vars$D.star, trust.argpath=trust.out$argpath, u.star=vars$u.star, umat=umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=vars$m1,m2=m2,m3=m3,trust.argtry=trust.out$argtry, trust.steptype=trust.out$steptype, trust.accept=trust.out$accept, trust.r=trust.out$r, trust.rho=trust.out$rho, trust.valpath=trust.out$valpath, trust.valtry=trust.out$valtry, trust.preddif=trust.out$preddif, trust.stepnorm=trust.out$stepnorm)
+      debug<-list(weightedx = x, weightedy = y, weightedz = z, beta.pql=beta.pql, nu.pql=vars$nu.pql, D.star=vars$D.star, trust.argpath=trust.out$argpath, u.star=vars$u.star, umat=umat,hessianweights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=vars$m1,m2=m2,m3=m3,trust.argtry=trust.out$argtry, trust.steptype=trust.out$steptype, trust.accept=trust.out$accept, trust.r=trust.out$r, trust.rho=trust.out$rho, trust.valpath=trust.out$valpath, trust.valtry=trust.out$valtry, trust.preddif=trust.out$preddif, trust.stepnorm=trust.out$stepnorm)
     }
     
+    if(is.null(cluster)){
+      stopCluster(vars$cl)
+    }
     
     return(structure(list(beta=beta.trust,nu=nu.trust, likelihood.value=trust.out$value, likelihood.gradient=trust.out$gradient, likelihood.hessian=trust.out$hessian,
                           trust.converged=trust.out$converged,  mod.mcml=vars$mod.mcml,
-                          fixedcall=fixed,randcall=randcall, x=x,y=y, z=random,
+                          fixedcall=fixed,randcall=randcall, x=savedx,y=savedy, z=random, weights=savedw,
                           family.glmm=vars$family.glmm, call=call, varcomps.names=varcomps.names, 
                           varcomps.equal=varcomps.equal, umat=umat, pvec=c(vars$p1, vars$p2, vars$p3), beta.pql=beta.pql, nu.pql=vars$nu.pql, u.pql=vars$u.star, zeta=vars$zeta, cluster=vars$cl, cores=vars$no_cores, debug=debug), class="glmm"))
   }
