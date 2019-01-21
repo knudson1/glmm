@@ -163,8 +163,6 @@ glmm <-
     }
     names(z)<-varcomps.names
     
-    #vars$mod.mcml<-list(x = x, z=z, y = y, ntrials = vars$ntrials)
-    
     if(is.null(weights)){
       weights <- rep(1, length(y))
     } else{
@@ -185,9 +183,13 @@ glmm <-
     
     if(any(weights == 0)){
       drop <- which(weights == 0)
+      if(length(drop) == length(weights))stop("No informative observations. At least one weight must be non-zero")
       weights <- weights[-drop]
-      x <- x[-drop, ,drop=FALSE]
-      y <- y[-drop]
+      x <- x[-drop, , drop=FALSE]
+      y <- if(NCOL(savedy) == 1) y[-drop] else y[-drop, ]
+      for(l in 1:length(z)){
+        z[[l]] <- z[[l]][-drop,] 
+      }
     }
     
     w <- sqrt(weights)
@@ -195,13 +197,13 @@ glmm <-
     x <- x*w
     y <- y*w
     
-    for(i in 1:length(levs)){
-      if(levs[i]!=i) stop("The numbers in the vector varcomps.equal must be consecutive. You must start at 1 and then each entry must be the next consecutive number or a repeat of a previous number.")
-      these<-varcomps.equal==i
-      thesemats<-random[these]
-      z[[i]]<-do.call(cbind,thesemats)*w[i]
+    for(l in 1:length(z)){
+      for(i in 1:nrow(z[[l]])){
+        for(j in 1:ncol(z[[l]])){
+          z[[l]][i,j] <- z[[l]][i,j]*w[i]
+        }
+      }
     }
-    names(z)<-varcomps.names
     
     vars$mod.mcml <- list(x=x, y=y, z=z, ntrials=vars$ntrials)
     
@@ -370,5 +372,5 @@ glmm <-
                           trust.converged=trust.out$converged,  mod.mcml=vars$mod.mcml,
                           fixedcall=fixed,randcall=randcall, x=savedx,y=savedy, z=random, weights=savedw,
                           family.glmm=vars$family.glmm, call=call, varcomps.names=varcomps.names, 
-                          varcomps.equal=varcomps.equal, umat=umat, pvec=c(vars$p1, vars$p2, vars$p3), beta.pql=beta.pql, nu.pql=vars$nu.pql, u.pql=vars$u.star, zeta=vars$zeta, cluster=vars$cl, cores=vars$no_cores, debug=debug), class="glmm"))
+                          varcomps.equal=varcomps.equal, umat=umat, pvec=c(vars$p1, vars$p2, vars$p3), beta.pql=beta.pql, nu.pql=vars$nu.pql, u.pql=vars$u.star, zeta=vars$zeta, cluster=vars$cl, cores=vars$no_cores, debug=debug, zz=z), class="glmm"))
   }

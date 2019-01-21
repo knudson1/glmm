@@ -3,7 +3,7 @@
 \title{Fitting Generalized Linear Mixed Models using MCML}
 \description{This function fits generalized linear mixed models (GLMMs) by approximating the likelihood with ordinary Monte Carlo, then maximizing the approximated likelihood. }
 \usage{glmm(fixed, random, varcomps.names, data, family.glmm, m, 
-varcomps.equal, doPQL = TRUE,debug=FALSE, p1=1/3,p2=1/3, p3=1/3,
+varcomps.equal, weights=NULL, doPQL = TRUE,debug=FALSE, p1=1/3,p2=1/3, p3=1/3,
 rmax=1000,iterlim=1000, par.init, zeta=5, cluster=NULL)}
 
 
@@ -15,6 +15,7 @@ rmax=1000,iterlim=1000, par.init, zeta=5, cluster=NULL)}
   \item{family.glmm}{The name of the family. Must be class \code{glmm.family}. Current options are \code{\link{bernoulli.glmm}}, \code{\link{poisson.glmm}}, and \code{\link{binomial.glmm}}.}
   \item{m}{The desired Monte Carlo sample size. See a note in under "Details."}
   \item{varcomps.equal}{An optional vector with elements 1 through the number of distinct variance components. Denotes variance components are to be set equal by assigning them the same integer. The length of varcomps.equal must be equal to the length of the list of random effects formulas. If omitted, varcomps.equal assumes no variance component should be set equal.}
+  \item{weights}{An optional vector with length equal to the number of rows of each element of the \code{random} list. This argument makes the specified observations more or less informative for the model.}
   \item{doPQL}{logical. If \code{TRUE}, PQL estimates are used in the importance sampling distribution. If FALSE, the importance sampling distribution will use 0 for the fixed effects and 1 for the variance components. For advanced users, since \code{glmm} is generally more efficient when \code{doPQL=TRUE}.}
   \item{debug}{logical. If \code{TRUE}, extra output useful for testing will be provided. For advanced users.}
 \item{p1}{A probability for mixing the random effects generated from three distributions. \code{p1} is the proportion of random effects from the first distribution specified in "Details." For advanced users.}
