@@ -372,5 +372,5 @@ glmm <-
                           trust.converged=trust.out$converged,  mod.mcml=vars$mod.mcml,
                           fixedcall=fixed,randcall=randcall, x=savedx,y=savedy, z=random, weights=savedw,
                           family.glmm=vars$family.glmm, call=call, varcomps.names=varcomps.names, 
-                          varcomps.equal=varcomps.equal, umat=umat, pvec=c(vars$p1, vars$p2, vars$p3), beta.pql=beta.pql, nu.pql=vars$nu.pql, u.pql=vars$u.star, zeta=vars$zeta, cluster=vars$cl, cores=vars$no_cores, debug=debug, zz=z), class="glmm"))
+                          varcomps.equal=varcomps.equal, umat=umat, pvec=c(vars$p1, vars$p2, vars$p3), beta.pql=beta.pql, nu.pql=vars$nu.pql, u.pql=vars$u.star, zeta=vars$zeta, cluster=vars$cl, cores=vars$no_cores, debug=debug), class="glmm"))
   }
