@@ -65,13 +65,13 @@ To see the summary of the model, use summary().
  \item{loglike.value}{The Monte Carlo log likelihood evaluated at the MCMLEs \code{beta} and \code{nu}.}
  \item{loglike.gradient}{The Monte Carlo log likelihood gradient vector at the MCMLEs \code{beta} and \code{nu}.}
  \item{loglike.hessian}{The Monte Carlo log likelihood Hessian matrix at the MCMLEs \code{beta} and \code{nu}.}
-\item{mod.mcml}{A list containing the fixed effect design matrix, the list of random effect design matrices, the response. and the number of trials (for the Binomial family).}
+\item{mod.mcml}{A list containing the weighted (if applicable) fixed effect design matrix, the list of weighted (if applicable) random effect design matrices, the weighted (if applicable) response, and the number of trials (for the Binomial family).}
 \item{call}{The call.}
 \item{fixedcall}{The fixed effects call.}
 \item{randcall}{The random effects call.}
-\item{x}{The design matrix for the fixed effects.}
-\item{y}{The response vector.}
-\item{z}{The design matrix for the random effects.}
+\item{x}{The unweighted design matrix for the fixed effects.}
+\item{y}{The unweighted response vector.}
+\item{z}{The unweighted design matrix for the random effects.}
 \item{weights}{The weights vector.}
 \item{family.glmm}{The name of the family. Must be class \code{glmm.family}.}
 \item{varcomps.names}{The vector of names for the distinct variance components.}

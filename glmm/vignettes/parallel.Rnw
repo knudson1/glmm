@@ -58,7 +58,7 @@ stopCluster(clust)
 @
 
 \subsection{Arguments for Weighting Observations}
-The following code fits a model called \texttt{salweight} using the same specifications as the first \texttt{sal} model with the exception of weighted observations. In this model, we take the first five observations in the data set to be unreliable. Using the optional \texttt{weights} argument, the weight of these observations in the model building procedure can be reduced or we can specify that the observations not be used in the model-fitting process. Since there are 360 mating attempts in the salamander data set, i.e. the response vector has a length of 360, the \texttt{weights} vector must have a length of 360. First, the weight of each of the five observations is decreased.
+The following code fits a model called \texttt{salweight} using the same specifications as the first \texttt{sal} model with the exception of weighted observations. In this model, we take the first five observations in the data set to be less reliable. Using the optional \texttt{weights} argument, the weight of these observations in the model building procedure can be reduced or we can specify that the observations not be used in the model-fitting process. Since there are 360 mating attempts in the salamander data set, i.e. the response vector has a length of 360, the \texttt{weights} vector must have a length of 360. First, the weight of each of the five observations is decreased.
 
 <<weightreduce,eval=FALSE>>=
 set.seed(1234) 

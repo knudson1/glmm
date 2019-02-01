@@ -17,8 +17,12 @@ all.equal(zeroweight$likelihood.hessian,removed$likelihood.hessian)
 
 set.seed(1234)
 doubleweight<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
-                 family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE,weights=c(rep(1,149),rep(2,1)))
+                 family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE,weights=c(rep(1,149),2))
 
+#nums <- c(rep(1,150),2)
+#for(i in 1:nrow(BoothHobert)){
+  #BoothHobert3[i] <- BoothHobert[i,]*nums[i]
+#}
 BoothHobert3 <- rbind(BoothHobert, BoothHobert[150,])
 set.seed(1234)
 added<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert3,
