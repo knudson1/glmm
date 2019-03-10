@@ -39,7 +39,7 @@
 
 
 
-\title{Design Document for Observation Weights: R Package glmm}
+\title{Design Document for Relevance-Weighting: R Package glmm}
 
 \author{Sydney Benson}
 
@@ -47,37 +47,40 @@
 \maketitle{}
 
 \begin{abstract}
-This design document will give an overview of the changes made to the R package \texttt{glmm} with respect to observation weighting for the response vector, matrix of fixed effects and matrix of random effects. We use observation weighting to better reflect the real-world occurrence of more or less informative observations.
+This design document will give an overview of the changes made to the R package \texttt{glmm} with respect to the relevance-weighted likelihood method mentioned in Wang (2001). We use relevance-weighting to better reflect the real-world occurrence of more or less informative observations.
 \end{abstract}
 
 \section{Introduction}
-This project is meant to enable the user of the \texttt{glmm} function in the \texttt{glmm} R package to include an optional observation weighting scheme. A common assumption of linear models is that each observation in a data set is equally informative and trustworthy; however, in real-world data sets, this is rarely the case. Thus, the optional observation weighting scheme will allow the user to place a heavier weight on the more informative and/or trustworthy observations in their data set so that those data points that are less informative affect the model to a lesser degree.
+This project is meant to enable the user of the \texttt{glmm} function in the \texttt{glmm} R package to include an optional relevance-weighting scheme. A common assumption of linear models is that each observation in a data set is equally informative and trustworthy; however, in real-world data sets, this is rarely the case. Thus, the optional relevance-weighting scheme will allow the user to place a heavier weight on the more informative and/or trustworthy observations in their data set so that those data points that are less informative affect the model to a lesser degree.
 
 \section{The Process}
-The weighting scheme for the observations can be implemented in the \texttt{glmm.R} function alone. First, the function will need to establish whether the user has supplied a proper weighting scheme. Next, the weighting scheme will need to be applied to the response vector, fixed effects matrix and random effects matrix. Finally, the model can be run using the weighted vector and matrices. After defining the weighting vector, the remainder of this section will illustrate how this weighting scheme will be applied to the response vector, fixed effects matrix and random effects matrix. 
+The weighting scheme for the observations can be implemented in the \texttt{objfun.R} function. First, the function will need to establish whether the user has supplied a proper weighting scheme. Next, the weighting scheme will need to be applied to the respective elements of the log-likelihood. After defining the weighting vector, the remainder of this section will illustrate how this weighting scheme will be applied to the log-likelihood values. 
 
 \subsection{The Weighting Vector}
-This vector, called $W$, must be a vector with the same length as the response vector and must contain all positive values. 
+This vector, called $\Lambda$, must be a vector with the same length as the response vector and must contain all positive values. 
 
-\subsection{Weighted Response Vector}
-Let $W$ be the vector of weights supplied by the user.  Let $Y$ be the response vector. Then, 
-
-\begin{align}
-Y_W = \sqrt{W} \cdot Y
-\end{align}
-
-\subsection{Weighted Fixed Effects Matrix}
-Let $W$ be the vector of weights supplied by the user. Let $X$ be the matrix of fixed effects. Then, 
+\subsection{Weighted Log-Likelihood}
+From Hu and Zidek's (1997) method, mentioned in Wang (2001), we know the relevance-weighted likelihood (REWL) is
 
 \begin{align}
-X_W = \sqrt{W} \cdot X
+\text{REWL}(\theta) = \prod_{i=1}^{n} {f(x_i;\theta)}^{\lambda_i}
 \end{align}
 
-\subsection{Weighted Random Effects Matrix}
-Let $W$ be the vector of weights supplied by the user. Let $Z$ be the matrix of random effects. Then,
+\noindent where $f(x_i;\theta)$ is the probability distribution for $x_i$ and $\lambda_i$ is the weight for $x_i$. Then, the relevance-weighted log-likelihood (RWLL) is 
 
 \begin{align}
-Z_W = \sqrt{W} \cdot Z
+\text{RWLL}(\theta) &= \log\left(\prod_{i=1}^{n} {f(x_i;\theta)}^{\lambda_i}\right) \\
+&= \sum_{i=1}^{n} \log\left({f(x_i;\theta)}^{\lambda_i}\right) \\
+&= \sum_{i=1}^{n} \lambda_i \log\left(f(x_i;\theta)\right)
 \end{align}
+
+Then, knowing that $l_m(\theta | y) = \log\left(\dfrac{1}{m}\sum_{i=1}^{r}j_ie^{v_i}\right)$ where $m$ is the number of rows of the $u$ matrix, $j_i$ is the number of rows of the chunk of the $u$ matrix being processed by the $i$th core and $v_i$ is the value obtained by each core, as described in the design document for parallel computing, we have 
+
+\begin{align}
+\text{RWLL}(\theta) &= \sum_{i=1}^{n} \lambda_i \log\left(\dfrac{1}{m}\sum_{i=1}^{r}j_ie^{v_i}\right) \\
+&= a + \sum_{i=1}^{n} \lambda_i \log\left(\dfrac{1}{m}\sum_{i=1}^{r}j_ie^{v_i - a}\right)
+\end{align}
+
+\noindent where $a = \max(v_i)$.
 
 \end{document}

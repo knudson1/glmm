@@ -19,6 +19,8 @@ set.seed(1234)
 doubleweight<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
                  family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE,weights=c(rep(1,149),2))
 
+#umatadded <- doubleweight$umat
+
 #nums <- c(rep(1,150),2)
 #for(i in 1:nrow(BoothHobert)){
   #BoothHobert3[i] <- BoothHobert[i,]*nums[i]

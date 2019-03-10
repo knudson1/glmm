@@ -32,11 +32,11 @@ static R_NativePrimitiveArgType elc_types[10] = {REALSXP, REALSXP,
     INTSXP, INTSXP, REALSXP, INTSXP, INTSXP, REALSXP, REALSXP,
     REALSXP};
 
-static R_NativePrimitiveArgType mcsec_types[30] = {REALSXP, REALSXP,
+static R_NativePrimitiveArgType mcsec_types[33] = {REALSXP, REALSXP,
     REALSXP, REALSXP, REALSXP, REALSXP, INTSXP, INTSXP, REALSXP, INTSXP,
     INTSXP, REALSXP, REALSXP, REALSXP, REALSXP, INTSXP, REALSXP,
     REALSXP, REALSXP, REALSXP, REALSXP, REALSXP, INTSXP, INTSXP, INTSXP,
-    INTSXP, REALSXP, INTSXP, REALSXP, INTSXP};
+    INTSXP, REALSXP, INTSXP, REALSXP, INTSXP, REALSXP, REALSXP, REALSXP};
 
 static R_NativePrimitiveArgType valgrad_types[30] = {REALSXP, REALSXP,
     INTSXP, INTSXP, REALSXP, INTSXP, INTSXP, REALSXP, REALSXP, REALSXP,
@@ -87,7 +87,7 @@ static R_NativePrimitiveArgType tdist_types[6] = {REALSXP,  INTSXP,
 
 static R_CMethodDef cMethods[] = {
     {"elc", (DL_FUNC) &elc, 10, elc_types},
-    {"mcsec", (DL_FUNC) &mcsec, 30, mcsec_types},
+    {"mcsec", (DL_FUNC) &mcsec, 33, mcsec_types},
     {"valgrad", (DL_FUNC) &valgrad, 30, valgrad_types},
     {"hess", (DL_FUNC) &hess, 32, hess_types},
     {"cp3", (DL_FUNC) &cp3, 5, cp3_types},
