@@ -47,40 +47,52 @@
 \maketitle{}
 
 \begin{abstract}
-This design document will give an overview of the changes made to the R package \texttt{glmm} with respect to the relevance-weighted likelihood method mentioned in Wang (2001). We use relevance-weighting to better reflect the real-world occurrence of more or less informative observations.
+This design document will give an overview of the changes made to the R package \texttt{glmm} with respect to a relevance-weighted likelihood method. We use relevance-weighting to better reflect the real-world occurrence of more or less informative observations.
 \end{abstract}
 
 \section{Introduction}
 This project is meant to enable the user of the \texttt{glmm} function in the \texttt{glmm} R package to include an optional relevance-weighting scheme. A common assumption of linear models is that each observation in a data set is equally informative and trustworthy; however, in real-world data sets, this is rarely the case. Thus, the optional relevance-weighting scheme will allow the user to place a heavier weight on the more informative and/or trustworthy observations in their data set so that those data points that are less informative affect the model to a lesser degree.
 
 \section{The Process}
-The weighting scheme for the observations can be implemented in the \texttt{objfun.R} function. First, the function will need to establish whether the user has supplied a proper weighting scheme. Next, the weighting scheme will need to be applied to the respective elements of the log-likelihood. After defining the weighting vector, the remainder of this section will illustrate how this weighting scheme will be applied to the log-likelihood values. 
+First, the function will need to establish whether the user has supplied a proper weighting scheme. Next, the weighting scheme will need to be applied in the \texttt{el.C} function. After defining the weighting vector, the remainder of this section will illustrate how this weighting scheme will be applied. 
 
 \subsection{The Weighting Vector}
-This vector, called $\Lambda$, must be a vector with the same length as the response vector and must contain all positive values. 
+This vector, called $\Lambda$, must be a vector with the same length as the response vector and must contain all positive values or zeros. 
 
 \subsection{Weighted Log-Likelihood}
-From Hu and Zidek's (1997) method, mentioned in Wang (2001), we know the relevance-weighted likelihood (REWL) is
+We begin by defining the canonical link function as 
 
 \begin{align}
-\text{REWL}(\theta) = \prod_{i=1}^{n} {f(x_i;\theta)}^{\lambda_i}
+g(\mu) = \eta = X\beta + Zu
 \end{align}
 
-\noindent where $f(x_i;\theta)$ is the probability distribution for $x_i$ and $\lambda_i$ is the weight for $x_i$. Then, the relevance-weighted log-likelihood (RWLL) is 
+\noindent Additionally, the likelihood is defined as 
 
 \begin{align}
-\text{RWLL}(\theta) &= \log\left(\prod_{i=1}^{n} {f(x_i;\theta)}^{\lambda_i}\right) \\
-&= \sum_{i=1}^{n} \log\left({f(x_i;\theta)}^{\lambda_i}\right) \\
-&= \sum_{i=1}^{n} \lambda_i \log\left(f(x_i;\theta)\right)
+l_m(\theta|y) = \log \left( \dfrac{1}{m} \sum_{k=1}^m \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}
+\right)
 \end{align}
 
-Then, knowing that $l_m(\theta | y) = \log\left(\dfrac{1}{m}\sum_{i=1}^{r}j_ie^{v_i}\right)$ where $m$ is the number of rows of the $u$ matrix, $j_i$ is the number of rows of the chunk of the $u$ matrix being processed by the $i$th core and $v_i$ is the value obtained by each core, as described in the design document for parallel computing, we have 
+\noindent and $f_\theta(u_k, y) = f_\theta(y|u_k) \tilde{f_\theta} (u_k)$. We then define $f_\theta(y|u_k)$ as $f_\theta(y|u_k) = \exp \left( \sum_i y_i\eta_i - c(\eta_i) \right)$. Thus, 
 
 \begin{align}
-\text{RWLL}(\theta) &= \sum_{i=1}^{n} \lambda_i \log\left(\dfrac{1}{m}\sum_{i=1}^{r}j_ie^{v_i}\right) \\
-&= a + \sum_{i=1}^{n} \lambda_i \log\left(\dfrac{1}{m}\sum_{i=1}^{r}j_ie^{v_i - a}\right)
+f_\theta (u_k, y) = \exp \left( \sum_i y_i \eta_i - c(\eta_i) \right) \tilde{f_\theta} (u_k)
 \end{align}
 
-\noindent where $a = \max(v_i)$.
+and
+
+\begin{align}
+\Lambda f_\theta (u_k, y) &= \Lambda \exp \left( \sum_i y_i \eta_i - c(\eta_i) \right) \tilde{f_\theta} (u_k) \\
+&= \lambda_i \exp \left( \sum_i y_i \eta_i - c(\eta_i) \right) \tilde{f_\theta} (u_k) 
+\end{align}
+
+\subsection{Integrating the Weighted Log-Likelihood}
+As shown above, the weighting scheme must be accounted for in $f_\theta (u_k, y)$. Thus, the weighting scheme must be applied within the \texttt{el.C} function eventually. However, before we get there, we must follow these steps:
+
+\begin{itemize}
+	\item[1.] Write the test for the weighting scheme using the Booth Hobert data set.
+	\item[2.] Code a general version of the weighting scheme.
+	\item[3.] Re-code the general version of the implementation of the weighting scheme in C.
+\end{itemize}
 
 \end{document}
