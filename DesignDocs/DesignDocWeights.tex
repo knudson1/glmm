@@ -57,42 +57,62 @@ This project is meant to enable the user of the \texttt{glmm} function in the \t
 First, the function will need to establish whether the user has supplied a proper weighting scheme. Next, the weighting scheme will need to be applied in the \texttt{el.C} function. After defining the weighting vector, the remainder of this section will illustrate how this weighting scheme will be applied. 
 
 \subsection{The Weighting Vector}
-This vector, called $\Lambda$, must be a vector with the same length as the response vector and must contain all positive values or zeros. 
+The weights must be in the form of a vector and the vector must be the same length as the response vector, $y$. All weights must be numeric and non-negative. There can be no missing weights. 
 
-\subsection{Weighted Log-Likelihood}
-We begin by defining the canonical link function as 
-
-\begin{align}
-g(\mu) = \eta = X\beta + Zu
-\end{align}
-
-\noindent Additionally, the likelihood is defined as 
+\subsection{The Relevance-Weighted Log Density}
+Following Hu and Zidek (1997), the relevance-weighted likelihood is defined as
 
 \begin{align}
-l_m(\theta|y) = \log \left( \dfrac{1}{m} \sum_{k=1}^m \dfrac{f_\theta(u_k,y)}{\tilde{f}(u_k)}
-\right)
+\text{REWL}(\theta) = \prod_{i=1}^n f(y_i | \theta)^{\lambda_i}
 \end{align}
 
-\noindent and $f_\theta(u_k, y) = f_\theta(y|u_k) \tilde{f_\theta} (u_k)$. We then define $f_\theta(y|u_k)$ as $f_\theta(y|u_k) = \exp \left( \sum_i y_i\eta_i - c(\eta_i) \right)$. Thus, 
+\noindent where $n$ is the length of the response vector, $y$. Since we define $\log f_\theta(y|u_k)$ as $\sum_i y_i\eta_i - c(\eta_i)$, where $\eta = X\beta + Zu$, $\log f_\theta(y_i | u_k) = y_i\eta_i - c(\eta_i)$ and $f_\theta(y_i|u_k) = \exp \left(  y_i\eta_i - c(\eta_i) \right)$. So, the relevance-weighted log density becomes
 
 \begin{align}
-f_\theta (u_k, y) = \exp \left( \sum_i y_i \eta_i - c(\eta_i) \right) \tilde{f_\theta} (u_k)
+\text{RWLD}(\theta) &= \prod_{i=1}^n \left[ \exp \left(  y_i\eta_i - c(\eta_i) \right) \right] ^{\lambda_i}  \\
+&= \prod_{i=1}^n \exp \left[ \lambda_i \left(  y_i\eta_i - c(\eta_i) \right) \right]
 \end{align}
 
-and
+\noindent Then,
 
 \begin{align}
-\Lambda f_\theta (u_k, y) &= \Lambda \exp \left( \sum_i y_i \eta_i - c(\eta_i) \right) \tilde{f_\theta} (u_k) \\
-&= \lambda_i \exp \left( \sum_i y_i \eta_i - c(\eta_i) \right) \tilde{f_\theta} (u_k) 
+\log \text{RWLD}(\theta) &= \log \prod_{i=1}^n \exp \left[ \lambda_i \left(  y_i\eta_i - c(\eta_i) \right) \right] \\
+&= \sum_{i=1}^n \log \exp \left[ \lambda_i \left(  y_i\eta_i - c(\eta_i) \right) \right] \\
+&= \sum_{i=1}^n \lambda_i \left(  y_i\eta_i - c(\eta_i) \right)
 \end{align}
 
-\subsection{Integrating the Weighted Log-Likelihood}
-As shown above, the weighting scheme must be accounted for in $f_\theta (u_k, y)$. Thus, the weighting scheme must be applied within the \texttt{el.C} function eventually. However, before we get there, we must follow these steps:
+\subsection{The First Derivative}
 
-\begin{itemize}
-	\item[1.] Write the test for the weighting scheme using the Booth Hobert data set.
-	\item[2.] Code a general version of the weighting scheme.
-	\item[3.] Re-code the general version of the implementation of the weighting scheme in C.
-\end{itemize}
+Remember that the derivative of the log density of the data with respect to one component, $\eta_j$, is 
+
+\begin{align}
+\dfrac{\partial}{\partial \eta_j} \log f_\theta (y|u) = y_j - c'(\eta_j).
+\end{align}
+
+\noindent Consequently, 
+
+\begin{align}
+\dfrac{\partial}{\partial \eta_j} \log \text{RWLD}(\theta) = \lambda_j \left[ y_j - c'(\eta_j) \right].
+\end{align}
+
+\noindent and the derivative of the component $\eta_j$ with respect to one of the fixed effect predictors, $\beta_j$, is 
+
+\begin{align}
+\dfrac{\partial \eta_j}{\partial \beta_l} = X_{jl}
+\end{align}
+
+\noindent Then, we can use the chain rule to find that
+
+\begin{align}
+\dfrac{\partial}{\partial \beta_l} \log \text{RWLD}(\theta) &= \lambda \ X \left[ y- c'(\eta) \right]
+\end{align}
+
+\subsection{The Second Derivative}
+
+Similar to the first derivative, we find that the second derivative of the relevance-weighted log density of the data is 
+
+\begin{align}
+\dfrac{\partial^2}{\partial \beta_l^2} \log \text{RWLD}(\theta) &= \lambda \ X' \left[- c''(\eta) \right] X
+\end{align}
 
 \end{document}

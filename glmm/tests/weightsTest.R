@@ -2,35 +2,65 @@ library(glmm)
 data(BoothHobert)
 
 set.seed(1234)
-zeroweight<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
-          family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE,weights=c(rep(0,3),rep(1,147)))
+mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, cluster=clust)
 
-BoothHobert2 <- BoothHobert[-c(1:3),]
-set.seed(1234)
-removed<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert2,
-                 family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE)
+mod.mcml<-mod.mcml1$mod.mcml
+z<-mod.mcml$z[[1]]
+x<-mod.mcml$x
+y<-mod.mcml$y
 
-all.equal(coef(zeroweight),coef(removed))
-all.equal(zeroweight$likelihood.value,removed$likelihood.value)
-all.equal(zeroweight$likelihood.gradient,removed$likelihood.gradient)
-all.equal(zeroweight$likelihood.hessian,removed$likelihood.hessian)
+stuff<-mod.mcml1$debug
+beta.pql<-stuff$beta.pql
+nu.pql<-stuff$nu.pql
+u.pql<-u.star<-stuff$u.star
+umat<-stuff$umat
 
-set.seed(1234)
-doubleweight<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert,
-                 family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE,weights=c(rep(1,149),2))
+family.glmm<-bernoulli.glmm
 
-#umatadded <- doubleweight$umat
+objfun<-glmm:::objfun
+getEk<-glmm:::getEk
+addVecs<-glmm:::addVecs
 
-#nums <- c(rep(1,150),2)
-#for(i in 1:nrow(BoothHobert)){
-  #BoothHobert3[i] <- BoothHobert[i,]*nums[i]
-#}
-BoothHobert3 <- rbind(BoothHobert, BoothHobert[150,])
-set.seed(1234)
-added<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"),data=BoothHobert3,
-              family.glmm=bernoulli.glmm,m=50,doPQL=FALSE,debug=TRUE)
+############################################
+#this should be the same as el
+getFamily<-glmm:::getFamily
+elR <-
+  function(Y,X,eta,family.mcml){
+    family.mcml<-getFamily(family.mcml)
+    neta<-length(eta)
+    
+    if(family.mcml$family.glmm=="bernoulli.glmm"){
+      foo<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cumout=double(1))$cumout
+      mu<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cpout=double(neta))$cpout
+      cdub<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cppout=double(neta))$cppout
+    }
+    if(family.mcml$family.glmm=="poisson.glmm"){
+      foo<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cumout=double(1))$cumout
+      mu<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cpout=double(neta))$cpout
+      cdub<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cppout=double(neta))$cppout
+    }
+    
+    value<-as.numeric(Y%*%eta-foo)
+    gradient<-t(X)%*%(Y-mu)	
+    cdubmat<-diag(cdub)
+    hessian<-t(X)%*%(-cdubmat)%*%X
+    
+    list(value=value,gradient=gradient,hessian=hessian)
+  }
 
-all.equal(coef(doubleweight),coef(added))
-all.equal(doubleweight$likelihood.value,added$likelihood.value)
-all.equal(doubleweight$likelihood.gradient,added$likelihood.gradient)
-all.equal(doubleweight$likelihood.hessian,added$likelihood.hessian)
+#compare elR and el.C for a value of eta
+eta<-rep(2,150)
+that<-elR(mod.mcml$y,mod.mcml$x,eta,family.mcml=bernoulli.glmm)	
+this<-.C(glmm:::C_elc, as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
+all.equal(as.numeric(that$value),this$value)
+all.equal(as.numeric(that$gradient),this$gradient)
+all.equal(as.numeric(that$hessian),this$hessian)
+
+#compare to elval
+elvalout<-.C(glmm:::C_elval, as.double(mod.mcml$y), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), value=double(1))
+all.equal(as.numeric(that$value),elvalout$value)
+
+#compare to elGH
+elGHout<-.C(glmm:::C_elGH,as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta),as.integer(1), as.integer(1), gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))
+all.equal(as.numeric(that$gradient),elGHout$gradient)
+all.equal(as.numeric(that$hessian),elGHout$hessian)
