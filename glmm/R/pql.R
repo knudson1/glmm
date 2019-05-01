@@ -1,4 +1,4 @@
-pql <- function(mod.mcml,family.mcml,cache){
+pql <- function(mod.mcml,family.mcml, wts,cache){
    	if (! missing(cache))
        	    stopifnot(is.environment(cache))
 	eek <- getEk(mod.mcml$z)
@@ -66,15 +66,15 @@ fn.outer <- function(par, beta, s, Y, X, Z, eek, family.mcml, cache, ntrials){
 
 	if(family.mcml$family.glmm == "bernoulli.glmm"){
 		piece1 <- .C(C_elc, as.double(Y), as.double(X), as.integer(nrow(X)), 
-			as.integer(ncol(X)), as.double(eta.twid), as.integer(1), as.integer(ntrials), 
+			as.integer(ncol(X)), as.double(eta.twid), as.integer(1), as.integer(ntrials), wts = as.double(wts),
 			value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value}
 	if(family.mcml$family.glmm=="poisson.glmm"){
 		piece1 <- .C(C_elc, as.double(Y), as.double(X), as.integer(nrow(X)), 
-			as.integer(ncol(X)), as.double(eta.twid), as.integer(2), as.integer(ntrials), 
+			as.integer(ncol(X)), as.double(eta.twid), as.integer(2), as.integer(ntrials), wts = as.double(wts),
 			value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value}
 	if(family.mcml$family.glmm=="binomial.glmm"){
 		piece1 <- .C(C_elc, as.double(Y), as.double(X), as.integer(nrow(X)), 
-			as.integer(ncol(X)), as.double(eta.twid), as.integer(3), as.integer(ntrials), 
+			as.integer(ncol(X)), as.double(eta.twid), as.integer(3), as.integer(ntrials), wts = as.double(wts),
 			value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value}
 	
 	#calculate W = c''(eta.twid)
@@ -116,15 +116,15 @@ function(mypar,Y,X,Z,A,family.mcml,nbeta,cache, ntrials )
 	#value<- ellikelihood(Y,X,eta,family.mcml)$value-.5*s%*%s
 	if(family.mcml$family.glmm=="bernoulli.glmm"){
 		value<-.C(C_elc, as.double(Y), as.double(X), as.integer(nrow(X)), 
-			as.integer(ncol(X)), as.double(eta),as.integer(1),as.integer(ntrials), 
+			as.integer(ncol(X)), as.double(eta),as.integer(1),as.integer(ntrials), wts = as.double(wts),
 			value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value-.5*s%*%s}
 	if(family.mcml$family.glmm=="poisson.glmm"){
 		value<-.C(C_elc, as.double(Y), as.double(X), as.integer(nrow(X)), 
-			as.integer(ncol(X)), as.double(eta), as.integer(2), as.integer(ntrials), 
+			as.integer(ncol(X)), as.double(eta), as.integer(2), as.integer(ntrials), wts = as.double(wts),
 			value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value-.5*s%*%s}
 	if(family.mcml$family.glmm=="binomial.glmm"){
 		value <- .C(C_elc, as.double(Y), as.double(X), as.integer(nrow(X)), 
-			as.integer(ncol(X)), as.double(eta), as.integer(3), as.integer(ntrials), 
+			as.integer(ncol(X)), as.double(eta), as.integer(3), as.integer(ntrials), wts = as.double(wts),
 			value=double(1), gradient=double(ncol(X)), hessian=double((ncol(X)^2)))$value-.5*s%*%s}
 	
 	#gradient calculation

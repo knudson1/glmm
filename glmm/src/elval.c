@@ -1,6 +1,6 @@
 #include "myheader.h"
 #if defined(__GNUC__) || defined(__clang__)
-void elval(double *Y,  int *nrowX, int *ncolX __attribute__ ((unused)), double *eta, int *family, int *ntrials, double *elval)
+void elval(double *Y,  int *nrowX, int *ncolX __attribute__ ((unused)), double *eta, int *family, int *ntrials, double *wts, double *elval)
 #else
 void elval(double *Y,  int *nrowX, int *ncolX, double *eta, int *family, int *ntrials, double *elval)
 #endif /* defined(__GNUC__) || defined(__clang__) */
@@ -8,7 +8,7 @@ void elval(double *Y,  int *nrowX, int *ncolX, double *eta, int *family, int *nt
 	double cumout = 0.0;
 
 	/*calling cum3, cp3, cpp3 will just change the doubles cumout, cpout, cppout  */
-	cum3(eta,nrowX,family,ntrials, &cumout);
+	cum3(eta,nrowX,family,ntrials, wts, &cumout);
 
 	/*calculate value of el: Y^T eta-c(eta)  */
 	int intone=1;

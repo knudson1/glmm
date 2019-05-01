@@ -164,18 +164,18 @@ glmm <-
     names(z)<-varcomps.names
     
     if(is.null(weights)){
-      weights <- rep(1, length(y))
+      wts <- rep(1, length(y))
     } else{
-      weights <- weights
+      wts <- weights
     }
     
     #checking weights
-    if(typeof(weights) != "double")stop("weights must be a vector")
-    weights <- as.vector(weights)
-    if(length(weights) != length(y))stop("weights length must match the length of the response vector")
-    if(any(!is.numeric(weights)))stop("weights must be a numeric vector")
-    if(any(weights < 0))stop("Negative weights not allowed")
-    if(any(is.na(weights)))stop("Missing weights not allowed")
+    if(typeof(wts) != "double")stop("weights must be a vector")
+    vars$wts <- as.vector(wts)
+    if(length(vars$wts) != length(y))stop("weights length must match the length of the response vector")
+    if(any(!is.numeric(vars$wts)))stop("weights must be a numeric vector")
+    if(any(vars$wts < 0))stop("Negative weights not allowed")
+    if(any(is.na(vars$wts)))stop("Missing weights not allowed")
     
     #savedx <- x
     #savedy <- y
@@ -228,7 +228,7 @@ glmm <-
     #if the user wants to do pql, do it and use that as the trust start point
     if(doPQL==TRUE){
       #do PQL
-      pql.out<-pql(vars$mod.mcml,vars$family.glmm,cache)
+      pql.out<-pql(vars$mod.mcml,vars$family.glmm, vars$wts,cache)
       s.pql<-cache$s.twid	
       sigma.pql<-pql.out$sigma
       vars$nu.pql<-sigma.pql^2

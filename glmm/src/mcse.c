@@ -10,7 +10,7 @@ pee is the vector of sampling proportions (usually 1/3, 1/3, 1/3)
 nps is the length of pee (3 for now, maybe more if imp sampling distrib changes)
 ntrials is a vec of ints with length equal to length(y)
 */
-void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst,  int *ntrials, double *lfuval, double *lfyuval, double *tryfix)
+void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst,  int *ntrials, double *lfuval, double *lfyuval, double *wts)
 {
 	double *Uk = Calloc(*myq, double);
 	int Uindex = 0;
@@ -51,7 +51,7 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, doub
 		distRandGenC(Dinvfornu, logdetDinvfornu, myq, Uk, qzeros, lfuval); /*&*/
 
 		/* log f_theta(y|u_k) value goes into lfyuval */
-		elval(y, n, nbeta, eta, family_glmm, ntrials, lfyuval); /*&*/
+		elval(y, n, nbeta, eta, family_glmm, ntrials, wts, lfyuval); /*&*/
 
 		/* value of log f~_theta(u_k) 
 		first calculate value of log f~_theta(u_k) for 3 distribs used 
@@ -105,7 +105,6 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, doub
 	/* Calculate gamma */
 	gamma[0] = exp(a) * *thing / *m;
     /*gamma[0] = exp(a - log(*m) +log(*thing));*/
-    tryfix[0] = a;
 
 
 /* now going to do second loop, for numerator */

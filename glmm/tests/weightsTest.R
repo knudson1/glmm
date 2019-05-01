@@ -2,12 +2,18 @@ library(glmm)
 data(BoothHobert)
 
 set.seed(1234)
-mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, cluster=clust)
+mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE)
 
 mod.mcml<-mod.mcml1$mod.mcml
 z<-mod.mcml$z[[1]]
 x<-mod.mcml$x
 y<-mod.mcml$y
+
+if(is.null(mod.mcml1$weights)){
+  wts <- rep(1, length(y))
+} else{
+  wts <- mod.mcml1$weights
+}
 
 stuff<-mod.mcml1$debug
 beta.pql<-stuff$beta.pql
@@ -41,6 +47,31 @@ elR <-
     }
     
     value<-as.numeric(Y%*%eta-foo)
+    gradient<-t(X)%*%(Y-mu)	
+    cdubmat<-diag(cdub)
+    hessian<-t(X)%*%(-cdubmat)%*%X
+    
+    list(value=value,gradient=gradient,hessian=hessian)
+  }
+
+NEWelR <-
+  function(Y,X,eta,family.mcml){
+    family.mcml<-getFamily(family.mcml)
+    neta<-length(eta)
+    
+    if(family.mcml$family.glmm=="bernoulli.glmm"){
+      foo<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cumout=double(1))$cumout
+      mu<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cpout=double(neta))$cpout
+      cdub<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cppout=double(neta))$cppout
+    }
+    if(family.mcml$family.glmm=="poisson.glmm"){
+      foo<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cumout=double(1))$cumout
+      mu<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cpout=double(neta))$cpout
+      cdub<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cppout=double(neta))$cppout
+    }
+    
+    wtsmat <- diag(wts)
+    value<-as.numeric(Y%*%wtsmat%*%eta-foo)
     gradient<-t(X)%*%(Y-mu)	
     cdubmat<-diag(cdub)
     hessian<-t(X)%*%(-cdubmat)%*%X

@@ -1,5 +1,5 @@
 #include "myheader.h"
-void elc(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family,  int *ntrials, double *elval, double *elgradient, double *elhessian)
+void elc(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family,  int *ntrials, double *wts, double *elval, double *elgradient, double *elhessian)
 {
 
 	double cumout=0.0;
@@ -9,7 +9,7 @@ void elc(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family,
 	memset(cppout,0,*nrowX);
 
 	/*calling cum3, cp3, cpp3 will just change the doubles cumout, cpout, cppout  */
-	cum3(eta, nrowX, family, ntrials, &cumout);
+	cum3(eta, nrowX, family, ntrials, wts, &cumout);
 	cp3(eta, nrowX, family, ntrials, cpout);
 	cpp3(eta, nrowX, family, ntrials, cppout);
 

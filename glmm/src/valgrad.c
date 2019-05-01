@@ -8,7 +8,7 @@
  ntrials is a vec of ints with length equal to length(y)
  */
 
-void valgrad(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst, double *v, int *ntrials, double *value, double *gradient, double *b)
+void valgrad(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst, double *v, int *ntrials, double *value, double *gradient, double *b, double *wts)
 {
     double *Uk = Calloc(*myq, double);
     int Uindex = 0;
@@ -48,7 +48,7 @@ void valgrad(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
         distRandGenC(Dinvfornu, logdetDinvfornu, myq, Uk, qzeros, &lfuval);
         
         /* log f_theta(y|u_k) value goes into lfyuval */
-        elval(y, n, nbeta, eta, family_glmm, ntrials, &lfyuval);
+        elval(y, n, nbeta, eta, family_glmm, ntrials, wts, &lfyuval);
         
         /* value of log f~_theta(u_k)
          first calculate value of log f~_theta(u_k) for 3 distribs used
