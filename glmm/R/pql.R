@@ -19,14 +19,14 @@ pql <- function(mod.mcml,family.mcml, wts,cache){
 	
 	outer.optim<-suppressWarnings(optim(par=sigma, fn=fn.outer,  beta=beta, 
 		s=s, Y=mod.mcml$y , X = mod.mcml$x ,Z=Z, eek=eek, family.mcml=family.mcml, 
-		cache=cache, ntrials = mod.mcml$ntrials))
+		cache=cache, ntrials = mod.mcml$ntrials, wts=wts))
 
 	list(sigma = outer.optim$par)
 
 }
 
 
-fn.outer <- function(par, beta, s, Y, X, Z, eek, family.mcml, cache, ntrials){
+fn.outer <- function(par, beta, s, Y, X, Z, eek, family.mcml, cache, ntrials, wts){
 	sigma <- par
 	Aks <- Map("*",eek,sigma)
 	A <- addVecs(Aks) #at this point still a vector
@@ -52,7 +52,7 @@ fn.outer <- function(par, beta, s, Y, X, Z, eek, family.mcml, cache, ntrials){
 	nbeta<-length(beta)
 	#run trust
 	inner.optim<-trust(fn.inner.trust,parinit=c(beta,s), rinit=5, rmax=10000, minimize=F, 
-		Y=Y, X=X, Z=Z, A=A, nbeta=nbeta, family.mcml=family.mcml, cache=cache, ntrials = ntrials)
+		Y=Y, X=X, Z=Z, A=A, nbeta=nbeta, family.mcml=family.mcml, cache=cache, ntrials = ntrials, wts=wts)
 	
 	#get beta and s
 	beta.twid <- cache$beta.twid
@@ -101,7 +101,7 @@ fn.outer <- function(par, beta, s, Y, X, Z, eek, family.mcml, cache, ntrials){
 }
 
 fn.inner.trust <-
-function(mypar,Y,X,Z,A,family.mcml,nbeta,cache, ntrials )
+function(mypar,Y,X,Z,A,family.mcml,nbeta,cache, ntrials, wts)
 {
 	beta <- mypar[1:nbeta]
 	s <- mypar[-(1:nbeta)]
