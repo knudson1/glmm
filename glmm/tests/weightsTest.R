@@ -96,8 +96,8 @@ NEWelR <-
 
 #compare elR and NEWelR for weights all equal 1
 eta1<-rep(2,150)
-that1<-elR(mod.mcml$y,mod.mcml$x,eta,family.mcml=bernoulli.glmm, wts=wts) 
-this1 <- NEWelR(mod.mcml$y,mod.mcml$x,eta,family.mcml=bernoulli.glmm, wts=wts)
+that1<-elR(mod.mcml$y,mod.mcml$x,eta1,family.mcml=bernoulli.glmm, wts=wts) 
+this1 <- NEWelR(mod.mcml$y,mod.mcml$x,eta1,family.mcml=bernoulli.glmm, wts=wts)
 all.equal(as.numeric(that1$value),as.numeric(this1$value))
 all.equal(as.numeric(that1$gradient),as.numeric(this1$gradient))
 all.equal(as.numeric(that1$hessian),as.numeric(this1$hessian))
@@ -154,11 +154,11 @@ umat<-stuff$umat
 
 family.glmm<-bernoulli.glmm
 
-del<- rep(10^-9,150)
-thatdel <- elR(mod.mcml$y,mod.mcml$x,eta+del,family.mcml=bernoulli.glmm, wts=wts) 
+del<- rep(10^-9)
+thatdel <- elR(mod.mcml$y,mod.mcml$x,eta1+del,family.mcml=bernoulli.glmm, wts=wts) 
 
-all.equal(as.vector(that1$gradient%*%del),thatdel$value-that1$value)
-all.equal(as.vector(that1$hessian%*%del),thatdel$gradient-that1$gradient)
+all.equal(as.vector(that1$gradient*del),thatdel$value-that1$value)
+all.equal(as.vector(that1$hessian*del),as.vector(thatdel$gradient-that1$gradient))
 
 
 
