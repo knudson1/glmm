@@ -85,13 +85,15 @@ NEWelR <-
       }
     }
     
+    
     wtsmat <- diag(wts)
+    wtX2 <- wtsmat%*%X
     value<-as.numeric(Y%*%wtsmat%*%eta-foo)
     gradient<-t(wtX)%*%(Y-mu)	
     cdubmat<-diag(cdub)
     hessian<-t(wtX)%*%(-cdubmat)%*%X
     
-    list(value=value,gradient=gradient,hessian=hessian)
+    list(value=value,gradient=gradient,hessian=hessian,wtX=wtX,wtX2=wtX2)
   }
 
 #compare elR and NEWelR for weights all equal 1
