@@ -12,9 +12,9 @@
 
 // Charlie: shut warnings about unused parameters only way CRAN allows
 #if defined(__GNUC__) || defined(__clang__)
-void hess(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu __attribute__ ((unused)), double *logdetDinvfornu __attribute__ ((unused)), int *family_glmm, double *Dstarinv __attribute__ ((unused)), double *logdetDstarinv __attribute__ ((unused)), double *ustar __attribute__ ((unused)), double *Sigmuhinv __attribute__ ((unused)), double *logdetSigmuhinv __attribute__ ((unused)), double *pee __attribute__ ((unused)), int *nps __attribute__ ((unused)), int *T, int *nrandom, int *meow, double *nu, int *zeta __attribute__ ((unused)), double *tconst __attribute__ ((unused)), double *v, int *ntrials, double *gradient, double *hessian, double *b, int *length, double *q)
+void hess(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu __attribute__ ((unused)), double *logdetDinvfornu __attribute__ ((unused)), int *family_glmm, double *Dstarinv __attribute__ ((unused)), double *logdetDstarinv __attribute__ ((unused)), double *ustar __attribute__ ((unused)), double *Sigmuhinv __attribute__ ((unused)), double *logdetSigmuhinv __attribute__ ((unused)), double *pee __attribute__ ((unused)), int *nps __attribute__ ((unused)), int *T, int *nrandom, int *meow, double *nu, int *zeta __attribute__ ((unused)), double *tconst __attribute__ ((unused)), double *v, int *ntrials, double *gradient, double *hessian, double *b, int *length, double *q, double *wts)
 #else
-void hess(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst, double *v, int *ntrials, double *gradient, double *hessian, double *b, int *length, double *q)
+void hess(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst, double *v, int *ntrials, double *gradient, double *hessian, double *b, int *length, double *q, double *wts)
 #endif /* defined(__GNUC__) || defined(__clang__) */
 {
     double *Uk = Calloc(*myq, double);
@@ -104,7 +104,7 @@ void hess(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbe
         distRand3C(nu, qzeros, T, nrandom, meow, Uk, lfugradient, lfuhess);
         
         /* calculate gradient and hessian log f_theta(y|u_k) */
-        elGH(y, x, n, nbeta, eta, family_glmm, ntrials, lfyugradient, lfyuhess);
+        elGH(y, x, n, nbeta, eta, family_glmm, ntrials, wts, lfyugradient, lfyuhess);
         
         /* Calculate hessian. 2 parts: panda, lobster.
          Panda is \sum_{k=1}^m pandabit1 times pandabit2 where

@@ -140,7 +140,7 @@ void valgrad(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
         distRand3C(nu, qzeros, T, nrandom, meow, Uk, lfugradient, lfuhess);
         
         /* calculate gradient and hessian log f_theta(y|u_k) */
-        elGH(y, x, n, nbeta, eta, family_glmm, ntrials, lfyugradient, lfyuhess);
+        elGH(y, x, n, nbeta, eta, family_glmm, ntrials, wts, lfyugradient, lfyuhess);
         
         /* calculate gradient */
         Gindex=0;

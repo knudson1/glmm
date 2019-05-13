@@ -44,11 +44,11 @@ static R_NativePrimitiveArgType valgrad_types[31] = {REALSXP, REALSXP,
     REALSXP, INTSXP, INTSXP, INTSXP, INTSXP, REALSXP, INTSXP, REALSXP,
     REALSXP, INTSXP, REALSXP, REALSXP, REALSXP, REALSXP};
 
-static R_NativePrimitiveArgType hess_types[32] = {REALSXP, REALSXP,
+static R_NativePrimitiveArgType hess_types[33] = {REALSXP, REALSXP,
     INTSXP, INTSXP, REALSXP, INTSXP, INTSXP, REALSXP, REALSXP, REALSXP,
     REALSXP, INTSXP, REALSXP, REALSXP, REALSXP, REALSXP, REALSXP,
     REALSXP, INTSXP, INTSXP, INTSXP, INTSXP, REALSXP, INTSXP, REALSXP,
-    REALSXP, INTSXP, REALSXP, REALSXP, REALSXP, INTSXP, REALSXP};
+    REALSXP, INTSXP, REALSXP, REALSXP, REALSXP, INTSXP, REALSXP, REALSXP};
 
 static R_NativePrimitiveArgType cp3_types[5] = {REALSXP, INTSXP, INTSXP,
     INTSXP, REALSXP};
@@ -62,8 +62,8 @@ static R_NativePrimitiveArgType distRand3C_types[8] = {REALSXP,
 static R_NativePrimitiveArgType distRandGenC_types[6] = {REALSXP,
     REALSXP, INTSXP, REALSXP, REALSXP, REALSXP};
 
-static R_NativePrimitiveArgType elGH_types[9] = {REALSXP, REALSXP,
-    INTSXP, INTSXP, REALSXP, INTSXP, INTSXP, REALSXP, REALSXP};
+static R_NativePrimitiveArgType elGH_types[10] = {REALSXP, REALSXP,
+    INTSXP, INTSXP, REALSXP, INTSXP, INTSXP, REALSXP, REALSXP, REALSXP};
 
 static R_NativePrimitiveArgType elval_types[8] = {REALSXP,  INTSXP,
     INTSXP, REALSXP, INTSXP, INTSXP, REALSXP, REALSXP};
@@ -92,13 +92,13 @@ static R_CMethodDef cMethods[] = {
     {"elc", (DL_FUNC) &elc, 11, elc_types},
     {"mcsec", (DL_FUNC) &mcsec, 33, mcsec_types},
     {"valgrad", (DL_FUNC) &valgrad, 31, valgrad_types},
-    {"hess", (DL_FUNC) &hess, 32, hess_types},
+    {"hess", (DL_FUNC) &hess, 33, hess_types},
     {"cp3", (DL_FUNC) &cp3, 5, cp3_types},
     {"cpp3", (DL_FUNC) &cpp3, 5, cp3_types},
     {"cum3", (DL_FUNC) &cum3, 6, cum3_types},
     {"distRand3C", (DL_FUNC) &distRand3C, 8, distRand3C_types},
     {"distRandGenC", (DL_FUNC) &distRandGenC, 6, distRandGenC_types},
-    {"elGH", (DL_FUNC) &elGH, 9, elGH_types},
+    {"elGH", (DL_FUNC) &elGH, 10, elGH_types},
     {"elval", (DL_FUNC) &elval, 8, elval_types},
     {"matTmatmult", (DL_FUNC) &matTmatmult, 6, matTmatmult_types},
     {"matTvecmult", (DL_FUNC) &matTvecmult, 5, matTvecmult_types},
