@@ -177,34 +177,6 @@ glmm <-
     if(any(vars$wts < 0))stop("Negative weights not allowed")
     if(any(is.na(vars$wts)))stop("Missing weights not allowed")
     
-    #savedx <- x
-    #savedy <- y
-    #savedw <- weights
-    
-    #if(any(weights == 0)){
-      #drop <- which(weights == 0)
-      #if(length(drop) == length(weights))stop("No informative observations. At least one weight must be non-zero")
-      #weights <- weights[-drop]
-      #x <- x[-drop, , drop=FALSE]
-      #y <- if(NCOL(savedy) == 1) y[-drop] else y[-drop, ]
-      #for(l in 1:length(z)){
-        #z[[l]] <- z[[l]][-drop,] 
-      #}
-    #}
-    
-    #w <- sqrt(weights)
-    
-    #x <- x*w
-    #y <- y*w
-    
-    #for(l in 1:length(z)){
-      #for(i in 1:nrow(z[[l]])){
-        #for(j in 1:ncol(z[[l]])){
-          #z[[l]][i,j] <- z[[l]][i,j]*w[i]
-        #}
-      #}
-    #}
-    
     vars$mod.mcml <- list(x=x, y=y, z=z, ntrials=vars$ntrials)
     
     #so now the 3 items are x (matrix), z (list), y (vector)
@@ -368,7 +340,7 @@ glmm <-
       stopCluster(vars$cl)
     }
     
-    return(structure(list(beta=beta.trust,nu=nu.trust, likelihood.value=trust.out$value, likelihood.gradient=trust.out$gradient, likelihood.hessian=trust.out$hessian,
+    return(structure(list(beta=beta.trust,nu=nu.trust, loglike.value=trust.out$value, loglike.gradient=trust.out$gradient, loglike.hessian=trust.out$hessian,
                           trust.converged=trust.out$converged,  mod.mcml=vars$mod.mcml,
                           fixedcall=fixed,randcall=randcall, x=x,y=y, z=random, weights=weights,
                           family.glmm=vars$family.glmm, call=call, varcomps.names=varcomps.names, 

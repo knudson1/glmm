@@ -217,7 +217,7 @@ mcseTEST <- function(mod){
 	Vhat<- matrix(temp,nrow=npar,ncol=npar)
 	Vhat 
 
-	Uhat <- mod$likelihood.hessian
+	Uhat <- mod$loglike.hessian
 	Uhatinv <- qr.solve(Uhat)
 
 	UinvVUinv <- Uhatinv %*% Vhat %*% Uhatinv

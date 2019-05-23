@@ -241,7 +241,7 @@ Loading required package: iterators
 + 	Vhat<- matrix(temp,nrow=npar,ncol=npar)
 + 	Vhat 
 + 
-+ 	Uhat <- mod$likelihood.hessian
++ 	Uhat <- mod$loglike.hessian
 + 	Uhatinv <- qr.solve(Uhat)
 + 
 + 	UinvVUinv <- Uhatinv %*% Vhat %*% Uhatinv
@@ -262,4 +262,4 @@ Loading required package: iterators
 > 
 > proc.time()
    user  system elapsed 
-  3.488   0.436   7.021 
+  3.556   0.563   7.086 

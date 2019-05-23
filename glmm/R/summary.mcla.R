@@ -14,7 +14,7 @@ summary.glmm <- function(object,...){
 	#the coefficients matrix for fixed effects
 	beta<-mod.mcml$beta
 	nbeta<-length(beta)
-	hessian<-mod.mcml$likelihood.hessian
+	hessian<-mod.mcml$loglike.hessian
 	if(det(hessian)==0) {
             warning(paste("estimated Fisher information matrix not positive",
                "definite, making all standard errors infinite"))
@@ -49,7 +49,7 @@ summary.glmm <- function(object,...){
 se <- function(object){
     mod.mcml<-object
     stopifnot(inherits(mod.mcml, "glmm"))
-	hessian<-mod.mcml$likelihood.hessian
+	hessian<-mod.mcml$loglike.hessian
 	if(det(hessian)==0) {
             warning(paste("estimated Fisher information matrix not positive",
                "definite, making all standard errors infinite"))
@@ -112,7 +112,7 @@ vcov.glmm <-
 function(object,...){
 	mod<-object
    	stopifnot(inherits(mod, "glmm"))
-	vcov <- qr.solve(-mod$likelihood.hessian)
+	vcov <- qr.solve(-mod$loglike.hessian)
 
 
 	#get names for vcov matrix
@@ -149,7 +149,7 @@ confint.glmm<-function(object,parm,level=.95,...){
 	pct<-a*100
 	
 	betaandnu<-c(object$beta,	nu<-object$nu)
-	hessian<-object$likelihood.hessian
+	hessian<-object$loglike.hessian
 	if(det(hessian)==0) {
             warning(paste("estimated Fisher information matrix not positive",
                "definite, making all standard errors infinite"))

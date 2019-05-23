@@ -44,7 +44,7 @@ To set some variance components equal to one another, use the \code{varcomps.equ
 
 Each distinct variance component should have a name. The length of \code{varcomps.names} should be equal to the number of distinct variance components. If \code{varcomps.equal} is omitted, then the length of \code{varcomps.names} should be equal to the length of \code{random}.
 
-**weights note** 
+The package uses a relevance-weighted log density weighting scheme, similar to that described in Hu and Zidek (1997). This means that the \code{weights} argument functions in the following manner: a model built for a data set with three observations (obs. 1, obs. 2, obs. 3) and weighting scheme 1, 1, 2 gives the same results as the model built for a data set with four observations (obs. 1, obs. 2, obs. 3, obs. 3 - the last two observations are identical) and weighting scheme 1, 1, 1, 1.
 
 Monte Carlo likelihood approximation relies on an importance sampling distribution. Though infinitely many importance sampling distributions should yield the correct MCMLEs eventually, the importance sampling distribution used in this package was chosen to reduce the computation cost. When \code{doPQL} is \code{TRUE}, the importance sampling distribution relies on PQL estimates (as calculated in this package). When \code{doPQL} is \code{FALSE}, the random effect estimates in the distribution are taken to be 0, the fixed effect estimates are taken to be 0, and the variance component estimates are taken to be 1.
 
@@ -96,7 +96,9 @@ Geyer, C. J. and Thompson, E. (1992)  Constrained Monte Carlo maximum likelihood
 
 Knudson, C. (2016). Monte Carlo likelihood approximation for generalized linear mixed models. PhD thesis, University of Minnesota.  \url{http://hdl.handle.net/11299/178948}
 
-Sung, Y. J. and Geyer, C. J. (2007)  Monte Carlo likelihood inference for missing data models.  \emph{Annals of Statistics}, \bold{35}, 990--1011.}
+Sung, Y. J. and Geyer, C. J. (2007)  Monte Carlo likelihood inference for missing data models.  \emph{Annals of Statistics}, \bold{35}, 990--1011.
+
+Hu, F. and Zidek, J. V. (1997) The relevance weighted likelihood. Unpublished.}
 
 \author{Christina Knudson}
 %\note{}

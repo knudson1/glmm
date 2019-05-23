@@ -86,7 +86,7 @@ mcvcov <- function(object){
 	vhatvec <- vhatnum/vhatdenom
 	Vhat <- matrix(vhatvec, nrow=npar)
 
-	Uhat <- mod$likelihood.hessian
+	Uhat <- mod$loglike.hessian
 	Uhatinv <- qr.solve(Uhat)
 
 	out <- Uhatinv %*% Vhat %*% Uhatinv/m
