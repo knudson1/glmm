@@ -13,7 +13,8 @@ cpp<-function(eta) {(1/(1+exp(-eta)))*(1/(1+exp(eta)))}
 #check cum3 for a vector containing both positive and negative values of eta
 eta<-seq(-1,1,.1)
 neta<-length(eta)
-that<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta), type=as.integer(1), ntrials=as.integer(1), cumout=double(1))
+wts<-rep(1,neta)
+that<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta), type=as.integer(1), ntrials=as.integer(1), wts=as.double(wts),cumout=double(1))
 all.equal(sum(cum(eta)),that$cumout)
 
 #check cp3
@@ -31,9 +32,10 @@ cp <- function(eta) exp(eta)
 cpp<-function(eta) exp(eta)
 eta<-c(4.5,5,5.5)
 neta<-length(eta)
+wts<-rep(1,neta)
 
 #check cum3
-that<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cumout=double(1))
+that<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1),wts=as.double(wts), cumout=double(1))
 all.equal(sum(cum(eta)),that$cumout)
 
 #check cp3

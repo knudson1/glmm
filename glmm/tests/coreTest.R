@@ -29,6 +29,14 @@ vars$family.glmm<-out$family.glmm
 vars$ntrials<-1
 beta.pql <- debug$beta.pql
 
+if(is.null(out$weights)){
+  wts <- rep(1, length(out$y))
+} else{
+  wts <- out$weights
+}
+
+vars$wts<-wts
+
 simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
   #generate m1 from t(0,D*)
   if(vars$m1>0) genData<-rmvt(ceiling(vars$m1/vars$no_cores),sigma=Dstarnotsparse,df=vars$zeta,type=c("shifted"))

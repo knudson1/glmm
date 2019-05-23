@@ -102,7 +102,7 @@ Next, we specify our Monte Carlo sample size \texttt{m}. The general rule is the
 
 %Finally, we can decide whether we would like additional output (see details in section \ref{sec:otherstuff}). If we would like the additional output, we type \texttt{debug = TRUE}. The default is \texttt{debug = FALSE}.\\
 
-Finally, we specify the cluster we would like to use for the value, gradient vector and Hessian matrix calculations, done in parallel, using \texttt{cluster}. To read more about the \texttt{cluster} argument, please read \href{https://cran.r-project.org/web/packages/glmm/vignettes/parallel.pdf}{"Model-Fitting in Parallel with the R package \texttt{glmm}"}
+Finally, we specify the cluster we would like to use for the value, gradient vector and Hessian matrix calculations, done in parallel, using \texttt{cluster} and the weighting scheme we would like to use for relevance weighting each observation, using \texttt{weights}. To read more about the \texttt{cluster} argument, please read \href{https://cran.r-project.org/web/packages/glmm/vignettes/parallel.pdf}{"Developments in the R package \texttt{glmm}"}
 
 We put this all together in the following commands. Note that we set the seed so that we can have reproducible results. In other words, if you set your seed to the same number and type the exact command listed below, your results should be identical to those listed here. 
 

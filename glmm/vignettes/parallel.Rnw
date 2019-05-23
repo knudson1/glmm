@@ -67,14 +67,13 @@ salweight <- glmm(Mate ~ 0 + Cross, random = list(~ 0 + Female,
 family.glmm = bernoulli.glmm, m = 10^4, debug = TRUE, weights = c(rep(.5,5),rep(1,355)))
 @
 
-Next, we illustrate how \texttt{weights} can be used to remove observations. A portion of one element of the \texttt{random} list is given to illustrate that the observations have been removed.
+Next, we illustrate how \texttt{weights} can be used to remove observations.
 
 <<weightremove>>=
 set.seed(1234) 
 salweight <- glmm(Mate ~ 0 + Cross, random = list(~ 0 + Female, 
 ~ 0 + Male), varcomps.names = c("F", "M"), data = salamander, 
 family.glmm = bernoulli.glmm, m = 10^4, debug = TRUE, weights = c(rep(0,5),rep(1,355)))
-salweight$mod.mcml$z$F[1:10,]
 @
 
 To read about the other arguments in the \texttt{glmm} command, please read \href{https://cran.r-project.org/web/packages/glmm/vignettes/intro.pdf}{``An Introduction to Model-Fitting with the R package \texttt{glmm}"}. \\

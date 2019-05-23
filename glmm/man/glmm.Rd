@@ -13,9 +13,9 @@ rmax=1000,iterlim=1000, par.init, zeta=5, cluster=NULL)}
   \item{varcomps.names}{The names of the distinct variance components in order of \code{varcomps.equal}.}
   \item{data}{an optional data frame, list or environment (or object coercible by as.data.frame to a data frame) containing the variables in the model. If not found in data, the variables are taken from environment(formula), typically the environment from which \code{glmm} is called.}
   \item{family.glmm}{The name of the family. Must be class \code{glmm.family}. Current options are \code{\link{bernoulli.glmm}}, \code{\link{poisson.glmm}}, and \code{\link{binomial.glmm}}.}
-  \item{m}{The desired Monte Carlo sample size. See a note in under "Details."}
+  \item{m}{The desired Monte Carlo sample size. See a note under "Details."}
   \item{varcomps.equal}{An optional vector with elements 1 through the number of distinct variance components. Denotes variance components are to be set equal by assigning them the same integer. The length of varcomps.equal must be equal to the length of the list of random effects formulas. If omitted, varcomps.equal assumes no variance component should be set equal.}
-  \item{weights}{An optional vector with length equal to the length of the response vector. This argument makes the specified observations more or less informative for the model.}
+  \item{weights}{An optional vector with length equal to the length of the response vector. This argument makes the specified observations more or less informative for the model. See a note under "Details."}
   \item{doPQL}{logical. If \code{TRUE}, PQL estimates are used in the importance sampling distribution. If FALSE, the importance sampling distribution will use 0 for the fixed effects and 1 for the variance components. For advanced users, since \code{glmm} is generally more efficient when \code{doPQL=TRUE}.}
   \item{debug}{logical. If \code{TRUE}, extra output useful for testing will be provided. For advanced users.}
 \item{p1}{A probability for mixing the random effects generated from three distributions. \code{p1} is the proportion of random effects from the first distribution specified in "Details." For advanced users.}
@@ -43,6 +43,8 @@ The random effects for glmm are also specified symbolically. The random effects 
 To set some variance components equal to one another, use the \code{varcomps.equal} argument. The argument \code{varcomps.equal} should be a vector whose length is equal to the length of the random effects list. The vector should contain positive integers, and the first element of the \code{varcomps.equal} should be 1. To set variance components equal to one another, assign the same integer to the corresponding elements of \code{varcomps.equal}. For example, to set the first and second variance components equal to each other, the first two elements of \code{varcomps.equal} should be 1. If \code{varcomps.equal} is omitted, then the variance components are assumed to be distinct. 
 
 Each distinct variance component should have a name. The length of \code{varcomps.names} should be equal to the number of distinct variance components. If \code{varcomps.equal} is omitted, then the length of \code{varcomps.names} should be equal to the length of \code{random}.
+
+**weights note** 
 
 Monte Carlo likelihood approximation relies on an importance sampling distribution. Though infinitely many importance sampling distributions should yield the correct MCMLEs eventually, the importance sampling distribution used in this package was chosen to reduce the computation cost. When \code{doPQL} is \code{TRUE}, the importance sampling distribution relies on PQL estimates (as calculated in this package). When \code{doPQL} is \code{FALSE}, the random effect estimates in the distribution are taken to be 0, the fixed effect estimates are taken to be 0, and the variance component estimates are taken to be 1.
 

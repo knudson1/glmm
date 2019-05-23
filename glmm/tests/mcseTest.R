@@ -9,17 +9,17 @@ addMats<-glmm:::addMats
 #other functions we'll need
 
 #here is el, likelihood
-elR <- function(Y,X,eta,family.mcml){
+elR <- function(Y,X,eta,family.mcml,wts){
 	family.mcml<-getFamily(family.mcml)
 	neta<-length(eta)
 
 	if(family.mcml$family.glmm=="bernoulli.glmm"){
-		foo<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta), type=as.integer(1), ntrials=as.integer(1), cumout=double(1))$cumout
+		foo<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta), type=as.integer(1), ntrials=as.integer(1), wts=as.double(wts), cumout=double(1))$cumout
 		mu<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),cpout=double(neta))$cpout
 		cdub<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),cppout=double(neta))$cppout
 	}
 	if(family.mcml$family.glmm=="poisson.glmm"){
-		foo<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cumout=double(1))$cumout
+		foo<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),wts=as.double(wts),cumout=double(1))$cumout
 		mu<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cpout=double(neta))$cpout
 		cdub<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cppout=double(neta))$cppout
 	}
@@ -115,6 +115,12 @@ mcseTEST <- function(mod){
 	T<-length(mod$z)
 	nrand<-lapply(mod$z,ncol)
 	nrandom<-unlist(nrand)
+	
+	if(is.null(mod$weights)){
+	  wts <- rep(1, length(y))
+	} else{
+	  wts <- mod$weights
+	}
 
 
 	family.glmm<-getFamily(mod$family.glmm)
@@ -171,7 +177,7 @@ mcseTEST <- function(mod){
 		lfu[[k]]<-distRand(nu,Uk,mod$z,zeros) 
 
 		#log f_theta(y|u_k)
-		lfyu[[k]]<-elR(mod$y,mod$x,eta,family.glmm) 
+		lfyu[[k]]<-elR(mod$y,mod$x,eta,family.glmm, wts) 
 
 		#log f~_theta(u_k)
 		lfu.twid[k,1]<-tdist2(tconst,Uk,D.star.inv,zeta=zeta,myq=nrow(D.star.inv))
