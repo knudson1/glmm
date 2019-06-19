@@ -1,4 +1,7 @@
 #include "myheader.h"
+/*problem with gamma and squaretop causing issue with numsum: overflow/underflow*/
+
+
 /*x is n by nbeta matrix
 beta has length nbeta
 Umat is myq by m matrix, one COLUMN of Umat used at a time. Umat must be the R mat transposed 
@@ -7,7 +10,7 @@ pee is the vector of sampling proportions (usually 1/3, 1/3, 1/3)
 nps is the length of pee (3 for now, maybe more if imp sampling distrib changes)
 ntrials is a vec of ints with length equal to length(y)
 */
-void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst,  int *ntrials)
+void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst,  int *ntrials, double *lfuval, double *lfyuval, double *wts)
 {
 	double *Uk = Calloc(*myq, double);
 	int Uindex = 0;
@@ -24,8 +27,8 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, doub
 	double tempmax = 1.0;
 	double *lfutwidpieces = Calloc(*nps,double);
 	double diffs = 0.0;
-	double lfuval = 1.1;
-	double lfyuval = 1.1;
+	/*double lfuval = 1.1;
+	double lfyuval = 1.1;*/
 	double lfutwid = 1.1;
 	double *b = Calloc(*m,double);
 	double a = 0.0;
@@ -45,10 +48,10 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, doub
 		addvec(xbeta, zu, n, eta);
 
 		/*log f_theta(u_k) goes into lfuval*/
-		distRandGenC(Dinvfornu, logdetDinvfornu, myq, Uk, qzeros, &lfuval); 
+		distRandGenC(Dinvfornu, logdetDinvfornu, myq, Uk, qzeros, lfuval); /*&*/
 
 		/* log f_theta(y|u_k) value goes into lfyuval */
-		elval(y, n, nbeta, eta, family_glmm, ntrials, &lfyuval);
+		elval(y, n, nbeta, eta, family_glmm, ntrials, wts, lfyuval); /*&*/
 
 		/* value of log f~_theta(u_k) 
 		first calculate value of log f~_theta(u_k) for 3 distribs used 
@@ -81,12 +84,13 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, doub
 		}
 		lfutwid = log(lfutwid)+tempmax; /* finishes lfutwid calc */
 
-		b[k] = lfuval+lfyuval-lfutwid;
+		b[k] = *lfuval+ *lfyuval-lfutwid;
 
 		if(k==0){a = b[k];}
 		if(b[k]>a){a = b[k];}
 
-		squaretop[k] = exp(2*lfuval + 2*lfyuval - 2*lfutwid);
+		squaretop[k] = exp(2* *lfuval + 2* *lfyuval - 2*lfutwid); /*also exp(2*b[k])?*/
+        /*tryfix[k] = b[k];*/
 	}
 
 	Free(lfutwidpieces);
@@ -99,7 +103,8 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, doub
 	Free(b);
 
 	/* Calculate gamma */
-	gamma[0] = exp(a) * *thing / *m; 
+	gamma[0] = exp(a) * *thing / *m;
+    /*gamma[0] = exp(a - log(*m) +log(*thing));*/
 
 
 /* now going to do second loop, for numerator */
@@ -133,7 +138,7 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, doub
 		distRand3C(nu, qzeros, T, nrandom, meow, Uk, lfugradient, lfuhess);
 
 		/* calculate gradient and hessian log f_theta(y|u_k) */
-		elGH(y, x, n, nbeta, eta, family_glmm, ntrials, lfyugradient, lfyuhess);
+		elGH(y, x, n, nbeta, eta, family_glmm, ntrials, wts, lfyugradient, lfyuhess);
 
 		/*now I have lfugradient and lfyugradient*/
 

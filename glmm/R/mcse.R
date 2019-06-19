@@ -72,9 +72,13 @@ mcvcov <- function(object){
 	npar <- length(beta) + length(nu)
 	squaretop <- rep(0,m)
 
-	
+	if(is.null(mod$weights)){
+	  wts <- rep(1,length(y))
+	} else{
+	  wts <- mod$weights
+	}
 
-	stuff<-.C(C_mcsec, as.double(0.0), as.double(0.0), as.double(squaretop), numsum=as.double(rep(0,npar^2)), as.double(mod$y),as.double(t(umat)), as.integer(myq), as.integer(m), as.double(mod$x), as.integer(n), as.integer(nbeta), as.double(beta), as.double(Z), as.double(Dinvfornu), as.double(logdetDinvfornu),as.integer(family_glmm), as.double(D.star.inv), as.double(logdet.D.star.inv), as.double(mod$u.pql), as.double(Sigmuh.inv), as.double(logdet.Sigmuh.inv), pea=as.double(pea), nps=as.integer(length(pea)), T=as.integer(T), nrandom=as.integer(nrandom), meow=as.integer(meow),nu=as.double(nu), zeta=as.integer(zeta),tconst=as.double(tconst), ntrials=as.integer(mod$mod.mcml$ntrials))
+	stuff<-.C(C_mcsec, as.double(0.0), as.double(0.0), as.double(squaretop), numsum=as.double(rep(0,npar^2)), as.double(mod$y),as.double(t(umat)), as.integer(myq), as.integer(m), as.double(mod$x), as.integer(n), as.integer(nbeta), as.double(beta), as.double(Z), as.double(Dinvfornu), as.double(logdetDinvfornu),as.integer(family_glmm), as.double(D.star.inv), as.double(logdet.D.star.inv), as.double(mod$u.pql), as.double(Sigmuh.inv), as.double(logdet.Sigmuh.inv), pea=as.double(pea), nps=as.integer(length(pea)), T=as.integer(T), nrandom=as.integer(nrandom), meow=as.integer(meow),nu=as.double(nu), zeta=as.integer(zeta),tconst=as.double(tconst), ntrials=as.integer(mod$mod.mcml$ntrials), as.double(0.0), as.double(0.0), wts=as.double(wts))
 
 	vhatnum <- (1/m)*stuff[[4]]
 	vhatdenom <- ( stuff[[1]]   )^2
@@ -82,7 +86,7 @@ mcvcov <- function(object){
 	vhatvec <- vhatnum/vhatdenom
 	Vhat <- matrix(vhatvec, nrow=npar)
 
-	Uhat <- mod$likelihood.hessian
+	Uhat <- mod$loglike.hessian
 	Uhatinv <- qr.solve(Uhat)
 
 	out <- Uhatinv %*% Vhat %*% Uhatinv/m

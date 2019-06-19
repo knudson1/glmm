@@ -80,6 +80,14 @@ vars$nbeta <- 1
 
 vars$p1=vars$p2=vars$p3=1/3
 
+if(is.null(out$weights)){
+  wts <- rep(1, length(out$y))
+} else{
+  wts <- out$weights
+}
+
+vars$wts <- as.vector(wts)
+
 par<-c(6,1.5)
 del<-rep(10^-9,2)
 
@@ -112,7 +120,7 @@ all.equal(as.vector(lth$hessian%*%del),lthdel$gradient-lth$gradient)
 ##########################################
 ##### to make sure that the objfun function is correct, compare it against the version without any C code. here is objfun without c:
 objfunNOC <-
-function(par,nbeta, nu.pql,umat, u.star=u.star, mod.mcml,family.glmm, cache,gamm,p1,p2,p3, D.star, Sigmuh, zeta){
+function(par,nbeta, nu.pql,umat, u.star=u.star, mod.mcml,family.glmm, cache,gamm,p1,p2,p3, D.star, Sigmuh, zeta, wts){
 
 	#print(par)
 	beta<-par[1:nbeta]
@@ -221,12 +229,12 @@ function(Y,X,eta,family.mcml){
 	neta<-length(eta)
 
 	if(family.mcml$family.glmm=="bernoulli.glmm"){
-		foo<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),cumout=double(1))$cumout
+		foo<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),wts=as.double(wts),cumout=double(1))$cumout
 		mu<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),cpout=double(neta))$cpout
 		cdub<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),cppout=double(neta))$cppout
 	}
 	if(family.mcml$family.glmm=="poisson.glmm"){
-		foo<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cumout=double(1))$cumout
+		foo<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),wts=as.double(wts),cumout=double(1))$cumout
 		mu<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cpout=double(neta))$cpout
 		cdub<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cppout=double(neta))$cppout
 	}
@@ -310,7 +318,7 @@ function(nu,U,z.list,mu){
 
 #finally, compare objfun and objfunNOC for B+H example
 
-that<-objfunNOC(par=par, nbeta=1, nu.pql=vars$nu.pql, umat=umat, u.star=vars$u.star, mod.mcml=vars$mod.mcml, family.glmm=vars$family.glmm,p1=vars$p1,p2=vars$p2,p3=vars$p3, Sigmuh=Sigmuh,D.star=vars$D.star, zeta=vars$zeta)
+that<-objfunNOC(par=par, nbeta=1, nu.pql=vars$nu.pql, umat=umat, u.star=vars$u.star, mod.mcml=vars$mod.mcml, family.glmm=vars$family.glmm,p1=vars$p1,p2=vars$p2,p3=vars$p3, Sigmuh=Sigmuh,D.star=vars$D.star, zeta=vars$zeta,wts=vars$wts)
 all.equal(that,lth)
 
 stopCluster(clust)

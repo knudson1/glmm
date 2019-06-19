@@ -1,0 +1,118 @@
+\documentclass{article}
+
+ \usepackage{url} 
+\usepackage{amsthm,amsmath,amssymb,indentfirst,float}
+\usepackage{verbatim}
+\usepackage[sort,longnamesfirst]{natbib}
+\newcommand{\pcite}[1]{\citeauthor{#1}'s \citeyearpar{#1}}
+\newcommand{\ncite}[1]{\citeauthor{#1}, \citeyear{#1}}
+\DeclareMathOperator{\logit}{logit}
+    \DeclareMathOperator{\var}{Var}
+   %  \DeclareMathOperator{\det}{det}
+     \DeclareMathOperator{\diag}{diag}
+
+\usepackage{geometry}
+%\geometry{hmargin=1.025in,vmargin={1.25in,2.5in},nohead,footskip=0.5in} 
+%\geometry{hmargin=1.025in,vmargin={1.25in,0.75in},nohead,footskip=0.5in} 
+%\geometry{hmargin=2.5cm,vmargin={2.5cm,2.5cm},nohead,footskip=0.5in}
+
+\renewcommand{\baselinestretch}{1.25}
+
+\usepackage{amsbsy,amsmath,amsthm,amssymb,graphicx}
+
+\setlength{\baselineskip}{0.3in} \setlength{\parskip}{.05in}
+
+
+\newcommand{\cvgindist}{\overset{\text{d}}{\longrightarrow}}
+\DeclareMathOperator{\PR}{Pr} 
+\DeclareMathOperator{\cov}{Cov}
+
+
+\newcommand{\sX}{{\mathsf X}}
+\newcommand{\tQ}{\tilde Q}
+\newcommand{\cU}{{\cal U}}
+\newcommand{\cX}{{\cal X}}
+\newcommand{\tbeta}{\tilde{\beta}}
+\newcommand{\tlambda}{\tilde{\lambda}}
+\newcommand{\txi}{\tilde{\xi}}
+
+
+
+
+\title{Design Document for Relevance-Weighting: R Package glmm}
+
+\author{Sydney Benson}
+
+\begin{document}
+\maketitle{}
+
+\begin{abstract}
+This design document will give an overview of the changes made to the R package \texttt{glmm} with respect to a relevance-weighted likelihood method. We use relevance-weighting to better reflect the real-world occurrence of more or less informative observations.
+\end{abstract}
+
+\section{Introduction}
+This project is meant to enable the user of the \texttt{glmm} function in the \texttt{glmm} R package to include an optional relevance-weighting scheme. A common assumption of linear models is that each observation in a data set is equally informative and trustworthy; however, in real-world data sets, this is rarely the case. Thus, the optional relevance-weighting scheme will allow the user to place a heavier weight on the more informative and/or trustworthy observations in their data set so that those data points that are less informative affect the model to a lesser degree.
+
+\section{The Process}
+First, the function will need to establish whether the user has supplied a proper weighting scheme. Next, the weighting scheme will need to be applied in the \texttt{el.C} function. After defining the weighting vector, the remainder of this section will illustrate how this weighting scheme will be applied. 
+
+\subsection{The Weighting Vector}
+The weights must be in the form of a vector and the vector must be the same length as the response vector, $y$. All weights must be numeric and non-negative. There can be no missing weights. 
+
+\subsection{The Relevance-Weighted Log Density}
+Following Hu and Zidek (1997), the relevance-weighted likelihood is defined as
+
+\begin{align}
+\text{REWL}(\theta) = \prod_{i=1}^n f(y_i | \theta)^{\lambda_i}
+\end{align}
+
+\noindent where $n$ is the length of the response vector, $y$. Since we define $\log f_\theta(y|u_k)$ as $\sum_i y_i\eta_i - c(\eta_i)$, where $\eta = X\beta + Zu$, $\log f_\theta(y_i | u_k) = y_i\eta_i - c(\eta_i)$ and $f_\theta(y_i|u_k) = \exp \left(  y_i\eta_i - c(\eta_i) \right)$. So, the relevance-weighted log density becomes
+
+\begin{align}
+\text{RWLD}(\theta) &= \prod_{i=1}^n \left[ \exp \left(  y_i\eta_i - c(\eta_i) \right) \right] ^{\lambda_i}  \\
+&= \prod_{i=1}^n \exp \left[ \lambda_i \left(  y_i\eta_i - c(\eta_i) \right) \right]
+\end{align}
+
+\noindent Then,
+
+\begin{align}
+\log \text{RWLD}(\theta) &= \log \prod_{i=1}^n \exp \left[ \lambda_i \left(  y_i\eta_i - c(\eta_i) \right) \right] \\
+&= \sum_{i=1}^n \log \exp \left[ \lambda_i \left(  y_i\eta_i - c(\eta_i) \right) \right] \\
+&= \sum_{i=1}^n \lambda_i \left(  y_i\eta_i - c(\eta_i) \right)
+\end{align}
+
+\subsection{The First Derivative}
+
+Remember that the derivative of the log density of the data with respect to one component, $\eta_j$, is 
+
+\begin{align}
+\dfrac{\partial}{\partial \eta_j} \log f_\theta (y|u) = y_j - c'(\eta_j).
+\end{align}
+
+\noindent Consequently, 
+
+\begin{align}
+\dfrac{\partial}{\partial \eta_j} \log \text{RWLD}(\theta) = \lambda_j \left[ y_j - c'(\eta_j) \right].
+\end{align}
+
+\noindent and the derivative of the component $\eta_j$ with respect to one of the fixed effect predictors, $\beta_j$, is 
+
+\begin{align}
+\dfrac{\partial \eta_j}{\partial \beta_l} = X_{jl}
+\end{align}
+
+\noindent Then, we can use the chain rule to find that
+
+\begin{align}
+\dfrac{\partial}{\partial \beta_l} \log \text{RWLD}(\theta) &= \lambda \ X \left[ y- c'(\eta) \right]
+\end{align}
+
+\subsection{The Second Derivative}
+
+Similar to the first derivative, we find that the second derivative of the relevance-weighted log density of the data is 
+
+\begin{align}
+\dfrac{\partial^2}{\partial \beta_l^2} \log \text{RWLD}(\theta) &= \lambda \ X' \left[- c''(\eta) \right] X
+\end{align}
+
+\end{document}

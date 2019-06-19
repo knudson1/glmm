@@ -1,7 +1,7 @@
 utils::globalVariables("umatparams")
 
 glmm <-
-  function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, doPQL=TRUE, debug=FALSE,p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000,par.init=NULL,zeta=5, cluster=NULL)
+  function(fixed,random, varcomps.names,data, family.glmm, m,varcomps.equal, weights = NULL, doPQL=TRUE, debug=FALSE,p1=1/3,p2=1/3,p3=1/3,rmax=1000,iterlim=1000,par.init=NULL,zeta=5, cluster=NULL)
   {
     if(missing(varcomps.names)) stop("Names for the variance components must be supplied through varcomps.names")
     if(is.vector(varcomps.names)!=1) stop("varcomps.names must be a vector")
@@ -163,8 +163,21 @@ glmm <-
     }
     names(z)<-varcomps.names
     
-    vars$mod.mcml<-list(x = x, z=z, y = y, ntrials = vars$ntrials)
+    if(is.null(weights)){
+      wts <- rep(1, length(y))
+    } else{
+      wts <- weights
+    }
     
+    #checking weights
+    if(typeof(wts) != "double")stop("weights must be a vector")
+    vars$wts <- as.vector(wts)
+    if(length(vars$wts) != length(y))stop("weights length must match the length of the response vector")
+    if(any(!is.numeric(vars$wts)))stop("weights must be a numeric vector")
+    if(any(vars$wts < 0))stop("Negative weights not allowed")
+    if(any(is.na(vars$wts)))stop("Missing weights not allowed")
+    
+    vars$mod.mcml <- list(x=x, y=y, z=z, ntrials=vars$ntrials)
     
     #so now the 3 items are x (matrix), z (list), y (vector)
     #end figuring out how to interpret the formula
@@ -187,7 +200,7 @@ glmm <-
     #if the user wants to do pql, do it and use that as the trust start point
     if(doPQL==TRUE){
       #do PQL
-      pql.out<-pql(vars$mod.mcml,vars$family.glmm,cache)
+      pql.out<-pql(vars$mod.mcml,vars$family.glmm, vars$wts,cache)
       s.pql<-cache$s.twid	
       sigma.pql<-pql.out$sigma
       vars$nu.pql<-sigma.pql^2
@@ -320,13 +333,16 @@ glmm <-
     names(nu.trust)<-varcomps.names
     
     if(debug==TRUE){
-      debug<-list(beta.pql=beta.pql, nu.pql=vars$nu.pql, D.star=vars$D.star, trust.argpath=trust.out$argpath, u.star=vars$u.star, umat=umat,weights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=vars$m1,m2=m2,m3=m3,trust.argtry=trust.out$argtry, trust.steptype=trust.out$steptype, trust.accept=trust.out$accept, trust.r=trust.out$r, trust.rho=trust.out$rho, trust.valpath=trust.out$valpath, trust.valtry=trust.out$valtry, trust.preddif=trust.out$preddif, trust.stepnorm=trust.out$stepnorm)
+      debug<-list(beta.pql=beta.pql, nu.pql=vars$nu.pql, D.star=vars$D.star, trust.argpath=trust.out$argpath, u.star=vars$u.star, umat=umat,hessianweights=cache$weights,wtsnumer=cache$numer,wtsdenom=cache$denom,m1=vars$m1,m2=m2,m3=m3,trust.argtry=trust.out$argtry, trust.steptype=trust.out$steptype, trust.accept=trust.out$accept, trust.r=trust.out$r, trust.rho=trust.out$rho, trust.valpath=trust.out$valpath, trust.valtry=trust.out$valtry, trust.preddif=trust.out$preddif, trust.stepnorm=trust.out$stepnorm)
     }
     
+    if(is.null(cluster)){
+      stopCluster(vars$cl)
+    }
     
-    return(structure(list(beta=beta.trust,nu=nu.trust, likelihood.value=trust.out$value, likelihood.gradient=trust.out$gradient, likelihood.hessian=trust.out$hessian,
+    return(structure(list(beta=beta.trust,nu=nu.trust, loglike.value=trust.out$value, loglike.gradient=trust.out$gradient, loglike.hessian=trust.out$hessian,
                           trust.converged=trust.out$converged,  mod.mcml=vars$mod.mcml,
-                          fixedcall=fixed,randcall=randcall, x=x,y=y, z=random,
+                          fixedcall=fixed,randcall=randcall, x=x,y=y, z=random, weights=weights,
                           family.glmm=vars$family.glmm, call=call, varcomps.names=varcomps.names, 
                           varcomps.equal=varcomps.equal, umat=umat, pvec=c(vars$p1, vars$p2, vars$p3), beta.pql=beta.pql, nu.pql=vars$nu.pql, u.pql=vars$u.star, zeta=vars$zeta, cluster=vars$cl, cores=vars$no_cores, debug=debug), class="glmm"))
   }

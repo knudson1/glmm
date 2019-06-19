@@ -23,7 +23,6 @@ Loading required package: parallel
 Loading required package: doParallel
 Loading required package: foreach
 Loading required package: iterators
-Loading required package: itertools
 > eta<-1.23
 > neta<-length(eta)
 > delta<-rep(.0000000001,neta)
@@ -31,7 +30,7 @@ Loading required package: itertools
 > #check derivatives for bernoulli using finite differences
 > foo<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),cpout=double(neta))$cpout
 > this<-foo*delta
-> that<-.C(glmm:::C_cum3,eta=as.double(eta+delta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),cumout=double(neta))$cumout-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), cumout=double(neta))$cumout
+> that<-.C(glmm:::C_cum3,eta=as.double(eta+delta),neta=as.integer(neta),type=as.integer(1),ntrials=as.integer(1),wts=as.double(1),cumout=double(neta))$cumout-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(1), ntrials=as.integer(1), wts=as.double(1), cumout=double(neta))$cumout
 > all.equal(this,that)
 [1] TRUE
 > 
@@ -43,7 +42,7 @@ Loading required package: itertools
 > #check derivatives for poisson using finite differences
 > foo<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cpout=double(neta))$cpout
 > this<-foo*delta
-> that<-.C(glmm:::C_cum3,eta=as.double(eta+delta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),cumout=double(neta))$cumout-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1),cumout=double(neta))$cumout
+> that<-.C(glmm:::C_cum3,eta=as.double(eta+delta),neta=as.integer(neta),type=as.integer(2),ntrials=as.integer(1),wts=as.double(1),cumout=double(neta))$cumout-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1),wts=as.double(1),cumout=double(neta))$cumout
 > all.equal(this,that)
 [1] TRUE
 > 
@@ -56,4 +55,4 @@ Loading required package: itertools
 > 
 > proc.time()
    user  system elapsed 
-  1.711   0.153   1.845 
+  1.350   0.142   1.492 

@@ -1,5 +1,5 @@
 #include "myheader.h"
-void elGH(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family, int *ntrials, double *elgradient, double *elhessian)
+void elGH(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family, int *ntrials, double *wts, double *elgradient, double *elhessian)
 {
 	double *cpout = Calloc(*nrowX,double);
 	double *cppout = Calloc(*nrowX,double);
@@ -8,6 +8,16 @@ void elGH(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family
 	cp3(eta,nrowX,family,ntrials,cpout);
 	cpp3(eta,nrowX,family,ntrials,cppout);
 
+    /*create diagonal matrix of weights*/
+    int sizemat=(*nrowX)*(*nrowX);
+    double *wtsmat=Calloc(sizemat, double);
+    diag(wts,nrowX,wtsmat);
+    
+    /*calculate X*wts*/
+    int size=(*nrowX)*(*ncolX);
+    double *Xwts=Calloc(size,double);
+    matmatmult(wtsmat,X,nrowX,nrowX,ncolX,Xwts);
+    Free(wtsmat);
 
 	/*calculate gradient of el: X^T (Y-c'(eta))  
 	first use loop to calculate Y-c'(eta). then turn c''(eta) into -c''(eta)*/
@@ -20,11 +30,10 @@ void elGH(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family
 		}
 	Free(cpout);
 	/*invoking matTvecmult clobbers dummy values of elgradient with actual values*/
-	matTvecmult(X,Yminuscp,nrowX,ncolX,elgradient);
+	matTvecmult(Xwts,Yminuscp,nrowX,ncolX,elgradient);
 	Free(Yminuscp);
 
 	/*  need to create diagonal matrix negcdub=-c''(eta) from vector cppout  */
-	int sizemat=(*nrowX)*(*nrowX);
 	double *negcdub=Calloc(sizemat,double);
 	diag(cppout, nrowX, negcdub); 
 	Free(cppout);
@@ -38,8 +47,9 @@ void elGH(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family
 
 	/*then calculate X^T mat    
 	this multiplication will clobber elhessian with the correct value*/
-	matTmatmult(X,mat,nrowX,ncolX,ncolX,elhessian);
+	matTmatmult(Xwts,mat,nrowX,ncolX,ncolX,elhessian);
 	Free(mat);
+    Free(Xwts);
 }
 
 
