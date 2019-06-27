@@ -54,10 +54,10 @@ This design document will give an overview of the changes made to the R package 
 This project is meant to enable the user of the \texttt{glmm} function in the \texttt{glmm} R package to include an optional relevance-weighting scheme. A common assumption of linear models is that each observation in a data set is equally informative and trustworthy; however, in real-world data sets, this is rarely the case. Thus, the optional relevance-weighting scheme will allow the user to place a heavier weight on the more informative and/or trustworthy observations in their data set so that those data points that are less informative affect the model to a lesser degree.
 
 \section{The Process}
-First, the function will need to establish whether the user has supplied a proper weighting scheme. Next, the weighting scheme will need to be applied in the \texttt{el.C} function. After defining the weighting vector, the remainder of this section will illustrate how this weighting scheme will be applied. 
+First, the function will need to establish whether the user has supplied a proper weighting scheme. Next, the weighting scheme will need to be applied in the \texttt{el.C}, \texttt{elval.C} and \texttt{elGH.C} functions. After defining the weighting vector, the remainder of this section will illustrate how this weighting scheme will be applied in the previously mentioned functions. Lastly, the changes made to the importance sampling distribution are outlined.
 
 \subsection{The Weighting Vector}
-The weights must be in the form of a vector and the vector must be the same length as the response vector, $y$. All weights must be numeric and non-negative. There can be no missing weights. 
+If a proper weighting scheme has been supplied, the function will utilize that weighting scheme; if  the weighting scheme supplied is improper, the user will receive an error; and if no weighting scheme is supplied, a weighting vector of all ones will be created. The weights must be in the form of a vector and the vector must be the same length as the response vector, $y$. All weights must be numeric and non-negative. There can be no missing weights. 
 
 \subsection{The Relevance-Weighted Log Density}
 Following Hu and Zidek (1997), the relevance-weighted likelihood is defined as
@@ -104,15 +104,49 @@ Remember that the derivative of the log density of the data with respect to one 
 \noindent Then, we can use the chain rule to find that
 
 \begin{align}
-\dfrac{\partial}{\partial \beta_l} \log \text{RWLD}(\theta) &= \lambda \ X \left[ y- c'(\eta) \right]
+\dfrac{\partial}{\partial \beta_l} \log \text{RWLD}(\theta) &= \Lambda \ X \left[ y- c'(\eta) \right]
 \end{align}
+
+\noindent where $\Lambda$ is the $n$ x $n$ weight matrix made from $\lambda$, which is the $n$ x $1$ weights vector given by the user or made of all ones if no vector is given. 
 
 \subsection{The Second Derivative}
 
 Similar to the first derivative, we find that the second derivative of the relevance-weighted log density of the data is 
 
 \begin{align}
-\dfrac{\partial^2}{\partial \beta_l^2} \log \text{RWLD}(\theta) &= \lambda \ X' \left[- c''(\eta) \right] X
+\dfrac{\partial^2}{\partial \beta_l^2} \log \text{RWLD}(\theta) &= X' \left[- c''(\eta) \right] \Lambda \ X
+\end{align}
+
+\subsection{The Importance Sampling Distribution}
+
+The original importance sampling distribution is 
+
+\begin{align}
+\tilde{f}(u) &= p_1  \grave{f}(u|0,D^*)+p_2  f(u \, | \, u^*, D^*)+p_3  f(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) Z +(D^*)^{-1}   )^{-1})
+\end{align}
+
+\noindent and the portion that is concerned with weighting is $Z' c"(X \beta^* + Zu^*) Z$. We know that $\eta = X \beta + Zu$, so this is similar to $Z' c"(\eta) Z$ which looks similar to the second derivative of the cumulant. That similarity is used to incorporate the weighting scheme into the importance sampling distribution. 
+
+The weighted version of the importance sampling distribution follows as
+
+\begin{align}
+\tilde{f}(u) &= p_1  \grave{f}(u|0,D^*)+p_2  f(u \, | \, u^*, D^*)+p_3  f(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) \Lambda \ Z +(D^*)^{-1}   )^{-1}) \\
+&= p_1 \exp( \log  \grave{f}(u|0,D^*) ))+p_2 \exp( \log(  f(u \, | \, u^*, D^*) ))+ \nonumber \\
+&+ p_3 \exp( \log( f(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) \Lambda \ Z +(D^*)^{-1}   )^{-1}) )).
+\end{align}
+
+\noindent Then, if we set
+
+\begin{align}
+\tilde{a}= \max \left\{ \log  \grave{f}(u|0,D^*) ), \log  f(u \, | \, u^*, D^*) ), \log f(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) \Lambda \ Z +(D^*)^{-1}   )^{-1})  \right\}
+\end{align}
+
+Then, 
+
+\begin{align}
+ \tilde{f}(u) 
+&= p_1 \exp\left( \log  \grave{f}(u|0,D^*)  -\tilde{a}\right)+p_2 \exp \left( \log  f(u \, | \, u^*, D^* )-\tilde{a} \right)+ \nonumber\\
+&+ p_3 \exp\left[ \log f \left(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) \Lambda \ Z +(D^*)^{-1}   )^{-1} \right)  -\tilde{a} \right].
 \end{align}
 
 \end{document}
