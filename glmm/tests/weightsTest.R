@@ -3,18 +3,13 @@ data(BoothHobert)
 
 clust <- makeCluster(1)
 set.seed(1234)
-mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, cluster=clust)
+mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=10^5, doPQL=TRUE, debug=TRUE, cluster=clust)
 
 vars1 <- new.env(parent = emptyenv())
 
-mod.mcml<-mod.mcml1$mod.mcml
-#z<-mod.mcml$z[[1]]
-#x<-mod.mcml$x
-#y<-mod.mcml$y
-
-y<- mod.mcml$y[1:149]
-x<-mod.mcml$x[1:149]
-z<- mod.mcml$z[[1]][1:149]
+z<-mod.mcml1$z[[1]]
+x<-mod.mcml1$x
+y<-mod.mcml1$y
 
 if(is.null(mod.mcml1$weights)){
   wts <- rep(1, length(y))
@@ -30,8 +25,8 @@ u.pql<-u.star<-stuff$u.star
 vars1$u.star<-u.star
 umat<-stuff$umat
 vars1$family.glmm<-mod.mcml1$family.glmm
-vars1$umat<-stuff$umat
-vars1$newm <- nrow(vars1$umat)
+#vars1$umat<-stuff$umat
+vars1$newm <- nrow(mod.mcml1$umat)
 vars1$ntrials<-1
 D.star.inv <- Dstarnotsparse <- vars1$D.star <- as.matrix(stuff$D.star)
 
@@ -46,12 +41,15 @@ family.glmm<-bernoulli.glmm
 objfun<-glmm:::objfun
 getEk<-glmm:::getEk
 addVecs<-glmm:::addVecs
+genRand<- glmm:::genRand
 
 vars1$cl <- mod.mcml1$cluster
 registerDoParallel(vars1$cl)                   #making cluster usable with foreach
 vars1$no_cores <- length(vars1$cl)
 
 vars1$mod.mcml<-mod.mcml1$mod.mcml
+
+vars1$wts <- c(rep(1,149),2)
 
 simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
   #generate m1 from t(0,D*)
@@ -72,7 +70,9 @@ simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
     if(vars$family.glmm$family.glmm=="binomial.glmm"){cdouble<-vars$family.glmm$cpp(eta.star, vars$ntrials)}
     #still a vector
     cdouble<-Diagonal(length(cdouble),cdouble)
-    Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
+    wtsmat <- diag(vars$wts)
+    Sigmuh.inv<- t(Z)%*%cdouble%*%wtsmat%*%Z+D.star.inv
+    #Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
     Sigmuh<-solve(Sigmuh.inv)
     genData3<-genRand(vars$u.star,Sigmuh,ceiling(m3/vars$no_cores))
   }
@@ -100,8 +100,6 @@ vars1$nbeta <- 1
 
 vars1$p1=vars1$p2=vars1$p3=1/3
 
-vars1$wts <- c(rep(1,149),2)
-
 par<-c(6,1.5)
 del<-rep(10^-9,2)
 
@@ -109,11 +107,9 @@ objfun<-glmm:::objfun
 
 objfun1<-objfun(par=par, vars=vars1)
 
-umats <- clusterEvalQ(vars1$cl, umatparams$umat)
-umatT <- Reduce(rbind, umats)  #umatT is the total umat
+umatT <- noprint[[1]]$umat  #umatT is the total umat
 
-Sigmuh.invs <- clusterEvalQ(vars1$cl, umatparams$Sigmuh.inv)
-Sigmuh.invT <- Sigmuh.invs[[1]]
+Sigmuh.invT <- noprint[[1]]$Sigmuh.inv
 
 stopCluster(clust)
 
@@ -212,19 +208,13 @@ BoothHobertDub <- rbind(BoothHobert, BoothHobert[nrow(BoothHobert),])
 clust <- makeCluster(1)
 eta2<-rep(2,151)
 set.seed(1234)
-mod.mcml2<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobertDub, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE, cluster=clust)
+mod.mcml2<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobertDub, family.glmm=bernoulli.glmm, m=10^5, doPQL=TRUE, debug=TRUE, cluster=clust)
 
 vars2 <- new.env(parent = emptyenv())
 
-#z<-mod.mcml2$z[[1]]
-#x<-mod.mcml2$x
-#y<-mod.mcml2$y
-
-y<-mod.mcml2$y[1:149]
-x <- mod.mcml2$x[1:149]
-z<- mod.mcml2$z[[1]][1:149,]
-
-mod.mcml<-list(x=x, y=y, z=list(z), ntrials=rep(1,149))
+z<-mod.mcml2$z[[1]]
+x<-mod.mcml2$x
+y<-mod.mcml2$y
 
 if(is.null(mod.mcml2$weights)){
   wts <- rep(1, length(y))
@@ -240,8 +230,8 @@ u.pql<-u.star<-stuff$u.star
 vars2$u.star<-u.star
 umat<-stuff$umat
 vars2$family.glmm<-mod.mcml2$family.glmm
-vars2$umat<-stuff$umat
-vars2$newm <- nrow(vars2$umat)
+#vars2$umat<-stuff$umat
+vars2$newm <- vars1$newm
 vars2$ntrials<-1
 D.star.inv <- Dstarnotsparse <- vars2$D.star <- as.matrix(stuff$D.star)
 
@@ -251,12 +241,13 @@ m3 <- stuff$m3
 
 vars2$zeta <- 5
 
+vars2$wts <- as.vector(wts)
+
 vars2$cl <- mod.mcml2$cluster
 registerDoParallel(vars2$cl)                   #making cluster usable with foreach
 vars2$no_cores <- length(vars2$cl)
 
-#vars2$mod.mcml<-mod.mcml2$mod.mcml
-vars2$mod.mcml<-mod.mcml
+vars2$mod.mcml<-mod.mcml2$mod.mcml
 
 getEk<-glmm:::getEk
 addVecs<-glmm:::addVecs
@@ -268,8 +259,6 @@ noprint <- clusterEvalQ(vars2$cl, umatparams <- list(umat=umatT, m=nrow(umatT), 
 vars2$nbeta <- 1
 
 vars2$p1=vars2$p2=vars2$p3=1/3
-
-vars2$wts <- as.vector(wts)
 
 objfun2<-objfun(par=par, vars=vars2)
 
