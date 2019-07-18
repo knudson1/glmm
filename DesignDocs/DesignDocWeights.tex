@@ -149,4 +149,13 @@ Then,
 &+ p_3 \exp\left[ \log f \left(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) \Lambda \ Z +(D^*)^{-1}   )^{-1} \right)  -\tilde{a} \right].
 \end{align}
 
+\section{Summary Changes}
+
+The coefficient estimates in the summary should be changed in order to reflect the certainty known from the Monte Carlos standard error (\texttt{mcse}). This means that \texttt{glmm} must:
+
+\begin{enumerate}
+\item Detect the position of the first non-zero digit in the \texttt{mcse} estimates;
+\item Round the coefficient estimates in the \texttt{glmm} summary to the number of digits detected in step 1.
+\end{enumerate}
+
 \end{document}
