@@ -80,7 +80,8 @@ Loading required package: iterators
 +     if(vars$family.glmm$family.glmm=="binomial.glmm"){cdouble<-vars$family.glmm$cpp(eta.star, vars$ntrials)}
 +     #still a vector
 +     cdouble<-Diagonal(length(cdouble),cdouble)
-+     Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
++     wtsmat <- diag(vars$wts)
++     Sigmuh.inv<- t(Z)%*%cdouble%*%wtsmat%*%Z+D.star.inv
 +     Sigmuh<-solve(Sigmuh.inv)
 +     genData3<-genRand(vars$u.star,Sigmuh,ceiling(m3/vars$no_cores))
 +   }
@@ -137,4 +138,4 @@ Loading required package: iterators
 > 
 > proc.time()
    user  system elapsed 
-  2.328   0.226   6.415 
+  2.149   0.203   6.067 

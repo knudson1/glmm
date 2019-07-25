@@ -53,6 +53,8 @@ This design document will give an overview of the changes made to the R package 
 \section{Introduction}
 This project is meant to enable the user of the \texttt{glmm} function in the \texttt{glmm} R package to include an optional relevance-weighting scheme. A common assumption of linear models is that each observation in a data set is equally informative and trustworthy; however, in real-world data sets, this is rarely the case. Thus, the optional relevance-weighting scheme will allow the user to place a heavier weight on the more informative and/or trustworthy observations in their data set so that those data points that are less informative affect the model to a lesser degree.
 
+Additionally, a change to the \texttt{glmm} summary relating to the certainty of estimates is outlined at the end of the document.
+
 \section{The Process}
 First, the function will need to establish whether the user has supplied a proper weighting scheme. Next, the weighting scheme will need to be applied in the \texttt{el.C}, \texttt{elval.C} and \texttt{elGH.C} functions. After defining the weighting vector, the remainder of this section will illustrate how this weighting scheme will be applied in the previously mentioned functions. Lastly, the changes made to the importance sampling distribution are outlined.
 
@@ -149,13 +151,14 @@ Then,
 &+ p_3 \exp\left[ \log f \left(u \, | \, u^*, (Z'  c''(X \beta^*+Zu^*) \Lambda \ Z +(D^*)^{-1}   )^{-1} \right)  -\tilde{a} \right].
 \end{align}
 
-\section{Summary Changes}
+\section{Summary Change}
 
-The coefficient estimates in the summary should be changed in order to reflect the certainty known from the Monte Carlos standard error (\texttt{mcse}). This means that \texttt{glmm} must:
+The coefficient estimates in the summary should be changed in order to reflect the certainty known from the Monte Carlo standard error (\texttt{mcse}). This means that \texttt{glmm} must:
 
 \begin{enumerate}
 \item Detect the position of the first non-zero digit in the \texttt{mcse} estimates;
 \item Round the coefficient estimates in the \texttt{glmm} summary to the number of digits detected in step 1.
+\item Round the standard error estimated in the \texttt{glmm} summary to the number of digits detected in step 1.
 \end{enumerate}
 
 \end{document}

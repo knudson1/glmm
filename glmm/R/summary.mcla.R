@@ -12,6 +12,19 @@ summary.glmm <- function(object,...){
 	z<-mod.mcml$z
 	
 	#the coefficients matrix for fixed effects
+	#truncating beta significance based on mcse
+	mcerror<- mcse(mod.mcml)
+	split<- strsplit(as.character(mcerror),split="")
+	d<-rep(0,length(split))
+	for(i in 1:length(split)){
+	  j<-1
+	    while(split[[i]][j] == "0" | split[[i]][j] == "."){
+	      d[i] <- d[i] +1
+	      j<-j+1
+	    }
+	}
+	d <- d-1
+	
 	beta<-mod.mcml$beta
 	nbeta<-length(beta)
 	hessian<-mod.mcml$loglike.hessian
@@ -27,6 +40,12 @@ summary.glmm <- function(object,...){
 	#fixed effects table
 	beta.se<-all.ses[1:nbeta]
 	zval<-beta/beta.se
+	for(i in 1:length(beta)){
+	  beta[i] <- round(beta[i], digits = d[i])
+	  beta.se[i] <- round(beta.se[i], digits = d[i])
+	}
+	#beta <- round(beta, digits = d[1])
+	#beta.se <- round(beta.se, digits = d[1])
 	coefmat<-cbind(beta,beta.se,zval,2*pnorm(abs(zval),lower.tail=F))
 	colnames(coefmat)<-c("Estimate","Std. Error", "z value", "Pr(>|z|)")
 	rownames(coefmat)<-colnames(mod.mcml$x)
@@ -36,6 +55,12 @@ summary.glmm <- function(object,...){
 	nu<-mod.mcml$nu
 	nu.se<-all.ses[-(1:nbeta)]
 	nuzval<-nu/nu.se
+	for(i in 1:length(nu)){
+	  nu[i] <- round(nu[i], digits = d[length(beta)+i])
+	  nu.se[i] <- round(nu.se[i], digits = d[length(beta)+i])
+	}
+	#nu <- round(nu, digits = d[2])
+	#nu.se <- round(nu.se, digits = d[2])
 	nucoefmat<-cbind(nu,nu.se,nuzval,pnorm(abs(nuzval),lower.tail=F))
 	colnames(nucoefmat)<-c("Estimate","Std. Error", "z value", "Pr(>|z|)/2")
 	rownames(nucoefmat)<-mod.mcml$varcomps.names
