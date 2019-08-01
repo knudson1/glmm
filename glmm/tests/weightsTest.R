@@ -2,34 +2,19 @@ library(glmm)
 data(BoothHobert)
 
 set.seed(1234)
-mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE)
+#model with all weights at 1, no duplicate data points in data set
+mod.mcml1<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=10^2, doPQL=TRUE, debug=TRUE)
 
-mod.mcml<-mod.mcml1$mod.mcml
-z<-mod.mcml$z[[1]]
-x<-mod.mcml$x
-y<-mod.mcml$y
-
+#weights are determined from model (should be all 1)
 if(is.null(mod.mcml1$weights)){
-  wts <- rep(1, length(y))
+  wts <- rep(1, length(mod.mcml1$y))
 } else{
   wts <- mod.mcml1$weights
 }
 
-stuff<-mod.mcml1$debug
-beta.pql<-stuff$beta.pql
-nu.pql<-stuff$nu.pql
-u.pql<-u.star<-stuff$u.star
-umat<-stuff$umat
-
-family.glmm<-bernoulli.glmm
-
-objfun<-glmm:::objfun
-getEk<-glmm:::getEk
-addVecs<-glmm:::addVecs
-
 ############################################
-#this should be the same as el
 getFamily<-glmm:::getFamily
+#el without weights (in R)
 elR <-
   function(Y,X,eta,family.mcml,wts){
     family.mcml<-getFamily(family.mcml)
@@ -54,6 +39,7 @@ elR <-
     list(value=value,gradient=gradient,hessian=hessian)
   }
 
+#el with weights (in R)
 NEWelR <-
   function(Y,X,eta,family.mcml,wts){
     family.mcml<-getFamily(family.mcml)
@@ -81,72 +67,67 @@ NEWelR <-
     list(value=value,gradient=gradient,hessian=hessian)
   }
 
-#compare elR and NEWelR for weights all equal 1
+########################################################
+#compare elR and NEWelR for weights all equal 1: to make sure elR and NEWelR work the same with no weighting scheme
 eta1<-rep(2,150)
+mod.mcml<-mod.mcml1
 thatALL1<-elR(mod.mcml$y,mod.mcml$x,eta1,family.mcml=bernoulli.glmm, wts=wts) 
 thisALL1 <- NEWelR(mod.mcml$y,mod.mcml$x,eta1,family.mcml=bernoulli.glmm, wts=wts)
 all.equal(as.numeric(thatALL1$value),as.numeric(thisALL1$value))
 all.equal(as.numeric(thatALL1$gradient),as.numeric(thisALL1$gradient))
 all.equal(as.numeric(thatALL1$hessian),as.numeric(thisALL1$hessian))
 
-#compare NEWelR and elc for weights all equal 1
+#compare NEWelR and elc for weights all equal 1: to make sure elc and NEWelR work the same with no weighting scheme
 thoseALL1<-.C(glmm:::C_elc, as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta1), as.integer(1), as.integer(1), wts=as.double(rep(1,150)), value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 all.equal(as.numeric(thoseALL1$value),as.numeric(thisALL1$value))
 all.equal(as.numeric(thoseALL1$gradient),as.numeric(thisALL1$gradient))
 all.equal(as.numeric(thoseALL1$hessian),as.numeric(thisALL1$hessian))
 
-#finite differences for NEWelR
+#finite differences for NEWelR, weights all 1
 del<- 10^-9
 thisdel <- NEWelR(mod.mcml$y,mod.mcml$x,eta1+del,family.mcml=bernoulli.glmm, wts=wts) 
 
 all.equal(as.vector(thisALL1$gradient*del),thisdel$value-thisALL1$value)
 all.equal(as.vector(thisALL1$hessian*del),as.vector(thisdel$gradient-thisALL1$gradient))
 
-#finite differences for elc
+#finite differences for elc, weights all 1
 thosedel <- .C(glmm:::C_elc, as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta1+del), as.integer(1), as.integer(1), wts=as.double(rep(1,150)), value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 all.equal(as.vector(thoseALL1$gradient*del),thosedel$value-thoseALL1$value)
 all.equal(as.vector(thoseALL1$hessian*del),as.vector(thosedel$gradient-thoseALL1$gradient))
 
-#compare elc to elval
+#compare elc to elval, weights all 1: value should be the same
 elvalout<-.C(glmm:::C_elval, as.double(mod.mcml$y), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta1), as.integer(1), as.integer(1), wts=as.double(rep(1,150)), value=double(1))
 all.equal(as.numeric(thoseALL1$value),elvalout$value)
 
-#compare elc to elGH
+#compare elc to elGH, weights all 1: gradient and hessian should be the same
 elGHout<-.C(glmm:::C_elGH,as.double(mod.mcml$y),as.double(mod.mcml$x),as.integer(nrow(mod.mcml$x)),as.integer(ncol(mod.mcml$x)),as.double(eta1),as.integer(1), as.integer(1), wts=as.double(rep(1,150)), gradient=double(ncol(mod.mcml$x)),hessian=double((ncol(mod.mcml$x)^2)))
 all.equal(as.numeric(thoseALL1$gradient),elGHout$gradient)
 all.equal(as.numeric(thoseALL1$hessian),elGHout$hessian)
 
-#compare elR with duplicate last entry and NEWelR with wts=2 for last entry
+#BoothHobert with 151 data points instead of 150 (150th data point duplicated)
 BoothHobertDub <- rbind(BoothHobert, BoothHobert[nrow(BoothHobert),])
 
 eta2<-rep(2,151)
 set.seed(1234)
-mod.mcml2<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobertDub, family.glmm=bernoulli.glmm, m=21, doPQL=TRUE, debug=TRUE)
+#model using duplicated data, all weights are 1
+mod.mcml2<-glmm(y~0+x1,list(y~0+z1),varcomps.names=c("z1"), data=BoothHobertDub, family.glmm=bernoulli.glmm, m=10^2, doPQL=TRUE, debug=TRUE)
 
-z<-mod.mcml2$z[[1]]
-x<-mod.mcml2$x
-y<-mod.mcml2$y
-
+#151 weights (all 1)
 if(is.null(mod.mcml2$weights)){
   wts <- rep(1, length(mod.mcml2$y))
 } else{
   wts <- mod.mcml2$weights
 }
 
-stuff<-mod.mcml2$debug
-beta.pql<-stuff$beta.pql
-nu.pql<-stuff$nu.pql
-u.pql<-u.star<-stuff$u.star
-umat<-stuff$umat
-
+#compare elR with BoothHobertDub and all weights 1 versus NEWelR with BoothHobert and first 149 wights 1 and weight 150 as 2
 this2<-NEWelR(mod.mcml$y,mod.mcml$x,eta1,family.mcml=bernoulli.glmm, wts=c(rep(1,149),2)) 
 that2 <- elR(mod.mcml2$y,mod.mcml2$x,eta2,family.mcml=bernoulli.glmm, wts=wts)
-those2 <- .C(glmm:::C_elc, as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta1), as.integer(1), as.integer(1), wts=as.double(c(rep(1,149),2)), value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 all.equal(as.numeric(that2$value),as.numeric(this2$value))
 all.equal(as.numeric(that2$gradient),as.numeric(this2$gradient))
 all.equal(as.numeric(that2$hessian),as.numeric(this2$hessian))
 
-#comparing NEWelR C version
+#compare NEWelR with BoothHobert and first 149 wights 1 and weight 150 as 2 versus elc with BoothHobert and first 149 wights 1 and weight 150 as 2
+those2 <- .C(glmm:::C_elc, as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta1), as.integer(1), as.integer(1), wts=as.double(c(rep(1,149),2)), value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 all.equal(as.numeric(those2$value),as.numeric(this2$value))
 all.equal(as.numeric(those2$gradient),as.numeric(this2$gradient))
 all.equal(as.numeric(those2$hessian),as.numeric(this2$hessian))

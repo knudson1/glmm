@@ -56,7 +56,8 @@ simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
     if(vars$family.glmm$family.glmm=="binomial.glmm"){cdouble<-vars$family.glmm$cpp(eta.star, vars$ntrials)}
     #still a vector
     cdouble<-Diagonal(length(cdouble),cdouble)
-    Sigmuh.inv<- t(Z)%*%cdouble%*%Z+D.star.inv
+    wtsmat <- diag(vars$wts)
+    Sigmuh.inv<- t(Z)%*%cdouble%*%wtsmat%*%Z+D.star.inv
     Sigmuh<-solve(Sigmuh.inv)
     genData3<-genRand(vars$u.star,Sigmuh,ceiling(m3/vars$no_cores))
   }
