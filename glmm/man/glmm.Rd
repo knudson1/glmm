@@ -116,7 +116,8 @@ library(glmm)
 ptm <- proc.time()
 data(BoothHobert)
 set.seed(1234)
-mod.mcml1 <- glmm(y~0+x1, list(y~0+z1), varcomps.names=c("z1"), data=BoothHobert, family.glmm=bernoulli.glmm, m=100, doPQL=TRUE)
+mod.mcml1 <- glmm(y~0+x1, list(y~0+z1), varcomps.names=c("z1"), 
+data=BoothHobert, family.glmm=bernoulli.glmm, m=100, doPQL=TRUE)
 mod.mcml1$beta
 mod.mcml1$nu
 summary(mod.mcml1)
@@ -125,8 +126,9 @@ coef(mod.mcml1)
 #Next, a model setting two variance components equal.
 data(Booth2)
 set.seed(1234)
-mod.mcml3<-glmm(y~0+x1, list(y~0+z1,~0+z2), varcomps.names=c("z"), varcomps.equal=c(1,1), data=Booth2, family.glmm=bernoulli.glmm, m=100)
-summary(mod.mcml3)
+\donttest{mod.mcml3<-glmm(y~0+x1, list(y~0+z1,~0+z2), varcomps.names=c("z"),
+ varcomps.equal=c(1,1), data=Booth2, family.glmm=bernoulli.glmm, m=100)
+summary(mod.mcml3)}
 
 #Now, a model with crossed random effects. There are two distinct
 #variance components. To get more accurate answers for this model,
@@ -135,12 +137,14 @@ summary(mod.mcml3)
 set.seed(1234)
 data(salamander)
 m<-100
-\donttest{sal<-glmm(Mate~0+Cross, random=list(~0+Female,~0+Male), varcomps.names=c("F","M"), data=salamander, family.glmm=bernoulli.glmm, m=m, debug=TRUE)}
+\donttest{sal<-glmm(Mate~0+Cross, random=list(~0+Female,~0+Male), 
+varcomps.names=c("F","M"), data=salamander, family.glmm=bernoulli.glmm, m=m)}
 \donttest{summary(sal)}
 
 #The above model (sal) can be redone with binomial.glmm
 set.seed(1234)
-\donttest{sal<-glmm(cbind(Mate,1-Mate)~0+Cross, random=list(~0+Female,~0+Male), varcomps.names=c("F","M"), data=salamander, family.glmm=binomial.glmm, m=m, debug=TRUE)}
+\donttest{sal<-glmm(cbind(Mate,1-Mate)~0+Cross, random=list(~0+Female,~0+Male),
+ varcomps.names=c("F","M"), data=salamander, family.glmm=binomial.glmm, m=m)}
 
 }
 
