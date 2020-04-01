@@ -14,5 +14,4 @@ Depends: R (>= 3.5), trust, mvtnorm, Matrix, parallel, doParallel
 Imports: stats, foreach, itertools, utils
 ByteCompile: TRUE
 NeedsCompilation: yes
-VignetteBuilder: knitr
 Suggests: knitr
