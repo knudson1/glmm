@@ -40,7 +40,7 @@ data(salamander)
 
 m<-1000
 \donttest{sal<-glmm(Mate~0+Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"),}
-\donttest{data=salamander,family.glmm=bernoulli.glmm,m=m,debug=TRUE,doPQL=FALSE,cores=2)}
+\donttest{data=salamander,family.glmm=bernoulli.glmm,m=m,debug=TRUE,doPQL=FALSE)}
 \donttest{mcvcov(sal)}
 
 
