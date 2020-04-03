@@ -1,5 +1,5 @@
 library(glmm)
-clust <- makeCluster(2)
+clust <- makeCluster(1)
 set.seed(1234)
 data(salamander)
 sal<-glmm(Mate~Cross,random=list(~0+Female,~0+Male),varcomps.names=c("F","M"), data=salamander,family.glmm=bernoulli.glmm,m=100,debug=TRUE,doPQL=FALSE, cluster=clust)
