@@ -113,7 +113,6 @@ Hu, F. and Zidek, J. V. (1997) The relevance weighted likelihood. Unpublished.}
 #one fixed effect, and an intercept of 0. The Monte Carlo
 #sample size is 100 to save time.
 library(glmm)
-ptm <- proc.time()
 data(BoothHobert)
 set.seed(1234)
 mod.mcml1 <- glmm(y~0+x1, list(y~0+z1), varcomps.names=c("z1"), 
@@ -130,21 +129,6 @@ set.seed(1234)
  varcomps.equal=c(1,1), data=Booth2, family.glmm=bernoulli.glmm, m=100)
 summary(mod.mcml3)}
 
-#Now, a model with crossed random effects. There are two distinct
-#variance components. To get more accurate answers for this model,
-#use a larger Monte Carlo sample size, such as m=10^4 or 10^5
-#and doPQL=TRUE.
-set.seed(1234)
-data(salamander)
-m<-100
-\donttest{sal<-glmm(Mate~0+Cross, random=list(~0+Female,~0+Male), 
-varcomps.names=c("F","M"), data=salamander, family.glmm=bernoulli.glmm, m=m)}
-\donttest{summary(sal)}
-
-#The above model (sal) can be redone with binomial.glmm
-set.seed(1234)
-\donttest{sal<-glmm(cbind(Mate,1-Mate)~0+Cross, random=list(~0+Female,~0+Male),
- varcomps.names=c("F","M"), data=salamander, family.glmm=binomial.glmm, m=m)}
 
 }
 
