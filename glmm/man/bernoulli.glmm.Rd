@@ -1,5 +1,8 @@
 \name{bernoulli.glmm}
 \alias{bernoulli.glmm}
+\concept{generalized linear mixed model}
+\concept{Monte Carlo}
+\concept{likelihood approximation}
 
 \title{Functions for the Bernoulli family. }
 \description{Given a scalar \code{eta}, this calculates the cumulant and two derivatives for the Bernoulli family. Also checks that the data are entered correctly.}
@@ -33,6 +36,4 @@ bernoulli.glmm()$cp(1)
 bernoulli.glmm()$cpp(2)
 
 }
-
-\keyword{ generalized linear mixed model }
-\keyword{ Monte Carlo likelihood approximation }
+\keyword{models}

@@ -1,5 +1,6 @@
 \name{vcov.glmm}
 \alias{vcov.glmm}
+\concept{generalized linear mixed model}
 
 \title{Variance-Covariance Matrix}
 \description{A function that calculates the variance-covariance matrix for the Monte Carlo maximum likelihood estimates returned from \code{\link{glmm}}.
@@ -34,5 +35,4 @@ vcov(mod)
 
 
 }
-
-\keyword{generalized linear mixed model}
+\keyword{models}

@@ -1,6 +1,7 @@
 \name{Booth2}
 \docType{data}
 \alias{Booth2}
+\concept{generalized linear mixed model}
 \title{A Logit-Normal GLMM Dataset}
 \description{This data set contains simulated data from the paper of Booth and Hobert (referenced below) as well as another vector. }
 
@@ -21,5 +22,5 @@
 \examples{
 data(Booth2)
 }
-\keyword{generalized linear mixed models}
+\keyword{datasets}
 

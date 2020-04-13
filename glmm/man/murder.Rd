@@ -1,6 +1,7 @@
 \name{murder}
 \docType{data}
 \alias{murder}
+\concept{generalized linear mixed model}
 \title{Number of Homicide Victims Known}
 \description{Subjects responded to the question 'Within the past 12 months, how many people have you known personally that were victims of homicide?'}
 
@@ -20,5 +21,5 @@
 \examples{
 data(murder)
 }
-\keyword{generalized linear mixed models}
+\keyword{datasets}
 

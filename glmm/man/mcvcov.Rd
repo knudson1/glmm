@@ -1,5 +1,8 @@
 \name{mcvcov}
 \alias{mcvcov}
+\concept{generalized linear mixed model}
+\concept{Monte Carlo}
+\concept{likelihood approximation}
 
 \title{Monte Carlo Variance Covariance Matrix}
 \description{A function that calculates the Monte Carlo variance covariance matrix for the Monte Carlo maximum likelihood estimates returned from \code{\link{glmm}}.
@@ -44,5 +47,5 @@ mcvcov(mod)
 
 
 }
+\keyword{models}
 
-\keyword{generalized linear mixed model}

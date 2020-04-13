@@ -27,5 +27,5 @@ The presence of H. influenzae was checked at weeks 0, 2, 4, 6 and 11: 30 of the 
 \examples{
 data(bacteria)
 }
-\keyword{generalized linear mixed models}
+\keyword{datasets}
 

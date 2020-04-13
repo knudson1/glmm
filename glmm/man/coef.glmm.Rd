@@ -1,5 +1,6 @@
 \name{coef.glmm}
 \alias{coef.glmm}
+\concept{generalized linear mixed model}
 
 \title{Extract Model Coefficients}
 \description{A function that extracts the fixed effect coefficients returned from \code{\link{glmm}}.
@@ -34,4 +35,6 @@ m<-1000
 
 }
 
-\keyword{generalized linear mixed model}
+\keyword{regression}
+\keyword{models}
+

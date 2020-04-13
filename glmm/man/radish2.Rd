@@ -1,6 +1,7 @@
 \name{radish2}
 \docType{data}
 \alias{radish2}
+\concept{generalized linear mixed model}
 \title{Radish count data set}
 \description{Data on life history traits for the invasive California wild
      radish \emph{Raphanus sativus}. }
@@ -31,5 +32,5 @@
 }
 
 \examples{data(radish2)}
-\keyword{generalized linear mixed models}
+\keyword{datasets}
 

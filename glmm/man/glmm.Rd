@@ -1,5 +1,9 @@
 \name{glmm}
 \alias{glmm}
+\concept{generalized linear mixed model}
+\concept{Monte Carlo}
+\concept{maximum likelihood}
+\concept{likelihood approximation}
 \title{Fitting Generalized Linear Mixed Models using MCML}
 \description{This function fits generalized linear mixed models (GLMMs) by approximating the likelihood with ordinary Monte Carlo, then maximizing the approximated likelihood. }
 \usage{glmm(fixed, random, varcomps.names, data, family.glmm, m, 
@@ -91,14 +95,22 @@ To see the summary of the model, use summary().
 }
 \references{
 Geyer, C. J. (1994)  On the convergence of Monte Carlo maximum likelihood calculations.  \emph{Journal of the Royal Statistical Society, Series B}, \bold{61}, 261--274.
+\doi{10.1111/j.2517-6161.1994.tb01976.x}.
 
 Geyer, C. J. and Thompson, E. (1992)  Constrained Monte Carlo maximum likelihood for dependent data.  \emph{Journal of the Royal Statistical Society, Series B}, \bold{54}, 657--699.
+\doi{10.1111/j.2517-6161.1992.tb01443.x}
 
 Knudson, C. (2016). Monte Carlo likelihood approximation for generalized linear mixed models. PhD thesis, University of Minnesota.  \url{http://hdl.handle.net/11299/178948}
 
 Sung, Y. J. and Geyer, C. J. (2007)  Monte Carlo likelihood inference for missing data models.  \emph{Annals of Statistics}, \bold{35}, 990--1011.
+\doi{10.1214/009053606000001389}.
 
-Hu, F. and Zidek, J. V. (1997) The relevance weighted likelihood. Unpublished.}
+Hu, F. and Zidek, J. V. (2001) The relevance weighted likelihood with
+    applications. In: Ahmed, S. E. and Reid N. (eds).
+   \emph{Empirical Bayes and Likelihood Inference}.
+   Lecture Notes in Statistics, \bold{148}, 211--235. Springer, New York.
+   \doi{10.1007/978-1-4613-0141-7_13}.
+}
 
 \author{Christina Knudson}
 %\note{}
@@ -131,8 +143,9 @@ summary(mod.mcml3)}
 
 
 }
+% only allowed keywords are shown by RShowDoc("KEYWORDS")
+% see Section 2.1.1 of Writing R Extensions
+% other stuff is "concepts" and goes at the top
+\keyword{models}
+\keyword{regression}
 
-\keyword{generalized linear mixed model }
-\keyword{Monte Carlo }
-\keyword{maximum likelihood}
-\keyword{likelihood approximation}

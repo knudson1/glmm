@@ -1,5 +1,6 @@
 \name{confint.glmm}
 \alias{confint.glmm}
+\concept{generalized linear mixed model}
 
 \title{Calculates Asymptotic Confidence Intervals}
 \description{A function that calculates asymptotic confidence intervals for one or more parameters in a model fitted by by \code{\link{glmm}}. Confidence intervals can be calculated for fixed effect parameters and variance components using models.
@@ -33,5 +34,5 @@ set.seed(123)
 \donttest{confint(mod.mcml1)}
 
 }
+\keyword{models}
 
-\keyword{generalized linear mixed model}

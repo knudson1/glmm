@@ -11,7 +11,16 @@ R CMD build glmm
 R CMD check glmm_*.tar.gz
 
 # to check with valgrind
-R CMD check --use-valgrind glmm_*.tar.gz
+#
+# should have no complaints from valgrind
+# but we have to suppress some complaints about the C standard library
+export VALGRIND_OPTS=--suppressions=`pwd`/myValgrind.supp
+R CMD check --use-valgrind glmm_*.tar.gz --run-donttest
+# after the check we do the following to focus in on errors
+grep "ERROR SUMMARY" glmm.Rcheck/00check.log
+grep "ERROR SUMMARY" glmm.Rcheck/glmm-Ex.Rout
+grep "definitely lost:" glmm.Rcheck/00check.log
+grep "definitely lost:" glmm.Rcheck/glmm-Ex.Rout
 
 # before submission this should be done using R-devel
 R CMD check --as.cran glmm_*.tar.gz

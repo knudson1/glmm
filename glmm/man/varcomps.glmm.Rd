@@ -1,5 +1,6 @@
 \name{varcomps}
 \alias{varcomps}
+\concept{generalized linear mixed model}
 
 \title{Extract Model Variance Components}
 \description{A function that extracts the variance components returned from \code{\link{glmm}}.
@@ -34,5 +35,4 @@ varcomps(mod)
 
 
 }
-
-\keyword{generalized linear mixed model}
+\keyword{models}

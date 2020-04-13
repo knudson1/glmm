@@ -1,5 +1,6 @@
 \name{se}
 \alias{se}
+\concept{generalized linear mixed model}
 
 \title{Standard Error}
 \description{A function that calculates the standard error for the Monte Carlo maximum likelihood estimates returned from \code{\link{glmm}}.
@@ -40,5 +41,4 @@ se(mod)
 
 
 }
-
-\keyword{generalized linear mixed model}
+\keyword{models}

@@ -1,6 +1,10 @@
 \name{summary.glmm}
 \alias{summary.glmm}
 \alias{print.summary.glmm}
+\concept{generalized linear mixed model}
+\concept{Monte Carlo}
+\concept{maximum likelihood}
+
 \title{Summarizing GLMM Fits}
 \description{ "summary" method for class \code{glmm} objects.}
 
@@ -44,9 +48,5 @@ The function \code{summary.glmm} computes and returns a list of summary statisti
 
 \seealso{The model fitting function \code{\link{glmm}}, the generic \code{\link{summary}}, and the function \code{\link{coef}}that extracts the fixed effect coefficients.
 }
-
-
-\keyword{generalized linear mixed models}
 \keyword{models}
-\keyword{Monte Carlo}
-\keyword{maximum likelihood}
+\keyword{regression}

@@ -1,5 +1,8 @@
 \name{logLik.glmm}
 \alias{logLik.glmm}
+\concept{generalized linear mixed model}
+\concept{Monte Carlo}
+\concept{likelihood approximation}
 
 \title{Monte Carlo Log Likelihood}
 \description{A function that calculates the Monte Carlo log likelihood evaluated at the the Monte Carlo maximum likelihood estimates returned from \code{\link{glmm}}.
@@ -32,4 +35,4 @@ data=BoothHobert, family.glmm=bernoulli.glmm, m=100)
 logLik(mod)
 }
 
-\keyword{generalized linear mixed model}
+\keyword{models}

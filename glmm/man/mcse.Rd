@@ -1,5 +1,8 @@
 \name{mcse}
 \alias{mcse}
+\concept{generalized linear mixed model}
+\concept{Monte Carlo}
+\concept{maximum likelihood}
 
 \title{Monte Carlo Standard Error}
 \description{A function that calculates the Monte Carlo standard error for the Monte Carlo maximum likelihood estimates returned from \code{\link{glmm}}.
@@ -40,5 +43,5 @@ data=BoothHobert, family.glmm=bernoulli.glmm, m=100, doPQL=TRUE)
 mcse(mod)
 
 }
+\keyword{models}
 
-\keyword{generalized linear mixed model}

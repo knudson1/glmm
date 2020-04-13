@@ -1,5 +1,8 @@
 \name{poisson.glmm}
 \alias{poisson.glmm}
+\concept{generalized linear mixed model}
+\concept{Monte Carlo}
+\concept{likelihood approximation}
 
 \title{Functions for the Poisson family.}
 \description{Given a scalar \code{eta}, this calculates the cumulant and two derivatives for the Poisson family. Also checks that the data are entered correctly.}
@@ -31,6 +34,4 @@ poisson.glmm()$cum(2)
 poisson.glmm()$cp(2)
 poisson.glmm()$cpp(2)
 }
-
-\keyword{ generalized linear mixed model }
-\keyword{ Monte Carlo likelihood approximation }
+\keyword{models}

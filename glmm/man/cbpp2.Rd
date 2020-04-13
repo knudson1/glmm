@@ -1,7 +1,7 @@
 \name{cbpp2}
 \docType{data}
 \alias{cbpp2}
-\title{Contagious bovine pleuropneumonia}
+\title{Contagious Bovine Pleuropneumonia}
 \description{This data set is a reformatted version of \code{cbpp} from the \code{lme4} package. Contagious bovine pleuropneumonia (CBPP) is a major disease of cattle in Africa, caused by a mycoplasma. This dataset describes the serological incidence of CBPP in zebu cattle during a follow-up survey implemented in 15 commercial herds located in the Boji district of Ethiopia. The goal of the survey was to study the within-herd spread of CBPP in newly infected herds. Blood samples were quarterly collected from all animals of these herds to determine their CBPP status. These data were used to compute the serological incidence of CBPP (new cases occurring during a given time period). Some data are missing (lost to follow-up). }
 
 \usage{data(cbpp2)}
@@ -22,5 +22,5 @@
 \examples{
 data(cbpp2)
 }
-\keyword{generalized linear mixed models}
+\keyword{datasets}
 

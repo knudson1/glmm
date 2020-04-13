@@ -1,5 +1,8 @@
 \name{binomial.glmm}
 \alias{binomial.glmm}
+\concept{generalized linear mixed model}
+\concept{Monte Carlo}
+\concept{likelihood approximation}
 
 \title{Functions for the Binomial family. }
 \description{Given a scalar \code{eta} and the number of trials, this calculates the cumulant and two derivatives for the Bernoulli family. Also checks that the data are entered correctly.}
@@ -34,6 +37,4 @@ binomial.glmm()$cp(1, ntrials)
 binomial.glmm()$cpp(2, ntrials)
 
 }
-
-\keyword{ generalized linear mixed model }
-\keyword{ Monte Carlo likelihood approximation }
+\keyword{models}
