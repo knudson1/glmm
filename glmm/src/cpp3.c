@@ -28,7 +28,8 @@ void cpp3(double *etain, int *neta, int *typein, int *ntrials, double *cppout)
 
 	    	default:
 	    	    error("unrecognized type");
-				break;
+                        // clang complains about unreachable
+                        // break;
         }
     }
 }

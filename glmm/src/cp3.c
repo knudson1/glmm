@@ -23,7 +23,8 @@ void cp3(double *etain, int *neta, int *typein, int *ntrials, double *cpout)
 
 		    default:
 		        error("unrecognized type");
-		   		break;
+                            // clang complains about unreachable
+                            // break;
         }
     }
 }

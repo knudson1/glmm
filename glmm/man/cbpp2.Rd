@@ -18,7 +18,7 @@
 
 \details{Serological status was determined using a competitive enzyme-linked immuno-sorbent assay (cELISA).}
 
-\references{Lesnoff, M., Laval, G., Bonnet, P., Abdicho, S., Workalemahu, A., Kifle, D., Peyraud, A., Lancelot, R., Thiaucourt, F. (2004)  Within-herd spread of contagious bovine pleuropneumonia in Ethiopian highlands. \emph{Preventive Veterinary Medicine}, \bold{64}, 27--40.}
+\references{Lesnoff, M., Laval, G., Bonnet, P., Abdicho, S., Workalemahu, A., Kifle, D., Peyraud, A., Lancelot, R., Thiaucourt, F. (2004)  Within-herd spread of contagious bovine pleuropneumonia in Ethiopian highlands. \emph{Preventive Veterinary Medicine}, \bold{64}, 27--40. \doi{10.1016/j.prevetmed.2004.03.005}.}
 \examples{
 data(cbpp2)
 }

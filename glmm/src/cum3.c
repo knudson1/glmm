@@ -46,7 +46,8 @@ void cum3(double *etain, int *neta, int *typein, int *ntrials, double *wts, doub
 
 	    default:
 	        error("unrecognized type");
-			break;
+                    // clang complains about unreachable
+                    // break;
         }
     }
 }

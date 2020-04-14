@@ -4,9 +4,11 @@ void elc(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family,
 
 	double cumout=0.0;
 	double *cpout=Calloc(*nrowX, double);
-	memset(cpout,0,*nrowX);
+	// unnecessary because calloc zeros memory (malloc doesn't)
+	// memset(cpout,0,*nrowX);
 	double *cppout=Calloc(*nrowX, double);
-	memset(cppout,0,*nrowX);
+	// unnecessary because calloc zeros memory (malloc doesn't)
+	// memset(cppout,0,*nrowX);
 
 	/*calling cum3, cp3, cpp3 will just change the doubles cumout, cpout, cppout  */
 	cum3(eta, nrowX, family, ntrials, wts, &cumout);
@@ -49,7 +51,8 @@ void elc(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family,
 
 	/*  need to create diagonal matrix negcdub=-c''(eta) from vector cppout  */
 	double *negcdub=Calloc(sizemat,double);
-	memset(negcdub,0,sizemat);
+	// unnecessary because calloc zeros memory (malloc doesn't)
+	// memset(negcdub,0,sizemat);
 	diag(cppout, nrowX, negcdub); 
 	Free(cppout);
 

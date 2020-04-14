@@ -18,7 +18,9 @@ void hess(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbe
 #endif /* defined(__GNUC__) || defined(__clang__) */
 {
     double *Uk = Calloc(*myq, double);
-    int Uindex = 0;
+    // clang static analyzer complains about the following
+    // put the int on the assignment below that ignores this one
+    // int Uindex = 0;
     
     /* Calculate xbeta, needed to calculate eta for each Uk=U[k,] in R notation */
     double *xbeta = Calloc(*n,double);
@@ -69,7 +71,7 @@ void hess(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbe
     double *panda = Calloc(npar*npar, double);
     double *pandatemp = Calloc(npar*npar, double);
     
-    Uindex = 0;
+    int Uindex = 0;
     int Gindex = 0;
     int intone = 1;
     

@@ -30,6 +30,7 @@ The square root of the diagonal elements represents the Monte Carlo standard err
 
 \references{
 Geyer, C. J. (1994)  On the convergence of Monte Carlo maximum likelihood calculations.  \emph{Journal of the Royal Statistical Society, Series B},  \bold{61}, 261--274.
+\doi{10.1111/j.2517-6161.1994.tb01976.x}.
 
 Knudson, C. (2016)  Monte Carlo likelihood approximation for generalized linear mixed models. PhD thesis, University of Minnesota.  \url{http://hdl.handle.net/11299/178948}}
 

@@ -1,6 +1,7 @@
 
 #include <R.h>
 #include <R_ext/BLAS.h>
+#include "myheader.h"
 
 /*  matrix times vector 
 a is the matrix (as double)
@@ -64,7 +65,8 @@ void diag(double *invec, int *nrow, double *outmat)
 int i;
 int j;
 int k=0;
-int matsize=(*nrow)*(*nrow);
+// clang complains about signed to unsigned conversion
+unsigned int matsize=(*nrow)*(*nrow);
 memset(outmat,0,matsize);
 
 for(i=0;i<(*nrow);++i)
@@ -84,7 +86,8 @@ void identmat(int *nrow, int *diagmat)
 int i;
 int j;
 int k=0;
-int matsize=(*nrow)*(*nrow);
+// clang complains about signed to unsigned conversion
+unsigned int matsize=(*nrow)*(*nrow);
 memset(diagmat,0,matsize);
 
 for(i=0;i<(*nrow);++i)
