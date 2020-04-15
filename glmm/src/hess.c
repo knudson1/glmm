@@ -179,7 +179,10 @@ void hess(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbe
     
     Free(panda);
     Free(lobster);
-    
+
+    // caught by ../../devel/calloc-match.R
+    Free(bs);
+
 }
 
 
