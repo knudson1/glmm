@@ -1,3 +1,7 @@
+/*
+  Y is a matrix of dimension (*nrowX,1), that is, a column vector
+  X is a matrix of dimension (*nrowX,*ncolX)
+*/
 #include "myheader.h"
 void elGH(double *Y, double *X, int *nrowX, int *ncolX, double *eta, int *family, int *ntrials, double *wts, double *elgradient, double *elhessian)
 {

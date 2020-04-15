@@ -1,5 +1,7 @@
 #include "myheader.h"
-/*x is n by nbeta matrix
+/*
+ y is vector of length n
+ x is n by nbeta matrix
  beta has length nbeta
  Umat is myq by m matrix, one COLUMN of Umat used at a time. Umat must be the R mat transposed
  z is n by myq matrix
@@ -11,7 +13,6 @@
 void valgrad(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst, double *v, int *ntrials, double *value, double *gradient, double *b, double *wts)
 {
     double *Uk = Calloc(*myq, double);
-    int Uindex = 0;
     
     double db1 = 0.0;
     double *double1 = &db1; /*temp to hold info that will be put into lfuval*/
@@ -30,11 +31,10 @@ void valgrad(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
     double lfutwid = 1.1;
     double a = 0.0;
     
-    for(int k = 0; k < *m; k++){
+    for(int k = 0, Uindex = 0; k < *m; k++){
         /*start by getting Uk */
-        for(int i = 0; i < *myq; i++){
+        for(int i = 0; i < *myq; i++, Uindex++){
             Uk[i] = Umat[Uindex];
-            Uindex++;
         }
         
         /* calculate eta for this value of Uk
@@ -118,15 +118,13 @@ void valgrad(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *
     double *lfyuhess = Calloc((*nbeta)*(*nbeta), double);
     
     
-    Uindex = 0;
     int Gindex = 0;
 
     
-    for(int k = 0; k<*m; k++){
+    for(int k = 0, Uindex = 0; k < *m; k++){
         /*start by getting Uk  */
-        for(int i = 0; i<*myq; i++){
+        for(int i = 0; i<*myq; i++, Uindex++){
             Uk[i] = Umat[Uindex];
-            Uindex++;
         }
         
         /* calculate eta for this value of Uk
