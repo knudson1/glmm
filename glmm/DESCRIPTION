@@ -4,6 +4,7 @@ Title: Generalized Linear Mixed Models via Monte Carlo Likelihood
         Approximation
 Version: 1.4
 Date: 2020-4-10
+Author: Christina Knudson, Charles J. Geyer, and Sydney, Benson
 Authors@R: c(person("Christina", "Knudson", role = c("aut", "cre"),
     email = "knud8583@stthomas.edu"), person("Charles J.", "Geyer", role = "ctb",
     email = "geyer@umn.edu"), person("Sydney", "Benson", role = "ctb", email = "bens0643@umn.edu"))

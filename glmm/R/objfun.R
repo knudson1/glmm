@@ -78,6 +78,11 @@ objfun <-
         # z is n by myq matrix
         stopifnot(nrow(vars$Z) == vars$n)
         stopifnot(ncol(vars$Z) == vars$myq)
+        # Dinvfornu is myq x myq
+        stopifnot(nrow(vars$Dinvfornu) == vars$myq)
+        stopifnot(ncol(vars$Dinvfornu) == vars$myq)
+        # logdetDinvfornu is scalar
+        stopifnot(length(vars$logdetDinvfornu) == 1)
         .C(C_valgrad,
             y = as.double(vars$mod.mcml$y),
             Umat = as.double(t(umatparams$umat)),
