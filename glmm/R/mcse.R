@@ -11,8 +11,8 @@ mcvcov <- function(object){
 
 	x <- mod$x
 	y <- mod$y
-	Z=do.call(cbind,mod$z)
-	T<-length(mod$z)
+	Z = do.call(cbind,mod$z)
+	Tee <-length(mod$z)
 	nrand<-lapply(mod$z,ncol)
 	nrandom<-unlist(nrand)
 
@@ -60,9 +60,9 @@ mcvcov <- function(object){
 	logdetDinvfornu<-sum(log(Dinvfornu))
 	Dinvfornu<-diag(Dinvfornu)
 	
-	meow<-rep(1,T+1)
+	meow<-rep(1,Tee+1)
 	meow[1]<-0
-	throwaway<-T+1
+	throwaway<-Tee+1
 	meow[2:throwaway]<-cumsum(nrandom)
 	
 	pea<-mod$pvec
@@ -78,7 +78,52 @@ mcvcov <- function(object){
 	  wts <- mod$weights
 	}
 
-	stuff<-.C(C_mcsec, as.double(0.0), as.double(0.0), as.double(squaretop), numsum=as.double(rep(0,npar^2)), as.double(mod$y),as.double(t(umat)), as.integer(myq), as.integer(m), as.double(mod$x), as.integer(n), as.integer(nbeta), as.double(beta), as.double(Z), as.double(Dinvfornu), as.double(logdetDinvfornu),as.integer(family_glmm), as.double(D.star.inv), as.double(logdet.D.star.inv), as.double(mod$u.pql), as.double(Sigmuh.inv), as.double(logdet.Sigmuh.inv), pea=as.double(pea), nps=as.integer(length(pea)), T=as.integer(T), nrandom=as.integer(nrandom), meow=as.integer(meow),nu=as.double(nu), zeta=as.integer(zeta),tconst=as.double(tconst), ntrials=as.integer(mod$mod.mcml$ntrials), as.double(0.0), as.double(0.0), wts=as.double(wts))
+	# only YOU can prevent segfault errors
+	# prevent segfault errors by checking dims
+	stopifnot(length(y) == n)
+	stopifnot(nrow(mod$x) == n)
+	stopifnot(ncol(mod$x) == beta)
+	stopifnot(length(beta) == nbeta)
+	stopifnot(nrow(Z) == n)
+	stopifnot(ncol(Z) == myq)
+	stopifnot(nrow(Dinvfornu) == myq)
+	stopifnot(ncol(Dinvfornu) == myq)
+	
+	
+	stuff<-.C(C_mcsec, 
+	          as.double(0.0), # gamma: scalar
+	          as.double(0.0), # thing: scalar
+	          as.double(squaretop), # squaretop: vector length m
+	          numsum = as.double(rep(0, npar^2)), # numsum: vector of length  npar^2
+	          as.double(mod$y), # y: vector of length n
+	          as.double(t(umat)), # Umat: myq by m matrix.
+	          as.integer(myq), # scalar.
+	          as.integer(m), # scalar.
+	          as.double(mod$x), # n by nbeta matrix
+	          as.integer(n), #scalar
+	          as.integer(nbeta),  #scalar
+	          as.double(beta), # vector length nbeta
+	          as.double(Z), # n by myq matrix
+	          as.double(Dinvfornu), # myq x myq
+	          as.double(logdetDinvfornu),
+	          as.integer(family_glmm), 
+	          as.double(D.star.inv), 
+	          as.double(logdet.D.star.inv), 
+	          as.double(mod$u.pql), 
+	          as.double(Sigmuh.inv), 
+	          as.double(logdet.Sigmuh.inv),
+	          pea=as.double(pea), 
+	          nps=as.integer(length(pea)),
+	          Tee=as.integer(Tee), 
+	          nrandom=as.integer(nrandom), 
+	          meow=as.integer(meow),
+	          nu=as.double(nu), 
+	          zeta=as.integer(zeta),
+	          tconst=as.double(tconst),
+	          ntrials=as.integer(mod$mod.mcml$ntrials), 
+	          as.double(0.0), 
+	          as.double(0.0), 
+	          wts=as.double(wts))
 
 	vhatnum <- (1/m)*stuff[[4]]
 	vhatdenom <- ( stuff[[1]]   )^2
