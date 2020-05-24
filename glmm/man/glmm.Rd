@@ -134,12 +134,7 @@ mod.mcml1$nu
 summary(mod.mcml1)
 coef(mod.mcml1)
 
-#Next, a model setting two variance components equal.
-data(Booth2)
-set.seed(1234)
-\donttest{mod.mcml3<-glmm(y~0+x1, list(y~0+z1,~0+z2), varcomps.names=c("z"),
- varcomps.equal=c(1,1), data=Booth2, family.glmm=bernoulli.glmm, m=100)
-summary(mod.mcml3)}
+
 
 
 }
