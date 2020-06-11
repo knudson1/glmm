@@ -16,7 +16,7 @@ objfun <-
     }
     
     vars$Z=do.call(cbind,vars$mod.mcml$z)
-    vars$T<-length(vars$mod.mcml$z)
+    vars$Tee<-length(vars$mod.mcml$z)
     nrand<-lapply(vars$mod.mcml$z,ncol)
     vars$nrandom<-unlist(nrand)
     
@@ -35,22 +35,22 @@ objfun <-
     clusterEvalQ(vars$cl, logdet.Sigmuh.inv<-sum(log(eigen(umatparams$Sigmuh.inv,symmetric=TRUE)$values)))
     vars$myq<-nrow(vars$D.star.inv)
     
-    vars$tconst<-tconstant(vars$zeta,vars$myq,Dstarinvdiag)
+    vars$tconst <- tconstant(vars$zeta, vars$myq, Dstarinvdiag)
     
     #for the particular value of nu we're interested in, need to prep for distRandGenC
-    eek<-getEk(vars$mod.mcml$z)
-    preDinvfornu<-Map("*",eek,(1/vars$nu))
-    vars$Dinvfornu<-addVecs(preDinvfornu)
-    vars$logdetDinvfornu<-sum(log(vars$Dinvfornu))
-    vars$Dinvfornu<-diag(vars$Dinvfornu)
+    eek <- getEk(vars$mod.mcml$z)
+    preDinvfornu <- Map("*",eek,(1/vars$nu))
+    vars$Dinvfornu <- addVecs(preDinvfornu)
+    vars$logdetDinvfornu <- sum(log(vars$Dinvfornu))
+    vars$Dinvfornu <- diag(vars$Dinvfornu)
     
-    vars$meow<-rep(1,vars$T+1)
-    vars$meow[1]<-0
-    throwaway<-vars$T+1
-    vars$meow[2:throwaway]<-cumsum(vars$nrandom)
+    vars$meow <- rep(1,vars$Tee+1)
+    vars$meow[1] <- 0
+    throwaway <- vars$Tee+1
+    vars$meow[2:throwaway] <- cumsum(vars$nrandom)
     
-    vars$pea<-c(vars$p1,vars$p2,vars$p3)
-    vars$n<-nrow(vars$mod.mcml$x)
+    vars$pea <- c(vars$p1,vars$p2,vars$p3)
+    vars$n <- nrow(vars$mod.mcml$x)
     
     ##need to scale first m1 vectors of generated random effects by multiplying by A
     
@@ -61,6 +61,9 @@ objfun <-
     #		u.swoop<-umat[k,]
     #		umat[k,]<-u.swoop*Afornu
     #		}
+    
+    clusterEvalQ(vars$cl, C_valgrad <- glmm:::C_valgrad)
+    clusterEvalQ(vars$cl, C_hess <- glmm:::C_hess)
     
     #parallelizing the calculations for the value of the log-likelihood approximation and gradient
     clusterExport(vars$cl, c("vars"), envir = environment())     #installing variables on each core
@@ -83,6 +86,39 @@ objfun <-
         stopifnot(ncol(vars$Dinvfornu) == vars$myq)
         # logdetDinvfornu is scalar
         stopifnot(length(vars$logdetDinvfornu) == 1)
+        
+        # only YOU can prevent segfault errors
+        # prevent segfault errors by checking dims
+        stopifnot(length(vars$mod.mcml$y) == vars$n)
+        stopifnot(nrow(vars$mod.mcml$x) == vars$n)
+        stopifnot(ncol(vars$mod.mcml$x) == vars$nbeta)
+        stopifnot(length(vars$beta) == vars$nbeta)
+        stopifnot(nrow(vars$Z) == vars$n)
+        stopifnot(ncol(vars$Z) == vars$myq)
+        stopifnot(nrow(vars$Dinvfornu) == vars$myq)
+        stopifnot(ncol(vars$Dinvfornu) == vars$myq)
+        stopifnot(length(vars$logdetDinvfornu) == 1)
+        stopifnot(length(vars$family_glmm) == 1)
+        stopifnot(nrow(vars$D.star.inv) == vars$myq)
+        stopifnot(ncol(vars$D.star.inv) == vars$myq)
+        stopifnot(length(vars$logdet.D.star.inv) == 1)
+        stopifnot(length(vars$u.star) == vars$myq)
+        stopifnot(nrow(umatparams$Sigmuh.inv) == vars$myq)
+        stopifnot(ncol(umatparams$Sigmuh.inv) == vars$myq)
+        stopifnot(length(logdet.Sigmuh.inv) == 1)
+        stopifnot(length(vars$Tee) == 1)
+        stopifnot(length(vars$nrandom) == vars$Tee)
+        stopifnot(length(vars$nrandom) == length(vars$nu))
+        stopifnot(length(vars$meow) == (vars$Tee+1))
+        stopifnot(length(vars$nu) == vars$Tee)
+        stopifnot(length(vars$zeta) == 1)
+        stopifnot(length(vars$tconst) == 1)
+        stopifnot(length(vars$mod.mcml$ntrials) == vars$n)
+        stopifnot(length(vars$wts) == vars$n)
+        
+        
+        
+        
         .C(C_valgrad,
             y = as.double(vars$mod.mcml$y),
             Umat = as.double(t(umatparams$umat)),
@@ -103,7 +139,7 @@ objfun <-
             logdetSigmuhinv = as.double(logdet.Sigmuh.inv),
             pee = as.double(vars$pea),
             nps = as.integer(length(vars$pea)),
-            T = as.integer(vars$T),
+            T = as.integer(vars$Tee),
             nrandom = as.integer(vars$nrandom),
             meow = as.integer(vars$meow),
             nu = as.double(vars$nu),
@@ -156,7 +192,41 @@ objfun <-
     
     #parallelizing calculations for the hessian
     clusterExport(vars$cl, c("vars"), envir = environment())
-    out2 <- foreach(i=1:vars$no_cores) %dopar% {.C(C_hess, as.double(vars$mod.mcml$y),as.double(t(umatparams$umat)), as.integer(vars$myq), as.integer(umatparams$m), as.double(vars$mod.mcml$x), as.integer(vars$n), as.integer(vars$nbeta), as.double(vars$beta), as.double(vars$Z), as.double(vars$Dinvfornu), as.double(vars$logdetDinvfornu),as.integer(vars$family_glmm), as.double(vars$D.star.inv), as.double(vars$logdet.D.star.inv), as.double(vars$u.star), as.double(umatparams$Sigmuh.inv), as.double(logdet.Sigmuh.inv), pea=as.double(vars$pea), nps=as.integer(length(vars$pea)), T=as.integer(vars$T), nrandom=as.integer(vars$nrandom), meow=as.integer(vars$meow),nu=as.double(vars$nu), zeta=as.integer(vars$zeta),tconst=as.double(vars$tconst), v=double(umatparams$m), ntrials=as.integer(vars$ntrials),gradient=as.double(vars$gradient),hessian=double((length(vars$par))^2), b=as.double(vars$b), length=as.integer(vars$newm), q=as.double(vars$bs[[i]]), wts=as.double(vars$wts))}
+    out2 <- foreach(i=1:vars$no_cores) %dopar% {
+      .C(C_hess, 
+         as.double(vars$mod.mcml$y),
+         as.double(t(umatparams$umat)),
+         as.integer(vars$myq), 
+         as.integer(umatparams$m), 
+         as.double(vars$mod.mcml$x), 
+         as.integer(vars$n), 
+         as.integer(vars$nbeta), 
+         as.double(vars$beta),
+         as.double(vars$Z),
+         as.double(vars$Dinvfornu),
+         as.double(vars$logdetDinvfornu),
+         as.integer(vars$family_glmm),
+         as.double(vars$D.star.inv),
+         as.double(vars$logdet.D.star.inv),
+         as.double(vars$u.star),
+         as.double(umatparams$Sigmuh.inv),
+         as.double(logdet.Sigmuh.inv),
+         pea=as.double(vars$pea),
+         nps=as.integer(length(vars$pea)),
+         T=as.integer(vars$Tee), 
+         nrandom=as.integer(vars$nrandom), 
+         meow=as.integer(vars$meow),
+         nu=as.double(vars$nu), 
+         zeta=as.integer(vars$zeta),
+         tconst=as.double(vars$tconst), 
+         v=double(umatparams$m), 
+         ntrials=as.integer(vars$ntrials),
+         gradient=as.double(vars$gradient),
+         hessian=double((length(vars$par))^2), 
+         b=as.double(vars$b), 
+         length=as.integer(vars$newm), 
+         q=as.double(vars$bs[[i]]), 
+         wts=as.double(vars$wts))}
     
     #adding hessian components
     hessian <- c(rep(0, length(out2[[1]]$hessian)))

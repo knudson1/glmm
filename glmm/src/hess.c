@@ -28,7 +28,10 @@
  v: vector of length n. normalized importance sampling weights
  ntrials:  a vec of ints with length n
  gradient: vector equal to the first deriv of the MC log likelihood (length nbeta + T)
+ hessian: square matrix with nrows = (nbeta+T) 
  b: vector of length m. unnormalized importance sampling weights
+ length: 
+ q: 
  wts: weights for the observations (to calculate weighted likelihood)
 
  */
@@ -36,7 +39,39 @@
 
 // Charlie: shut warnings about unused parameters only way CRAN allows
 #if defined(__GNUC__) || defined(__clang__)
-void hess(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu __attribute__ ((unused)), double *logdetDinvfornu __attribute__ ((unused)), int *family_glmm, double *Dstarinv __attribute__ ((unused)), double *logdetDstarinv __attribute__ ((unused)), double *ustar __attribute__ ((unused)), double *Sigmuhinv __attribute__ ((unused)), double *logdetSigmuhinv __attribute__ ((unused)), double *pee __attribute__ ((unused)), int *nps __attribute__ ((unused)), int *T, int *nrandom, int *meow, double *nu, int *zeta __attribute__ ((unused)), double *tconst __attribute__ ((unused)), double *v, int *ntrials, double *gradient, double *hessian, double *b, int *length, double *q, double *wts)
+void hess(double *y, 
+double *Umat, 
+int *myq, 
+int *m, 
+double *x, 
+int *n, 
+int *nbeta, 
+double *beta, 
+double *z, 
+double *Dinvfornu __attribute__ ((unused)), 
+double *logdetDinvfornu __attribute__ ((unused)), 
+int *family_glmm, 
+double *Dstarinv __attribute__ ((unused)), 
+double *logdetDstarinv __attribute__ ((unused)),
+ double *ustar __attribute__ ((unused)), 
+double *Sigmuhinv __attribute__ ((unused)), 
+double *logdetSigmuhinv __attribute__ ((unused)), 
+double *pee __attribute__ ((unused)), 
+int *nps __attribute__ ((unused)), 
+int *T, 
+int *nrandom, 
+int *meow, 
+double *nu, 
+int *zeta __attribute__ ((unused)), 
+double *tconst __attribute__ ((unused)), 
+double *v, 
+int *ntrials, 
+double *gradient, 
+double *hessian, 
+double *b, 
+int *length, 
+double *q, 
+double *wts)
 #else
 void hess(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst, double *v, int *ntrials, double *gradient, double *hessian, double *b, int *length, double *q, double *wts)
 #endif /* defined(__GNUC__) || defined(__clang__) */

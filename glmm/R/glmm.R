@@ -159,9 +159,9 @@ glmm <-
       if(levs[i]!=i) stop("The numbers in the vector varcomps.equal must be consecutive. You must start at 1 and then each entry must be the next consecutive number or a repeat of a previous number.")
       these<-varcomps.equal==i
       thesemats<-random[these]
-      z[[i]]<-do.call(cbind,thesemats)
+      z[[i]]<-do.call(cbind,thesemats) 
     }
-    names(z)<-varcomps.names
+    names(z)<-varcomps.names #z is list of length = number of varcomps
     
     if(is.null(weights)){
       wts <- rep(1, length(y))
@@ -245,7 +245,7 @@ glmm <-
     vars$u.star<-A.star*s.pql 
     Dstarinvdiag<-1/vars$D.star
     Dstarnotsparse<-diag(vars$D.star)
-    D.star.inv<-Diagonal(length(vars$u.star),Dstarinvdiag)
+    D.star.inv<-Diagonal(length(vars$u.star), Dstarinvdiag)
     vars$D.star<-Diagonal(length(vars$u.star),vars$D.star)
     
     #now D.star.inv and D.star are both diagonal matrices
@@ -313,6 +313,7 @@ glmm <-
     
     clusterEvalQ(vars$cl, library(Matrix))
     clusterEvalQ(vars$cl, library(mvtnorm))
+    clusterEvalQ(vars$cl, genRand <- glmm:::genRand)
     clusterExport(vars$cl, c("vars", "Dstarnotsparse", "m2", "m3", "beta.pql", "D.star.inv", "simulate"), envir = environment())     #installing variables on each core
     clusterEvalQ(vars$cl, umatparams <- simulate(vars=vars, Dstarnotsparse=Dstarnotsparse, m2=m2, m3=m3, beta.pql=beta.pql, D.star.inv=D.star.inv))
     
@@ -320,8 +321,10 @@ glmm <-
     umat <- Reduce(rbind, umats)
     vars$newm <- nrow(umat)
     
+    stopifnot(ncol(umat) == length(vars$u.star))
+    
     #use trust to max the objfun (monte carlo likelihood)
-    trust.out<-trust(objfun,parinit=par.init,rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug,  cache=cache, vars=vars)
+    trust.out<-trust(objfun, parinit=par.init, rinit=10, minimize=FALSE, rmax=rmax, iterlim=iterlim, blather=debug,  cache=cache, vars=vars)
     
     beta.trust<-trust.out$argument[1:length(beta.pql)]
     nu.trust<-trust.out$argument[-(1:length(beta.pql))]
@@ -345,5 +348,6 @@ glmm <-
                           trust.converged=trust.out$converged,  mod.mcml=vars$mod.mcml,
                           fixedcall=fixed,randcall=randcall, x=x,y=y, z=random, weights=weights,
                           family.glmm=vars$family.glmm, call=call, varcomps.names=varcomps.names, 
-                          varcomps.equal=varcomps.equal, umat=umat, pvec=c(vars$p1, vars$p2, vars$p3), beta.pql=beta.pql, nu.pql=vars$nu.pql, u.pql=vars$u.star, zeta=vars$zeta, cluster=vars$cl, cores=vars$no_cores, debug=debug), class="glmm"))
+                          varcomps.equal=varcomps.equal, umat=umat, pvec=c(vars$p1, vars$p2, vars$p3), beta.pql=beta.pql, nu.pql=vars$nu.pql, u.pql=vars$u.star, 
+                          zeta=vars$zeta, cluster=vars$cl, cores=vars$no_cores, debug=debug), class="glmm"))
   }

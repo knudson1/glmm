@@ -3,6 +3,9 @@
 mcvcov <- function(object){
 
 	mod <- object
+	varcomps.equal <- mod$varcomps.equal
+	levs<-ordered(unique(varcomps.equal))
+	
 
 	beta <- mod$beta
 	nu <-mod$nu
@@ -11,8 +14,18 @@ mcvcov <- function(object){
 
 	x <- mod$x
 	y <- mod$y
-	Z = do.call(cbind, mod$z)
-	Tee <-length(mod$z)
+	random <- mod$z
+	z<-list()
+	for(i in 1:length(levs)){
+	    if(levs[i]!=i) stop("The numbers in the vector varcomps.equal must be consecutive. You must start at 1 and then each entry must be the next consecutive number or a repeat of a previous number.")
+	    these<-varcomps.equal==i
+	    thesemats<-random[these]
+	    z[[i]]<-do.call(cbind,thesemats) 
+	}
+	names(z)<-mod$varcomps.names #z is list of length = number of varcomps
+	
+	Z = do.call(cbind, z)
+	Tee <-length(z)
 	nrand<-lapply(mod$z, ncol)
 	nrandom<-unlist(nrand)
 
