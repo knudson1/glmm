@@ -77,7 +77,7 @@ beta<-rep(0,4)
 nu<-rep(2,2)
 par<-c(beta,nu)
 del<-rep(10^-6,6)
-
+vars$wts <- rep(1, nrow(salamander))
 objfun<-glmm:::objfun
 
 cache<-new.env(parent = emptyenv())

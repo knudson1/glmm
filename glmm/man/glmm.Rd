@@ -134,8 +134,15 @@ mod.mcml1$nu
 summary(mod.mcml1)
 coef(mod.mcml1)
 
-
-
+# This next example has crossed random effects but we assume
+# all random effects have the same variance. The Monte Carlo
+#sample size is 100 to save time.
+data(salamander)
+set.seed(1234)
+onenu <- glmm(Mate~Cross, random=list(~0+Female,~0+Male), 
+varcomps.names=c("only"), varcomps.equal=c(1,1), data=salamander, 
+family.glmm=bernoulli.glmm, m=100, debug=TRUE, doPQL=TRUE)
+summary(onenu)
 
 }
 % only allowed keywords are shown by RShowDoc("KEYWORDS")

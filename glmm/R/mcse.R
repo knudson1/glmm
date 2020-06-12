@@ -26,7 +26,7 @@ mcvcov <- function(object){
 	
 	Z = do.call(cbind, z)
 	Tee <-length(z)
-	nrand<-lapply(mod$z, ncol)
+	nrand<-lapply(z, ncol)
 	nrandom<-unlist(nrand)
 
 
