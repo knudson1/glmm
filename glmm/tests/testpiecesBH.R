@@ -39,18 +39,19 @@ logfyuk<-function(eta,x,y){
 
 #compare elc and logfyuk for a value of eta
 eta<-rep(2,150)
-this<-.C(glmm:::C_elc,as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), wts=as.double(wts),value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
+ntrials <- rep(1, 150)
+this<-.C(glmm:::C_elc,as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), ntrials=as.integer(ntrials), wts=as.double(wts),value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 that<-logfyuk(eta,mod.mcml$x,mod.mcml$y)
 all.equal(as.numeric(this$value),as.numeric(that$value))
 all.equal(as.numeric(this$gradient),as.numeric(that$gradient))
 all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
 
 #compare elval to logfyuk
-this<-.C(glmm:::C_elval, as.double(mod.mcml$y), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), wts=as.double(wts), value=double(1))
+this<-.C(glmm:::C_elval, as.double(mod.mcml$y), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), ntrials=as.integer(ntrials), wts=as.double(wts), value=double(1))
 all.equal(as.numeric(this$value),as.numeric(that$value))
 
 #compare elGH to logfyuk
-this<-.C(glmm:::C_elGH, as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), wts=as.double(wts), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
+this<-.C(glmm:::C_elGH, as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), ntrials=as.integer(ntrials), wts=as.double(wts), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 all.equal(as.numeric(this$gradient),as.numeric(that$gradient))
 all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
 
@@ -196,10 +197,11 @@ addVecs<-glmm:::addVecs
 genRand<-glmm:::genRand
 
 vars$family.glmm<-mod.mcml1$family.glmm
-vars$ntrials<-1
+vars$ntrials<- rep(1, length(mod.mcml1$y) )
 beta.pql <- debug$beta.pql
 
 vars$wts<-wts
+length(wts) == length(vars$ntrials)
 
 simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
   #generate m1 from t(0,D*)

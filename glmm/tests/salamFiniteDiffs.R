@@ -25,7 +25,7 @@ addVecs<-glmm:::addVecs
 genRand<-glmm:::genRand
 
 vars$family.glmm<-sal$family.glmm
-vars$ntrials<-1
+vars$ntrials<- rep(1, length(sal$y))
 beta.pql <- debug$beta.pql
 
 simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){

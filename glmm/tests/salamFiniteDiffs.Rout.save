@@ -49,7 +49,7 @@ Loading required package: iterators
 > genRand<-glmm:::genRand
 > 
 > vars$family.glmm<-sal$family.glmm
-> vars$ntrials<-1
+> vars$ntrials<- rep(1, length(sal$y))
 > beta.pql <- debug$beta.pql
 > 
 > simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
@@ -136,4 +136,4 @@ Loading required package: iterators
 > 
 > proc.time()
    user  system elapsed 
-  2.674   0.131   8.819 
+  2.572   0.095   8.800 

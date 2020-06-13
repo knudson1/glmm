@@ -26,7 +26,7 @@ addVecs<-glmm:::addVecs
 genRand<-glmm:::genRand
 
 vars$family.glmm<-out$family.glmm
-vars$ntrials<-1
+vars$ntrials<- rep(1, length(out$y))
 beta.pql <- debug$beta.pql
 
 if(is.null(out$weights)){

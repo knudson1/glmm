@@ -13,7 +13,7 @@ vars$family.glmm<-out$family.glmm
 vars$umat<-debug$umat
 vars$newm <- nrow(vars$umat)
 vars$u.star<-debug$u.star
-vars$ntrials<-1
+vars$ntrials<- rep(1, length(out$y))
 D.star.inv <- Dstarnotsparse <- vars$D.star <- as.matrix(debug$D.star)
 
 

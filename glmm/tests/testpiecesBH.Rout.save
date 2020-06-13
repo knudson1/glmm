@@ -1,7 +1,7 @@
 
-R version 3.5.1 (2018-07-02) -- "Feather Spray"
-Copyright (C) 2018 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin15.6.0 (64-bit)
+R version 4.0.0 (2020-04-24) -- "Arbor Day"
+Copyright (C) 2020 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -63,7 +63,8 @@ Loading required package: iterators
 > 
 > #compare elc and logfyuk for a value of eta
 > eta<-rep(2,150)
-> this<-.C(glmm:::C_elc,as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), wts=as.double(wts),value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
+> ntrials <- rep(1, 150)
+> this<-.C(glmm:::C_elc,as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), ntrials=as.integer(ntrials), wts=as.double(wts),value=double(1), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 > that<-logfyuk(eta,mod.mcml$x,mod.mcml$y)
 > all.equal(as.numeric(this$value),as.numeric(that$value))
 [1] TRUE
@@ -73,12 +74,12 @@ Loading required package: iterators
 [1] TRUE
 > 
 > #compare elval to logfyuk
-> this<-.C(glmm:::C_elval, as.double(mod.mcml$y), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), wts=as.double(wts), value=double(1))
+> this<-.C(glmm:::C_elval, as.double(mod.mcml$y), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), ntrials=as.integer(ntrials), wts=as.double(wts), value=double(1))
 > all.equal(as.numeric(this$value),as.numeric(that$value))
 [1] TRUE
 > 
 > #compare elGH to logfyuk
-> this<-.C(glmm:::C_elGH, as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), as.integer(1), wts=as.double(wts), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
+> this<-.C(glmm:::C_elGH, as.double(mod.mcml$y), as.double(mod.mcml$x), as.integer(nrow(mod.mcml$x)), as.integer(ncol(mod.mcml$x)), as.double(eta), as.integer(1), ntrials=as.integer(ntrials), wts=as.double(wts), gradient=double(ncol(mod.mcml$x)), hessian=double((ncol(mod.mcml$x)^2)))
 > all.equal(as.numeric(this$gradient),as.numeric(that$gradient))
 [1] TRUE
 > all.equal(as.numeric(this$hessian),as.numeric(that$hessian))
@@ -232,10 +233,12 @@ Loading required package: iterators
 > genRand<-glmm:::genRand
 > 
 > vars$family.glmm<-mod.mcml1$family.glmm
-> vars$ntrials<-1
+> vars$ntrials<- rep(1, length(mod.mcml1$y) )
 > beta.pql <- debug$beta.pql
 > 
 > vars$wts<-wts
+> length(wts) == length(vars$ntrials)
+[1] TRUE
 > 
 > simulate <- function(vars, Dstarnotsparse, m2, m3, beta.pql, D.star.inv){
 +   #generate m1 from t(0,D*)
@@ -354,4 +357,4 @@ Loading required package: iterators
 > 
 > proc.time()
    user  system elapsed 
-  2.962   0.285   5.882 
+  2.684   0.111   6.869 
