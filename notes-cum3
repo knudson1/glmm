@@ -1,0 +1,36 @@
+C function cum3    is called from C function elc and C function elval
+C function elc     is not called from C code
+C function elval   is called from C function mcse and C function valgrad
+C function mcse    is not called from C code
+C function valgrad is not called from C code
+C function valgrad is called from R function objfun
+C function mcse    is called from R function mcse
+C function elc     is called (multiple times) from R function pql
+C function elval   is not called from R code in R directory
+C function cum3    is not called from R code in R directory
+C function cum3    is called from binomfamtest.R        in tests directory
+                                  cfamilies.R
+                                  elTest.R
+                                  familiesFiniteDiffs.R
+                                  mcseTest.R
+                                  objfunTest.R
+                                  weightsTest.R
+C function elval   is called from elTest.R              in tests directory
+                                  testpiecesBH.R
+                                  weightsTest.R
+C function elc     is called from elTest.R              in tests directory
+                                  testpiecesBH.R
+                                  weightsTest.R
+C function valgrad is not called from R code            in tests directory
+C function mcse    is not called from R code            in tests directory
+
+The complaint about line 16 character 13 of cum3.c is about ntrials[i]
+and i goes from 0 to leneta in this statement.
+So we need argument 4 ntrials to be at least the dereference of argument 2 neta
+    that is, we need ntrials[i] to work when 0 <= i < neta[0]
+If we look in tests/binomfamtest.R the calls to cum3 seem OK
+If we look in tests/cfamilies.R the second call to cum3 is clearly bogus
+    length(eta) = 3, neta = length(eta), but ntrials = as.integer(1)
+
+
+
