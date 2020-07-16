@@ -78,16 +78,16 @@ The package, in its current state has two main steps:
 
 I am figuring out one of these two options:
 \begin{itemize}
-\item[Plan A:] Change PQL so that similar random effects are collapsed into a shared, single random effect.
-\item[Plan B:] Keep the PQL optimization as it is, and add another step in between the two steps. At this time, the similar random effects are collapsed into a shared, single random effect.
+\item[Plan A:] Change PQL so that similar random effects are fused into a shared, single random effect.
+\item[Plan B:] Keep the PQL optimization as it is, and add another step in between the two steps. At this time, the similar random effects are fused into a shared, single random effect.
   \end{itemize}
 
-  I'm not sure, but it seems like Plan A is better than Plan B. It makes sense that we'd want to try collapsing the random effects while making sure this simplification not ruin the fit of the model.
+  I'm not sure, but it seems like Plan A is better than Plan B. It makes sense that we'd want to try fusing the random effects while making sure this simplification not ruin the fit of the model.
 
 
 
 
-   In the currently used version of PQL, there is an optimization within an optimization. The inner optimization estimates the fixed effects and predicts the random effects. The outer optimization works on the variance components. \textbf{I believe that adding a penalty term to the inner loop will collapse the random effects.} We want the random effects to be similar to one other, so the distance (or the square of the distance, if we prefer a ridge-like penalty) between the random effects must be controlled. 
+   In the currently used version of PQL, there is an optimization within an optimization. The inner optimization estimates the fixed effects and predicts the random effects. The outer optimization works on the variance components. \textbf{I believe that adding a penalty term to the inner loop will fuse the random effects.} We want the random effects to be similar to one other, so the distance (or the square of the distance, if we prefer a ridge-like penalty) between the random effects must be controlled. This is almost exactly pairwise fusion lasso (Petry et. al. 2011), except we are fusing \textit{random} effects instead of \textit{fixed} effects.
 
 
 
@@ -102,7 +102,7 @@ We also define $s$ where $u=As$. The purpose of using $s$ rather than $u$ is to 
 
 
 There are two variations of PQL, both of which are described in the vignette
- \texttt{re.pdf} in the R package \texttt{aster} (Geyer, 2014). Both variations have an inner optimization and an outer optimization. I use the variation of PQL that is not the original version, but is pretty close and is better behaved.  In this version, the inner optimization finds $\tilde{\beta}$ and $\tilde{s}$ given $X$, $Z$ and $A$. Then, given $\tilde{\beta}$ and $\tilde{s}$, the outer optimization finds $A$. \textbf{I believe that adding a penalty term to the inner loop will collapse the random effects. We want the random effects to be similar to one other, so the distance (or the square of the distance) between the random effects must be controlled. In other words, if $s$ has components $s_1, \ldots , s_q$, then we want to have penalty term $\sum_{k \neq j} |s_k - s_j|$ if we want a lasso-like penalty or $\sum_{k \neq j} (s_k - s_j)^2$ if we want a ridge-like penalty.}
+ \texttt{re.pdf} in the R package \texttt{aster} (Geyer, 2014). Both variations have an inner optimization and an outer optimization. I use the variation of PQL that is not the original version, but is pretty close and is better behaved.  In this version, the inner optimization finds $\tilde{\beta}$ and $\tilde{s}$ given $X$, $Z$ and $A$. Then, given $\tilde{\beta}$ and $\tilde{s}$, the outer optimization finds $A$. \textbf{I believe that adding a penalty term to the inner loop will fuse the random effects. We want the random effects to be similar to one other, so the distance (or the square of the distance) between the random effects must be controlled. In other words, if $s$ has components $s_1, \ldots , s_q$, then we want to have penalty term $\sum_{k \neq j} |s_k - s_j|$ if we want a lasso-like penalty or $\sum_{k \neq j} (s_k - s_j)^2$ if we want a ridge-like penalty.}
 
 Of course, PQL already has a penalty term in order to shrink the random effects toward 0. We will maintain this penalty term (I think) and add a second penalty (to group together similar random effects).
 
@@ -117,7 +117,7 @@ we calculate the  log likelihood as
 \begin{align}
 l(\eta)= y' \eta - c(\eta) 
 \end{align}
-and the penalized likelihood (pre-collapsing) as:
+and the penalized likelihood (pre-fusion) as:
 \begin{align}
  l(\eta)- \dfrac{1}{2} s's.
 \end{align}
@@ -125,9 +125,9 @@ Then our doubly-penalized likelihood is
 \begin{align}
  l(\eta)- \dfrac{1}{2} s's. - \lambda \sum_{k \neq j} (s_k - s_j)^2
 \end{align}
-where $\lambda$ is some number we can tweak to force more/less collapsing.
+where $\lambda$ is some number we can tweak to force more/less fusion.
 
-I HAVE NOT REDONE THESE CALCULATIONS BELOw
+I HAVE NOT REDONE THESE CALCULATIONS BELOW and it will kind of suck because of the new fusion penalty.
 
 Since this function is maximized using  \texttt{trust}, we need to provide derivatives with respect to $s$ and $\beta$. We express these via the multivariate chain rule, taking advantage of $\eta_i$.
 
