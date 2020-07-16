@@ -1,0 +1,265 @@
+\documentclass{article}
+
+ \usepackage{url} 
+\usepackage{amsthm,amsmath,amssymb,indentfirst,float}
+\usepackage{verbatim}
+\usepackage[sort,longnamesfirst]{natbib}
+\newcommand{\pcite}[1]{\citeauthor{#1}'s \citeyearpar{#1}}
+\newcommand{\ncite}[1]{\citeauthor{#1}, \citeyear{#1}}
+\DeclareMathOperator{\logit}{logit}
+    \DeclareMathOperator{\var}{Var}
+   %  \DeclareMathOperator{\det}{det}
+     \DeclareMathOperator{\diag}{diag}
+
+\usepackage{geometry}
+%\geometry{hmargin=1.025in,vmargin={1.25in,2.5in},nohead,footskip=0.5in} 
+%\geometry{hmargin=1.025in,vmargin={1.25in,0.75in},nohead,footskip=0.5in} 
+%\geometry{hmargin=2.5cm,vmargin={2.5cm,2.5cm},nohead,footskip=0.5in}
+
+\renewcommand{\baselinestretch}{1.25}
+
+\usepackage{amsbsy,amsmath,amsthm,amssymb,graphicx}
+
+\setlength{\baselineskip}{0.3in} \setlength{\parskip}{.05in}
+
+
+\newcommand{\cvgindist}{\overset{\text{d}}{\longrightarrow}}
+\DeclareMathOperator{\PR}{Pr} 
+\DeclareMathOperator{\cov}{Cov}
+
+
+\newcommand{\sX}{{\mathsf X}}
+\newcommand{\tQ}{\tilde Q}
+\newcommand{\cU}{{\cal U}}
+\newcommand{\cX}{{\cal X}}
+\newcommand{\tbeta}{\tilde{\beta}}
+\newcommand{\tlambda}{\tilde{\lambda}}
+\newcommand{\txi}{\tilde{\xi}}
+
+
+
+
+\title{Design Document for Dimension Reduction in R Package glmm}
+
+\author{Christina Knudson}
+
+\begin{document}
+\maketitle{}
+
+\begin{abstract}
+This design document describes the process of regularizing the random effects. For example, Sally and Tammy can share a random effect (and therefore be treated as the same salamander) if they have very similar random effects (such as $1.22$ and $1.24$). The goal of reducing the number of random effects is to reduce the computation time for MCLA.
+\end{abstract}
+
+\section{Background}
+
+Let $y=(y_1, \ldots, y_n)'$ be a vector of observed data. Let $u$ be a $q$-vector of unobserved, normally-distributed random effects centered at 0 with variance matrix $D$. Let $\beta$ be a vector of $p$ fixed effect parameters and let $\nu$ be a vector of $T$ variance components for the random effects so that $D$ depends on $\nu$. Let $\theta=(\beta ,  \nu)'$ be a vector containing all unknown parameters. Then the data $y$ are distributed conditionally on the random effects according to $f_\theta(y|u)$ and the random effects are distributed according to $f_\theta(u)$. Although $f_\theta(u)$ does not actually depend on $\beta$ and $f_\theta(y|u)$ does not depend on $\nu$, we write both densities with $\theta$ to keep notation simple in future equations.
+
+Since $u$ is unobservable, the log likelihood must be expressed by integrating out the random effects:
+\begin{align}
+l(\theta)=\log \int f_\theta(y|u) f_\theta(u) \; du
+\end{align}
+For most datasets, this integral is intractible. In these cases, performing even basic inference on the likelihood is not possible. Rather than evaluating the integral, \citet{geyer:thom:1992} suggest using a Monte Carlo approximation to the likelihood. Monte Carlo likelihood approximation (MCLA) uses an importance sampling distribution $\tilde{f}(u)$ to generate random effects $u_k, k=1, \ldots, m$ where $m$ is the Monte Carlo sample size.  .
+
+Then the Monte Carlo log likelihood approximation is
+\begin{align}
+l_{m}(\theta) &=\log \dfrac{1}{m} \sum_{k=1}^mf_\theta(y|u_k)  \dfrac{ f_\theta(u_k)   }{\tilde{f}(u_k)}\\
+&= \log \dfrac{1}{m} \sum_{k=1}^m  \dfrac{ f_\theta(y,u_k)   }{\tilde{f}(u_k)}. \label{eq:MCLAval}
+\end{align}
+
+If $u_k$ were of length $q_2 < q$, this calculation would be less expensive. We therefore are trying to shorten the random effect vector $u$.
+
+\section{Overview}
+
+The package, in its current state has two main steps:
+\begin{enumerate}
+\item Use PQL to estimate the parameters and predict the random effects. (These predictions are then used to create the importance sampling distribution.)
+\item Use MCLA to approximate the likelihood and conduct MCML.
+  \end{enumerate}
+
+I am figuring out one of these two options:
+\begin{itemize}
+\item[Plan A:] Change PQL so that similar random effects are collapsed into a shared, single random effect.
+\item[Plan B:] Keep the PQL optimization as it is, and add another step in between the two steps. At this time, the similar random effects are collapsed into a shared, single random effect.
+  \end{itemize}
+
+  I'm not sure, but it seems like Plan A is better than Plan B. It makes sense that we'd want to try collapsing the random effects while making sure this simplification not ruin the fit of the model.
+
+
+
+
+   In the currently used version of PQL, there is an optimization within an optimization. The inner optimization estimates the fixed effects and predicts the random effects. The outer optimization works on the variance components. \textbf{I believe that adding a penalty term to the inner loop will collapse the random effects.} We want the random effects to be similar to one other, so the distance (or the square of the distance, if we prefer a ridge-like penalty) between the random effects must be controlled. 
+
+
+
+\section{PQL}\label{sec:pql}
+ This section on PQL requires a change in notation so that we can avoid constrained optimization.  Recall that $D=\var(u)$ and is assumed to be diagonal. Let $A=D^{1/2}$ so that A has diagonal components that are positive or negative. Using A rather than D enables unconstrained optimization.  If $\sigma$ is a vector of the distinct standard deviations with components $\sigma_t$, we can write A as a function of $\sigma$ by
+\begin{align*}
+A= \sum_t E_t \sigma_t.
+\end{align*}
+Recall that $E_t$ has a diagonal of indicators to show which random effects have the same variance components, and $\sum_{t=1}^T E_t$ is the identity matrix. PQL  estimates the components contained on the diagonal of A. Taking the absolute value of those components  provides the standard deviations (where the standard deviations are the square root of the variance components).
+
+We also define $s$ where $u=As$. The purpose of using $s$ rather than $u$ is to avoid $D^{-1/2}$ in the objective functon that we optimize.
+
+
+There are two variations of PQL, both of which are described in the vignette
+ \texttt{re.pdf} in the R package \texttt{aster} (Geyer, 2014). Both variations have an inner optimization and an outer optimization. I use the variation of PQL that is not the original version, but is pretty close and is better behaved.  In this version, the inner optimization finds $\tilde{\beta}$ and $\tilde{s}$ given $X$, $Z$ and $A$. Then, given $\tilde{\beta}$ and $\tilde{s}$, the outer optimization finds $A$. \textbf{I believe that adding a penalty term to the inner loop will collapse the random effects. We want the random effects to be similar to one other, so the distance (or the square of the distance) between the random effects must be controlled. In other words, if $s$ has components $s_1, \ldots , s_q$, then we want to have penalty term $\sum_{k \neq j} |s_k - s_j|$ if we want a lasso-like penalty or $\sum_{k \neq j} (s_k - s_j)^2$ if we want a ridge-like penalty.}
+
+Of course, PQL already has a penalty term in order to shrink the random effects toward 0. We will maintain this penalty term (I think) and add a second penalty (to group together similar random effects).
+
+
+The {\bf inner} optimization is done with the \texttt{trust} function in R. We chose to use \texttt{trust} because it requires two derivatives, which  make the optimization more precise. We would like more accuracy in the inner maximization because any imprecision carries into the outer optimization.
+
+The inner optimization maximizes the penalized log likelihood. Defining
+\begin{align}
+\eta=X\beta +ZAs
+\end{align}
+we calculate the  log likelihood as 
+\begin{align}
+l(\eta)= y' \eta - c(\eta) 
+\end{align}
+and the penalized likelihood (pre-collapsing) as:
+\begin{align}
+ l(\eta)- \dfrac{1}{2} s's.
+\end{align}
+Then our doubly-penalized likelihood is
+\begin{align}
+ l(\eta)- \dfrac{1}{2} s's. - \lambda \sum_{k \neq j} (s_k - s_j)^2
+\end{align}
+where $\lambda$ is some number we can tweak to force more/less collapsing.
+
+I HAVE NOT REDONE THESE CALCULATIONS BELOw
+
+Since this function is maximized using  \texttt{trust}, we need to provide derivatives with respect to $s$ and $\beta$. We express these via the multivariate chain rule, taking advantage of $\eta_i$.
+
+Create  vector $\mu$ with components $\mu_i=c'(\eta_i)$.  Since
+\begin{align}
+l(\eta) = \sum_i Y_i \eta_i - c(\eta_i)
+\end{align}
+then 
+\begin{align}
+\dfrac{\partial \l(\eta)}{\partial \eta_i} = Y_i-c'(\eta_i) = Y_i -\mu_i.
+\end{align}
+ Now we can write the following expression:
+
+\begin{align}
+%\dfrac{\partial}{\partial s_k} \left[ l(\eta)-\dfrac{1}{2} s's  \right]= \sum_i (Y_i-\mu_i) \dfrac{\partial \eta_i}{\partial s_k} \\
+\dfrac{\partial}{\partial \beta_k} \left[ l(\eta)-\dfrac{1}{2} s's  \right] &= \dfrac{\partial l(\eta)}{\partial \beta_k}    \\
+&= \dfrac{\partial l(\eta)}{\partial \eta_i} \dfrac{\partial \eta_i}{\partial \beta_k}    \\
+&=\sum_i (y_i-\mu_i) \dfrac{\partial \eta_i}{\partial \beta_k} \\
+&=\sum_i (y_i-\mu_i) X_{ik}
+\end{align}
+
+
+We find the function's derivative with respect to $s$ as follows:
+\begin{align}
+\dfrac{\partial }{\partial s} \left[ l(\eta) -\dfrac{1}{2} s's   \right] &= \dfrac{\partial l(\eta)}{\partial s} -\dfrac{1}{2} \dfrac{\partial s's}{\partial s}\\
+&= \dfrac{\partial l(\eta)}{\partial \eta} \dfrac{\partial \eta}{\partial s} -s\\
+&= (y-\mu)' \left[ \dfrac{\partial}{\partial s} ZAs \right] -s\\
+&=(y-\mu)'ZA -s
+\end{align}
+
+This gives us the following derivatives of the penalized log likelihood:
+\begin{align}
+\dfrac{\partial}{\partial \beta} \left[ l(\eta)-(1/2)s's \right]&= X' (y-\mu)\\
+\dfrac{\partial}{\partial s} \left[ l(\eta)-(1/2)s's \right]&= AZ' (y-\mu)  -s
+\end{align}
+
+Lastly, we need the Hessian of the penalized likelihood. This matrix can be broken down into four pieces: 
+\begin{enumerate}
+\item $ \dfrac{\partial^2}{\partial s^2}$
+\item $ \dfrac{\partial^2}{\partial \beta^2}$
+\item $\dfrac{\partial^2}{ \partial s \; \partial \beta}$
+\item $\left(\dfrac{\partial^2}{ \partial s \; \partial \beta}\right) ' =\dfrac{\partial^2}{ \partial \beta \; \partial s}$
+\end{enumerate}
+
+We start at the top with  $ \dfrac{\partial^2}{\partial s^2}$, which is a $q \times q$ matrix.
+\begin{align}
+  \frac{\partial^2}{\partial s^2}  \left[ l(\eta) - (1/2) s's   \right] &=   \frac{\partial}{\partial s} \left[ (y-c'(\eta))'ZA -s   \right]\\
+&=\left[- \frac{\partial}{\partial s} c'(\eta)\right]'ZA - I_q \\
+&= \left[-\dfrac{\partial c'(\eta)}{\partial \eta} \dfrac{\partial \eta}{\partial s}   \right] 'ZA - I_q \\
+&= \left[ -c''(\eta) ZA  \right]'ZA - I_q \\
+&= -AZ' \left[ c''(\eta) \right] ZA - I_q
+\end{align}
+Note that $c''(\eta)$ is a $q\times q$ diagonal matrix with diagonal elements $c''(\eta_i)$.  $I_q$ is the identity matrix of dimension $q$.  This makes  $ \dfrac{\partial^2}{\partial s^2}$ a $q \times q$ matrix.
+
+Next  is  $ \dfrac{\partial^2}{\partial \beta^2}$, which is a $p \times p$ matrix.
+\begin{align}
+  \dfrac{\partial^2}{\partial \beta^2}  \left[ l(\eta) - (1/2) s's   \right] &=   \dfrac{\partial}{\partial \beta} \left[ X' (y-c'(\eta))  \right]\\
+&= \dfrac{\partial}{\partial \beta} \left[ X' y-X'(c'(\eta))  \right] \\
+&= \dfrac{\partial}{\partial \beta} \left[ -X'(c'(\eta))  \right] \\
+&=-X  \left[' \dfrac{\partial}{\partial \beta} c'(\eta)  \right] \\
+&=-X'  \left[ \dfrac{\partial  c'(\eta)}{\partial \eta} \dfrac{\partial \eta}{\partial \beta}  \right] \\
+&=-X'  \left[ c''(\eta)\right]  X   
+\end{align}
+
+Next is the $p \times q$ mixed partial $\dfrac{\partial^2}{  \partial \beta \; \partial s}$.
+\begin{align}
+\dfrac{\partial^2}{ \partial \beta \;  \partial s}  \left[ l(\eta) - (1/2) s's   \right] &= \dfrac{\partial}{\partial \beta} \left\{  \left[ y-c'(\eta)  \right]' ZA  \right\}\\
+&= \dfrac{\partial}{\partial \beta} \left\{y'ZA-  \left[ c'(\eta)  \right]' ZA  \right\} \\
+&=- \dfrac{\partial}{\partial \beta} \left\{  \left[ c'(\eta)  \right]' ZA  \right\} \\
+&=- \left[  \dfrac{\partial  c'(\eta)}{\partial \beta}  \right]' ZA  \\
+&=-   \left[  \dfrac{\partial  c'(\eta)}{\partial \eta} \dfrac{\partial \eta}{\partial \beta}  \right]' ZA   \\
+&=-   \left[ c''(\eta) X  \right]' ZA   \\
+&=-X'   \left[ c''(\eta)   \right] ZA  
+\end{align}
+
+
+And last we have the $q \times p$ mixed partial $\dfrac{\partial^2}{  \partial \beta \; \partial s}= -AZ' [c''(\eta)] X.$  These four pieces specify the hessian matrix for the penalized likelihood. Now \texttt{trust} can perform the inner optimization to find $\tilde{\beta}$ and $\tilde{s}$. 
+
+
+
+
+
+The {\bf outer} optimization is done using \texttt{optim} with the default method of ``\texttt{Nelder-Mead.}'' This requires just the function value and no derivatives.  This optimization method was chosen because the optimization function already contains second derivatives of the cumulant function; requiring derivatives of the optimization function would in turn require higher-order derivatives of the cumulant.  
+
+The default of \texttt{optim} is to minimize, but we'd like to  do maximization. Reversing the sign of the optimization function will turn the maximization into minimization.
+
+If $\tilde{\beta}$ and $\tilde{s}$ are available from previous calls to the inner optimization function, then they are used here. Otherwise, the values are taken to be 0 and 1. The outer optimization's function is evaluated by first defining
+\begin{align}
+\tilde{\eta} &= X \tilde{\beta} +ZA \tilde{s}\\
+l(\tilde{\eta}) &= y' \tilde{\eta} - c(\tilde{\eta})\\
+A&= \sum_k E_k \sigma_k.
+\end{align}
+Let $W$ be a diagonal matrix with elements $c''(\eta_i)$ on the diagonal. Then the quantity we would like to maximize is the penalized quasi-likelihood:
+\begin{align}
+ l(\tilde{\eta}) - \dfrac{1}{2} \tilde{s}' \tilde{s} - \dfrac{1}{2} \log  \left| AZ' W ZA +I  \right| 
+\end{align}
+Again, \texttt{optim} minimizes, so we have to minimize the negative value of the penalized quasi-likelihood in order to maximize the value of it.
+
+We do need to be careful about the determinant. Let $AZ' W ZA +I= LL'$ where $L$ is the lower triangular matrix resulting from a Cholesky decomposition. Then
+\begin{align}
+\dfrac{1}{2} \log | AZ' W ZA +I | &= \dfrac{1}{2} \log |LL'|\\
+&=\dfrac{1}{2} \log (|L|)^2 \\
+&= \log |L|
+\end{align}
+Since $L$ is triangular, the determinant is just the product of the diagonal elements. Let $l_i$ be the diagonal elements of $L$. Then
+\begin{align}
+\dfrac{1}{2} \log | AZ' W ZA +I | &= \log \prod l_i \\
+&= \sum \log l_i
+\end{align}
+
+ If I become worried about all variance components being zero, I could implement an eigendecomposition using the R function \texttt{eigen}. This would be more numerically stable, but is slower. Let $O$ be the matrix containing the eigenvectors and let $\Lambda$ be a diagonal matrix with the eigenvalues $\lambda_i$ on the diagonal. Then
+\begin{align}
+ &AZ' W ZA = O \Lambda O' 
+\end{align}
+Then we can rewrite the argument of the determinant as follows:
+\begin{align}
+& AZ' W ZA +I  = O \Lambda O' + I = O \Lambda O + OO'=O (I+\Lambda) O' 
+\end{align}
+This leads to the careful calculation of our determinant as follows:
+\begin{align}
+&   \left| AZ' W ZA +I \right| = 1 *  \prod_{i=1}^n (1+\lambda_i) *1\\
+&\Rightarrow \log   | AZ' W ZA +I | = \sum \log(1+\lambda_i) 
+\end{align}
+The last quantity can be accurately calculated using the \texttt{log1p} function in R.
+
+The outer optimization  uses $\tilde{\beta}$ and $\tilde{s}$ provided by the inner optimization, but it does not return them. To keep track of the most recent  $\tilde{s}$, so store them in an environment that I call \texttt{cache}.  The purpose of  $\tilde{\beta}$ and $\tilde{s}$ is two-fold. First, if they are available from a previous iteration of the inner optimization, then they are used in the outer optimization of PQL.  Second, after PQL is finished, $\tilde{s}$ is used to help center the generated random effects.
+
+
+The point of utilizing PQL is to construct a decent importance sampling distribution. Thus, the estimates do not have to be perfect.  It is possible that one of the $\sigma_k$ will be 0 according to PQL. If this happens, then I just use $\sigma_k = .01$ for the importance sampling distribution.
+
+
+
+
+
+\end{document}
