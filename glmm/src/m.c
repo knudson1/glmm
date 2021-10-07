@@ -1,7 +1,13 @@
+// See section 6.6.1 of Writing R Extensions (Fortran character strings)
+#define USE_FC_LEN_T
 
 #include <R.h>
 #include <R_ext/BLAS.h>
 #include "myheader.h"
+
+#ifndef FCONE
+# define FCONE
+#endif
 
 /*  matrix times vector 
 a is the matrix (as double)
@@ -15,7 +21,7 @@ void matvecmult(double *a, double *b, int *nrow, int *ncol, double *result)
     double one = 1.0;
     int ione = 1;
     F77_CALL(dgemv)("n", nrow, ncol, &one, a, nrow, b, &ione, &zero, result,
-        &ione);
+        &ione FCONE);
 }
 
 /*  transpose(matrix) times vector 
@@ -30,7 +36,7 @@ void matTvecmult(double *a, double *b, int *nrow, int *ncol, double *result)
     double one = 1.0;
     int ione = 1;
     F77_CALL(dgemv)("T", nrow, ncol, &one, a, nrow, b, &ione, &zero, result,
-        &ione);
+        &ione FCONE);
 }
 
 /*  matrix times another matrix */
@@ -40,7 +46,7 @@ void matmatmult(double *a, double *b, int *nrowa, int *ncola, int *ncolb,
     double one = 1.0;
     double zero = 0.0;
     F77_CALL(dgemm)("n", "n", nrowa, ncolb, ncola, &one, a, nrowa, b, ncola,
-        &zero, c, nrowa);
+        &zero, c, nrowa FCONE FCONE);
 }
 
 /*  TRANSPOSED matrix times another matrix 
@@ -56,7 +62,7 @@ void matTmatmult(double *a, double *b, int *nrowa, int *ncola, int *ncolb,
     double one = 1.0;
     double zero = 0.0;
     F77_CALL(dgemm)("T", "n", ncola, ncolb, nrowa, &one, a, nrowa, b, nrowa,
-        &zero, c, ncola);
+        &zero, c, ncola FCONE FCONE);
 }
 
 /*  create diagonal matrix from vector */
@@ -152,6 +158,6 @@ second argument says lower tri, not upper*/
 /*{*/
 
 /*    F77_CALL(dsyev)("N", "L", ncol, a, ncol, b, &ione, &zero, result,*/
-/*        &ione);*/
+/*        &ione FCONE FCONE);*/
 /*}*/
 
