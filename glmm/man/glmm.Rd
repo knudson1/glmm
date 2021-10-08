@@ -98,9 +98,11 @@ Geyer, C. J. (1994)  On the convergence of Monte Carlo maximum likelihood calcul
 \doi{10.1111/j.2517-6161.1994.tb01976.x}.
 
 Geyer, C. J. and Thompson, E. (1992)  Constrained Monte Carlo maximum likelihood for dependent data.  \emph{Journal of the Royal Statistical Society, Series B}, \bold{54}, 657--699.
-\doi{10.1111/j.2517-6161.1992.tb01443.x}
+\doi{10.1111/j.2517-6161.1992.tb01443.x}.
 
 Knudson, C. (2016). Monte Carlo likelihood approximation for generalized linear mixed models. PhD thesis, University of Minnesota.  \url{http://hdl.handle.net/11299/178948}
+
+Knudson, C., Benson, S., Geyer, J., Jones, G. (2021) Likelihood-based inference for generalized linear mixed models: Inference with the R package glmm. \emph{Stat}, 10:e339. \doi{https://doi.org/10.1002/sta4.339}.
 
 Sung, Y. J. and Geyer, C. J. (2007)  Monte Carlo likelihood inference for missing data models.  \emph{Annals of Statistics}, \bold{35}, 990--1011.
 \doi{10.1214/009053606000001389}.
