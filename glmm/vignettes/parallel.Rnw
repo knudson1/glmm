@@ -1,0 +1,81 @@
+\documentclass[11pt]{article}
+
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{parallel}
+  %\usepackage[utf8]{inputenc}
+%\VignettePackage{glmm}
+%\VignetteKeywords{glmm, maximum likelihood, mle, Monte Carlo, likelihood approximation, likelihood based inference, Monte Carlo likelihood approximation, salamander, generalized linear mixed model, parallel computing}
+
+\usepackage{hyperref}
+
+\title{Developments in the R package \texttt{glmm}}
+\author{Sydney Benson}
+\begin{document}
+%\SweaveOpts{concordance=TRUE}
+
+\maketitle
+\setlength\parindent{0pt}
+\tableofcontents
+
+\break
+\section{Introduction}
+The R package \texttt{glmm} approximates the likelihood function for generalized linear mixed models (GLMMs) with a canonical link. \texttt{glmm} calculates and maximizes the Monte Carlo likelihood approximation (MCLA) to find Monte Carlo maximum likelihood estimates (MCMLEs) for the fixed effects and variance components. The value, gradient vector, and Hessian matrix of the MCLA are calculated to maximize the likelihood and the MCMLEs. The Hessian of the MCLA is used to calculate the standard errors for the MCMLEs. \\
+
+In version 1.3.0, the R package \texttt{glmm} has been revised to calculate the value, gradient vector and Hessian matrix in parallel. This addition has incorporated an optional argument to the \texttt{glmm} command, an increased number of outputs, and has decreased the time it takes to fit the model in most cases. \\
+
+In version 1.3.1, the R package \texttt{glmm} allows the user to weight observations in the data set used to create the model. This addition incorporates an optional argument to the \texttt{glmm} command and an increased number of outputs.
+
+\section{Additional Model-Fitting Arguments}
+\subsection{Arguments for Parallel Computing}
+In the following code, we fit the model using the \texttt{glmm} command and save the model under the name  \texttt{sal}. The final argument for the \texttt{glmm} command is \texttt{cluster}. The \texttt{cluster} argument is optional and, by default, R will create a cluster that uses only a single core. This will force the calculations for the value, gradient vector and Hessian matrix to be done sequentially instead of simultaneously. However, if you choose to specify a cluster using a different number of cores, you may do that using the \texttt{cluster} argument. In this example, we will use a cluster with two cores. \\
+
+Using a cluster with multiple cores is useful for reducing the time the \texttt{glmm} command takes to run, thus allowing for an increased \texttt{m} without additional computational expense. An increased \texttt{m} allows the model to provide more accurate estimates, but can also increase the model-fitting time exponentially. Using multiple cores can help mitigate this problem.  We can see the time reduction made by running the calculations in parallel using the \texttt{proc.time} command. First, the model-fitting time for the command using one core and $m=10^4$ is given. 
+
+<<timing1>>=
+library(glmm)
+data(salamander)
+clust <- makeCluster(1)
+set.seed(1234) 
+start <- proc.time()
+sal <- glmm(Mate ~ 0 + Cross, random = list(~ 0 + Female, 
+~ 0 + Male), varcomps.names = c("F", "M"), data = salamander, 
+family.glmm = bernoulli.glmm, m = 10^4, debug = TRUE, cluster = clust)
+proc.time() - start
+stopCluster(clust)
+@
+
+Next, we time the model-fitting  for the command using two cores with the same Monte Carlo sample size.
+
+<<timing2>>=
+clust <- makeCluster(2)
+set.seed(1234) 
+start <- proc.time()
+sal <- glmm(Mate ~ 0 + Cross, random = list(~ 0 + Female, 
+~ 0 + Male), varcomps.names = c("F", "M"), data = salamander, 
+family.glmm = bernoulli.glmm, m = 10^4, debug = TRUE, cluster = clust)
+proc.time() - start
+stopCluster(clust)
+@
+
+\subsection{Arguments for Weighting Observations}
+The following code fits a model called \texttt{salweight} using the same specifications as the first \texttt{sal} model with the exception of weighted observations. In this model, we take the first five observations in the data set to be less reliable. Using the optional \texttt{weights} argument, the weight of these observations in the model building procedure can be reduced or we can specify that the observations not be used in the model-fitting process. Since there are 360 mating attempts in the salamander data set, i.e. the response vector has a length of 360, the \texttt{weights} vector must have a length of 360. First, the weight of each of the five observations is decreased.
+
+<<weightreduce,eval=FALSE>>=
+set.seed(1234) 
+salweight <- glmm(Mate ~ 0 + Cross, random = list(~ 0 + Female, 
+~ 0 + Male), varcomps.names = c("F", "M"), data = salamander, 
+family.glmm = bernoulli.glmm, m = 10^4, debug = TRUE, weights = c(rep(.5,5),rep(1,355)))
+@
+
+Next, we illustrate how \texttt{weights} can be used to remove observations.
+
+<<weightremove>>=
+set.seed(1234) 
+salweight <- glmm(Mate ~ 0 + Cross, random = list(~ 0 + Female, 
+~ 0 + Male), varcomps.names = c("F", "M"), data = salamander, 
+family.glmm = bernoulli.glmm, m = 10^4, debug = TRUE, weights = c(rep(0,5),rep(1,355)))
+@
+
+To read about the other arguments in the \texttt{glmm} command, please read \href{https://cran.r-project.org/web/packages/glmm/vignettes/intro.pdf}{``An Introduction to Model-Fitting with the R package \texttt{glmm}"}. \\
+
+\end{document}
