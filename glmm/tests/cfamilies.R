@@ -32,17 +32,17 @@ cp <- function(eta) exp(eta)
 cpp<-function(eta) exp(eta)
 eta<-c(4.5,5,5.5)
 neta<-length(eta)
-wts<-rep(1,neta)
+ntrials <- wts<-rep(1,neta)
 
 #check cum3
-that<-.C(glmm:::C_cum3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1),wts=as.double(wts), cumout=double(1))
+that<-.C(glmm:::C_cum3, eta=as.double(eta), neta=as.integer(neta), type=as.integer(2), ntrials=as.integer(ntrials), wts=as.double(wts), cumout=double(1))
 all.equal(sum(cum(eta)),that$cumout)
 
 #check cp3
-that<-.C(glmm:::C_cp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cpout=double(neta))
-all.equal(cp(eta),that$cpout)
+that<-.C(glmm:::C_cp3,eta=as.double(eta), neta=as.integer(neta), type=as.integer(2), ntrials=as.integer(ntrials), cpout=double(neta))
+all.equal(cp(eta), that$cpout)
 
 #check cpp3
-that<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(1), cppout=double(neta))
-all.equal(cpp(eta),that$cppout)
+that<-.C(glmm:::C_cpp3,eta=as.double(eta),neta=as.integer(neta),type=as.integer(2), ntrials=as.integer(ntrials), cppout=double(neta))
+all.equal(cpp(eta), that$cppout)
 
