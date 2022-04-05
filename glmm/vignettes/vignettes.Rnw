@@ -1,0 +1,8 @@
+\documentclass{article}
+\usepackage{pdfpages}
+%\VignetteIndexEntry{author2019mypaper}
+
+\begin{document}
+\includepdf[pages=-, fitpaper=true]{vignette1.pdf}
+\includepdf[pages=-, fitpaper=true]{vignette2.pdf}
+\end{document}
