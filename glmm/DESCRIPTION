@@ -7,7 +7,7 @@ Date: 2022-9-27
 Authors@R: c(person("Christina", "Knudson", role = c("aut", "cre"),
     email = "drchristinaknudson@gmail.com"), person("Charles J.", "Geyer", role = "ctb",
     email = "geyer@umn.edu"), person("Sydney", "Benson", role = "ctb", email = "bens0643@umn.edu"))
-Maintainer: Christina Knudson <knud8583@stthomas.edu>
+Maintainer: Christina Knudson <drchristinaknudson@gmail.com>
 Description: Approximates the likelihood of a generalized linear mixed model using Monte Carlo likelihood approximation. Then maximizes the likelihood approximation to return maximum likelihood estimates, observed Fisher information, and other model information.
 License: GPL-2
 Depends: R (>= 4.0), trust, mvtnorm, Matrix, parallel, doParallel
