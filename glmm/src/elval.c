@@ -15,11 +15,11 @@ void elval(double *Y,  int *nrowX, int *ncolX, double *eta, int *family, int *nt
     
     /*create diagonal matrix of weights*/
     int sizemat=(*nrowX)*(*nrowX);
-    double *wtsmat=Calloc(sizemat, double);
+    double *wtsmat=R_Calloc(sizemat, double);
     diag(wts,nrowX,wtsmat);
     /*calculate value of Y*wts*/
     int ione = 1;
-    double *Ywts=Calloc(*nrowX, double);
+    double *Ywts=R_Calloc(*nrowX, double);
     matTmatmult(Y,wtsmat,nrowX,&ione,nrowX,Ywts);
 
 	/*calculate value of el: Y^T eta-c(eta)  */
@@ -27,8 +27,8 @@ void elval(double *Y,  int *nrowX, int *ncolX, double *eta, int *family, int *nt
 	matTvecmult(Ywts,eta,nrowX,&ione,&foo2); /* Y dot eta goes in foo2 */
 	elval[0]=foo2-cumout;
     
-    Free(Ywts);
-    Free(wtsmat);
+    R_Free(Ywts);
+    R_Free(wtsmat);
 }
 
 

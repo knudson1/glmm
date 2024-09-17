@@ -76,17 +76,17 @@ double *wts)
 void hess(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst, double *v, int *ntrials, double *gradient, double *hessian, double *b, int *length, double *q, double *wts)
 #endif /* defined(__GNUC__) || defined(__clang__) */
 {
-    double *Uk = Calloc(*myq, double);
+    double *Uk = R_Calloc(*myq, double);
     // clang static analyzer complains about the following
     // put the int on the assignment below that ignores this one
     // int Uindex = 0;
     
     /* Calculate xbeta, needed to calculate eta for each Uk=U[k,] in R notation */
-    double *xbeta = Calloc(*n,double);
+    double *xbeta = R_Calloc(*n,double);
     matvecmult(x,beta,n,nbeta,xbeta);
-    double *zu = Calloc(*n,double);
-    double *eta = Calloc(*n,double);
-    double *qzeros = Calloc(*myq,double);
+    double *zu = R_Calloc(*n,double);
+    double *eta = R_Calloc(*n,double);
+    double *qzeros = R_Calloc(*myq,double);
     double a = 0.0;
     
     for(int k = 0; k < *m; k++){
@@ -97,12 +97,12 @@ void hess(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbe
     
     
     /* Calculate weights v[k] */
-    double *tops = Calloc(*m, double);
+    double *tops = R_Calloc(*m, double);
     for(int i = 0; i<*m; i++){
         tops[i] = exp(q[i]-a);
     }
     
-    double *bs = Calloc(*length, double);
+    double *bs = R_Calloc(*length, double);
     for(int i = 0; i<*length; i++){
         bs[i] = exp(b[i]-a);
     }
@@ -115,26 +115,26 @@ void hess(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbe
     for(int i = 0; i<*m; i++){
         v[i] = tops[i]/(bottom);
     }
-    Free(tops);
+    R_Free(tops);
     
     /* done with value! */
     /* now going to do second loop, which calculates grad and hess */
     int npar = *nbeta + *T;
-    double *lfugradient = Calloc(*T, double);
-    double *lfuhess = Calloc((*T)*(*T), double);
-    double *lfyugradient = Calloc(*nbeta, double);
-    double *lfyuhess = Calloc((*nbeta)*(*nbeta), double);
+    double *lfugradient = R_Calloc(*T, double);
+    double *lfuhess = R_Calloc((*T)*(*T), double);
+    double *lfyugradient = R_Calloc(*nbeta, double);
+    double *lfyuhess = R_Calloc((*nbeta)*(*nbeta), double);
     
-    double *pandabit1 = Calloc(npar, double);
-    double *pandabit2 = Calloc(npar, double);
-    double *panda = Calloc(npar*npar, double);
-    double *pandatemp = Calloc(npar*npar, double);
+    double *pandabit1 = R_Calloc(npar, double);
+    double *pandabit2 = R_Calloc(npar, double);
+    double *panda = R_Calloc(npar*npar, double);
+    double *pandatemp = R_Calloc(npar*npar, double);
     
     int Uindex = 0;
     int Gindex = 0;
     int intone = 1;
     
-    double *lobster = Calloc(npar*npar, double);
+    double *lobster = R_Calloc(npar*npar, double);
     int lfyuindex = 0, lfuindex = 0, matindex = 0;
     
     
@@ -218,29 +218,29 @@ void hess(double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbe
         }/* ends i loop */
     } /* ends SECOND k loop */
     
-    Free(pandatemp);
-    Free(pandabit1);
-    Free(pandabit2);
-    Free(Uk);
-    Free(xbeta);
-    Free(zu);
-    Free(eta);
-    Free(lfugradient);
-    Free(lfuhess);
-    Free(lfyugradient);
-    Free(lfyuhess);
-    Free(qzeros);
+    R_Free(pandatemp);
+    R_Free(pandabit1);
+    R_Free(pandabit2);
+    R_Free(Uk);
+    R_Free(xbeta);
+    R_Free(zu);
+    R_Free(eta);
+    R_Free(lfugradient);
+    R_Free(lfuhess);
+    R_Free(lfyugradient);
+    R_Free(lfyuhess);
+    R_Free(qzeros);
     
     /* finally, hessian = lobster + panda  */
     for(int i = 0; i<(npar*npar); i++){
         hessian[i] = lobster[i] + panda[i] ;
     }
     
-    Free(panda);
-    Free(lobster);
+    R_Free(panda);
+    R_Free(lobster);
 
     // caught by ../../devel/calloc-match.R
-    Free(bs);
+    R_Free(bs);
 
 }
 

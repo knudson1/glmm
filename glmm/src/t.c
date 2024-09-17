@@ -9,7 +9,7 @@ logft is where we put the final calculated value
 #include "myheader.h"
 void tdist(double *DstarInv,  int *myq, double *uvec, int *zeta, double *tconst, double *logft)
 {
-	double *blah=Calloc(*myq,double);
+	double *blah=R_Calloc(*myq,double);
 	/* calculates blah=DstarInv%*%u  */
 	matvecmult(DstarInv,uvec,myq,myq,blah);
 
@@ -17,7 +17,7 @@ void tdist(double *DstarInv,  int *myq, double *uvec, int *zeta, double *tconst,
 	int thing1=1;
 	/*calculates blah2=t(u)%*%Dstarinv %*% u */
 	matTvecmult(uvec,blah,myq,&thing1,&blah2);
-	Free(blah);
+	R_Free(blah);
 
 
 	/* calculates inner=1+blah2/df  */

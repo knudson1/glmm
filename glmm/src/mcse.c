@@ -41,25 +41,25 @@ scalar.
 */
 void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, double *y, double *Umat, int *myq, int *m, double *x, int *n, int *nbeta, double *beta, double *z, double *Dinvfornu, double *logdetDinvfornu, int *family_glmm, double *Dstarinv, double *logdetDstarinv, double *ustar, double *Sigmuhinv, double *logdetSigmuhinv, double *pee, int *nps, int *T, int *nrandom, int *meow, double *nu, int *zeta, double *tconst,  int *ntrials, double *lfuval, double *lfyuval, double *wts)
 {
-	double *Uk = Calloc(*myq, double);
+	double *Uk = R_Calloc(*myq, double);
 	int Uindex = 0;
 
 	double db1 = 0.0;
 	double *double1 = &db1; /*temp to hold info that will be put into lfuval*/
 
 	/* Calculate xbeta, needed to calculate eta for each Uk=U[k,] in R notation */
-	double *xbeta = Calloc(*n,double);
+	double *xbeta = R_Calloc(*n,double);
 	matvecmult(x,beta,n,nbeta,xbeta);
-	double *zu = Calloc(*n,double);
-	double *eta = Calloc(*n,double);
-	double *qzeros = Calloc(*myq,double);
+	double *zu = R_Calloc(*n,double);
+	double *eta = R_Calloc(*n,double);
+	double *qzeros = R_Calloc(*myq,double);
 	double tempmax = 1.0;
-	double *lfutwidpieces = Calloc(*nps,double);
+	double *lfutwidpieces = R_Calloc(*nps,double);
 	double diffs = 0.0;
 	/*double lfuval = 1.1;
 	double lfyuval = 1.1;*/
 	double lfutwid = 1.1;
-	double *b = Calloc(*m,double);
+	double *b = R_Calloc(*m,double);
 	double a = 0.0;
 
 	for(int k = 0; k < *m; k++){
@@ -122,14 +122,14 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, doub
         /*tryfix[k] = b[k];*/
 	}
 
-	Free(lfutwidpieces);
+	R_Free(lfutwidpieces);
 
 	/* Calculate unnormalized log weights  */
 	thing[0] = 0;
 	for(int i = 0; i<*m; i++){
 		thing[0]+= exp(b[i]-a);
 	}
-	Free(b);
+	R_Free(b);
 
 	/* Calculate gamma */
 	gamma[0] = exp(a) * *thing / *m;
@@ -138,12 +138,12 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, doub
 
 /* now going to do second loop, for numerator */
 	int npar = *nbeta + *T;
-	double *lfugradient = Calloc(*T, double);
-	double *lfuhess = Calloc((*T)*(*T), double);
-	double *lfyugradient = Calloc(*nbeta, double);
-	double *lfyuhess = Calloc((*nbeta)*(*nbeta), double);
-	double *Gpiece = Calloc(npar, double);
-	double *GGT = Calloc(npar*npar, double);
+	double *lfugradient = R_Calloc(*T, double);
+	double *lfuhess = R_Calloc((*T)*(*T), double);
+	double *lfyugradient = R_Calloc(*nbeta, double);
+	double *lfyuhess = R_Calloc((*nbeta)*(*nbeta), double);
+	double *Gpiece = R_Calloc(npar, double);
+	double *GGT = R_Calloc(npar*npar, double);
 
 	Uindex = 0;	
 	int Gindex = 0;
@@ -193,17 +193,17 @@ void mcsec(double *gamma, double *thing, double *squaretop, double *numsum, doub
 
 	} /* ends  k loop */
 
-	Free(GGT);
-	Free(Gpiece);
-	Free(Uk);
-	Free(xbeta);
-	Free(zu);
-	Free(eta);
-	Free(lfugradient);
-	Free(lfuhess);
-	Free(lfyugradient);
-	Free(lfyuhess);
-	Free(qzeros);
+	R_Free(GGT);
+	R_Free(Gpiece);
+	R_Free(Uk);
+	R_Free(xbeta);
+	R_Free(zu);
+	R_Free(eta);
+	R_Free(lfugradient);
+	R_Free(lfuhess);
+	R_Free(lfyugradient);
+	R_Free(lfyuhess);
+	R_Free(qzeros);
 
 
 

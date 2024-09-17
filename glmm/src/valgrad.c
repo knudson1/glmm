@@ -66,19 +66,19 @@ double *gradient,
 double *b, 
 double *wts)
 {
-    double *Uk = Calloc(*myq, double);
+    double *Uk = R_Calloc(*myq, double);
     
     double db1 = 0.0;
     double *double1 = &db1; /*temp to hold info that will be put into lfuval*/
     
     /* Calculate xbeta, needed to calculate eta for each Uk=U[k,] in R notation */
-    double *xbeta = Calloc(*n,double);
+    double *xbeta = R_Calloc(*n,double);
     matvecmult(x,beta,n,nbeta,xbeta);
-    double *zu = Calloc(*n,double);
-    double *eta = Calloc(*n,double);
-    double *qzeros = Calloc(*myq,double);
+    double *zu = R_Calloc(*n,double);
+    double *eta = R_Calloc(*n,double);
+    double *qzeros = R_Calloc(*myq,double);
     double tempmax = 1.0;
-    double *lfutwidpieces = Calloc(*nps,double);
+    double *lfutwidpieces = R_Calloc(*nps,double);
     double diffs = 0.0;
     double lfuval = 1.1;
     double lfyuval = 1.1;
@@ -141,10 +141,10 @@ double *wts)
         if(b[k]>a){a = b[k];}
     }
     
-    Free(lfutwidpieces);
+    R_Free(lfutwidpieces);
     
     /* Calculate weights v[k] */
-    double *tops = Calloc(*m, double);
+    double *tops = R_Calloc(*m, double);
     for(int i = 0; i<*m; i++){
         tops[i] = exp(b[i]-a);
     }
@@ -157,7 +157,7 @@ double *wts)
     for(int i = 0; i<*m; i++){
         v[i] = tops[i]/(bottom);
     }
-    Free(tops);
+    R_Free(tops);
     
     /* Calculate value */
     *value = a-log(*m)+log(bottom);
@@ -166,10 +166,10 @@ double *wts)
     /* done with value! */
     /* now going to do second loop, which calculates grad and hess */
 
-    double *lfugradient = Calloc(*T, double);
-    double *lfuhess = Calloc((*T)*(*T), double);
-    double *lfyugradient = Calloc(*nbeta, double);
-    double *lfyuhess = Calloc((*nbeta)*(*nbeta), double);
+    double *lfugradient = R_Calloc(*T, double);
+    double *lfuhess = R_Calloc((*T)*(*T), double);
+    double *lfyugradient = R_Calloc(*nbeta, double);
+    double *lfyuhess = R_Calloc((*nbeta)*(*nbeta), double);
     
     
     int Gindex = 0;
@@ -208,15 +208,15 @@ double *wts)
         
     } /* ends FIRST k loop */
     
-    Free(Uk);
-    Free(xbeta);
-    Free(zu);
-    Free(eta);
-    Free(lfugradient);
-    Free(lfuhess);
-    Free(lfyugradient);
-    Free(lfyuhess);
-    Free(qzeros);
+    R_Free(Uk);
+    R_Free(xbeta);
+    R_Free(zu);
+    R_Free(eta);
+    R_Free(lfugradient);
+    R_Free(lfuhess);
+    R_Free(lfyugradient);
+    R_Free(lfyuhess);
+    R_Free(qzeros);
     
 }
 

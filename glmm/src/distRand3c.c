@@ -2,8 +2,8 @@
 #include "myheader.h"
 void distRand3C(double *nu, double *mu, int *T, int *nrandom, int *meow, double *Uvec, double *drgradient, double *drhessian)
 {
-	double *umu=Calloc(*T,double);
-	double *drhessvec=Calloc(*T, double);
+	double *umu=R_Calloc(*T,double);
+	double *drhessvec=R_Calloc(*T, double);
 
 	for(int t=0;t<*T;t++){
 		for(int i=meow[t];i<meow[t+1];i++){
@@ -12,7 +12,7 @@ void distRand3C(double *nu, double *mu, int *T, int *nrandom, int *meow, double 
 		drgradient[t]=umu[t]/(2*(nu[t])*(nu[t]))-nrandom[t]/(2*nu[t]);
 		drhessvec[t]=-umu[t]/((nu[t])*(nu[t])*(nu[t]))+nrandom[t]/(2*(nu[t])*(nu[t]));
 	}
-	Free(umu);
+	R_Free(umu);
 	diag(drhessvec,T,drhessian);
-	Free(drhessvec);
+	R_Free(drhessvec);
 }
