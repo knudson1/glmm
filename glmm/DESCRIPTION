@@ -2,13 +2,8 @@ Package: glmm
 Type: Package
 Title: Generalized Linear Mixed Models via Monte Carlo Likelihood
         Approximation
-<<<<<<< Updated upstream
-Version: 1.4.4
-Date: 2022-10-6
-=======
 Version: 1.4.5
-Date: 2024-09-17
->>>>>>> Stashed changes
+Date: 2024-09-20
 Authors@R: c(person("Christina", "Knudson", role = c("aut", "cre"),
     email = "drchristinaknudson@gmail.com"), person("Charles J.", "Geyer", role = "ctb",
     email = "geyer@umn.edu"), person("Sydney", "Benson", role = "ctb", email = "bens0643@umn.edu"))
@@ -19,6 +14,6 @@ Depends: R (>= 4.0), trust, mvtnorm, Matrix, parallel, doParallel
 Imports: stats, foreach, itertools, utils
 ByteCompile: TRUE
 NeedsCompilation: yes
-Suggests: knitr
+Suggests: knitr, V8
 RoxygenNote: 7.0.2
 VignetteBuilder: knitr

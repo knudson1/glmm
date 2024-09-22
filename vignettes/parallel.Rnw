@@ -44,7 +44,7 @@ proc.time() - start
 stopCluster(clust)
 @
 
-Next, the model-fitting time for the command using two cores with the same Monte Carlo sample size is found.
+Next, we time the model-fitting  for the command using two cores with the same Monte Carlo sample size.
 
 <<timing2>>=
 clust <- makeCluster(2)

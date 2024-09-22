@@ -47,7 +47,7 @@ The basis of \texttt{glmm} is MCLA, which was first proposed by \citet{geyer:199
 %As the Monte Carlo sample size increases, the MCLA converges to the likelihood. As the MCLA converges, all likelihood-based inference converges as well. For example, the MCMLEs converge to the MLEs.\\
 
 <<noname,echo=FALSE>>=
-#opts_chunk$set(comment=NA,background='white')
+#opts_chunk$set(comment = NA, background = 'white')
 @
 
 
@@ -107,7 +107,7 @@ Finally, we specify the cluster we would like to use for the value, gradient vec
 We put this all together in the following commands. Note that we set the seed so that we can have reproducible results. In other words, if you set your seed to the same number and type the exact command listed below, your results should be identical to those listed here. 
 
 
-<<themodel,cache=TRUE>>=
+<<themodel>>=
 set.seed(1234) 
 clust <- makeCluster(2)
 sal <- glmm(Mate ~ 0 + Cross, random = list(~ 0 + Female, 
@@ -141,8 +141,8 @@ Looking at our output, we can see that the type of cross significantly affects t
 The summary provides the estimates needed to write our model. First, we establish a little notation. Let $\pi_i$ represent the probability of successful mating for salamander pair $i$. Let $I()$ be an indicator function, so that $I\text{(Cross=R/R)}$ is $1$ when the variable \texttt{Cross = R/R} and 0 otherwise. Let $u_i^F$ represent the random effect from the female salamander in the $i$th pair. Let $u_i^M$ represent the random effect from the male salamander in the $i$th pair. Since the response is Bernoulli, the canonical link is the log odds of successful mating. Using this notation, we write the model as follows.\\
 \begin{align*}
 \log \left( \dfrac{\pi_i}{1-\pi_i} \right) &= \Sexpr{round(coef(sal)[1],4)} * I\text{(Cross=R/R)} + \Sexpr{round(coef(sal)[2],4)} * I\text{(Cross=R/W)}\\
- &+ \Sexpr{round(coef(sal)[3],4)} * I\text{(Cross=W/R)}
-+ \Sexpr{round(coef(sal)[4],4)} * I\text{(Cross=W/W)}\\
+ &+ \Sexpr{round(coef(sal)[3], 4)} * I\text{(Cross=W/R)}
++ \Sexpr{round(coef(sal)[4], 4)} * I\text{(Cross=W/W)}\\
  &+ u_i^F+u_i^M\\
 u_i^F \overset{i.i.d.}{\sim} &N(0,\Sexpr{round(varcomps(sal),3)[1]})\\
 u_i^M \overset{i.i.d.}{\sim} &N(0,\Sexpr{round(varcomps(sal),3)[2]})\\
@@ -179,7 +179,7 @@ varcomps(sal)
 
 To further isolate variance components or fixed effects, use indexing. The following demonstrates how to extract the last two fixed effects and the first variance component.
 <<extractsome>>=
-coef(sal)[c(3,4)]
+coef(sal)[c(3, 4)]
 varcomps(sal)[1]
 @
 
@@ -192,23 +192,23 @@ The output is a matrix. Each row represents one parameter. The first column is t
 
 If we wish to change the level of confidence from the default of $95\%$, we use the argument \texttt{level} and specify a number between $0$ and $1$. For example, to $90\%$ confidence intervals and $99\%$ confidence intervals, we type the following:
 <<confintLevels>>=
-confint(sal,level=.9)
-confint(sal,level=.99)
+confint(sal, level = .9)
+confint(sal, level = .99)
 @
 
 We can calculate $90\%$ confidence intervals for the first and third fixed effects through indexing or by listing the names of the fixed effects:
 <<confintFixed>>=
-confint(sal,level=.9,c(1,3))
-confint(sal,level=.9,c("CrossR/R","CrossW/R"))
+confint(sal, level= .9, c(1, 3))
+confint(sal, level = .9, c("CrossR/R", "CrossW/R"))
 @
 
 To calculate a $93$ percent confidence interval for the variance component for the female salamanders, we can again either use indexing or list the name of the variable. Note that there are four fixed effects so $\nu_F$ is the fifth parameter in this model. (Similarly, $\nu_M$ is the sixth parameter in this model).
 <<confintFem>>=
-confint(sal,level=.93,c(5))
-confint(sal,level=.93,c("F"))
+confint(sal, level = .93,c(5))
+confint(sal, level = .93,c("F"))
 @
 
-Note that all confidence intervals are calculated using the observed Fisher information from the Monte Carlo likelihood approximation.\\
+All confidence intervals are calculated using the observed Fisher information from the Monte Carlo likelihood approximation.\\
 
 \section{Monte Carlo Standard Error}
 A common question is ``How big should the Monte Carlo sample size (\texttt{m}) be?'' A larger \texttt{m} leads to higher accuracy in your likelihood-based inference, but the trade-off is a larger \texttt{m} takes more computing time. To assess whether your chosen Monte Carlo sample size \texttt{m} is large enough, you can use the Monte Carlo standard error. \\
@@ -251,7 +251,7 @@ To calculate
 \end{align*}
 we use the variances and covariances from the variance-covariance matrix:
 <<denomVar>>=
-myvar <- myvcov[1,1] + myvcov[4,4] - 2* myvcov[1,4]
+myvar <- myvcov[1, 1] + myvcov[4, 4] - 2* myvcov[1, 4]
 SE <- sqrt(myvar)
 @
 Then the test statistic and its associated p-value can be calculated:
